@@ -12,6 +12,16 @@ const paymentRoutes = require('./routes/payments');
 const bulletinRoutes = require('./routes/bulletins');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const cropPlanRoutes = require('./routes/cropPlans');
+const inventoryRoutes = require('./routes/inventory');
+const equipmentRoutes = require('./routes/equipment');
+const qualityGradeRoutes = require('./routes/qualityGrades');
+const certificationRoutes = require('./routes/certifications');
+const loanRoutes = require('./routes/loans');
+const wishlistRoutes = require('./routes/wishlist');
+const supplierReviewRoutes = require('./routes/supplierReviews');
+const qualityAuditRoutes = require('./routes/qualityAudits');
+const disputeRoutes = require('./routes/disputes');
 
 const app = express();
 
@@ -19,16 +29,28 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
-app.use(authMiddleware.verifyToken);
 
+// Public routes (no auth required)
 app.use('/api/auth', authRoutes);
-app.use('/api/farmers', farmerRoutes);
-app.use('/api/buyers', buyerRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/bulletins', bulletinRoutes);
+
+// Protected routes (auth required)
+app.use('/api/farmers', authMiddleware.verifyToken, farmerRoutes);
+app.use('/api/buyers', authMiddleware.verifyToken, buyerRoutes);
+app.use('/api/orders', authMiddleware.verifyToken, orderRoutes);
+app.use('/api/payments', authMiddleware.verifyToken, paymentRoutes);
+app.use('/api/bulletins', authMiddleware.verifyToken, bulletinRoutes);
 app.use('/api/admin', authMiddleware.requireAdmin, adminRoutes);
+app.use('/api/crop-plans', authMiddleware.verifyToken, cropPlanRoutes);
+app.use('/api/inventory', authMiddleware.verifyToken, inventoryRoutes);
+app.use('/api/equipment', authMiddleware.verifyToken, equipmentRoutes);
+app.use('/api/quality-grades', authMiddleware.verifyToken, qualityGradeRoutes);
+app.use('/api/certifications', authMiddleware.verifyToken, certificationRoutes);
+app.use('/api/loans', authMiddleware.verifyToken, loanRoutes);
+app.use('/api/wishlist', authMiddleware.verifyToken, wishlistRoutes);
+app.use('/api/supplier-reviews', authMiddleware.verifyToken, supplierReviewRoutes);
+app.use('/api/quality-audits', authMiddleware.verifyToken, qualityAuditRoutes);
+app.use('/api/disputes', authMiddleware.verifyToken, disputeRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -37,8 +59,9 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+const HOST = '0.0.0.0';
+app.listen(PORT, HOST, () => {
+  console.log(`Server listening on http://${HOST}:${PORT}`);
 });
 
 module.exports = app;

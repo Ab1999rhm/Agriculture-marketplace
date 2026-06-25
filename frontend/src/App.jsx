@@ -28,7 +28,8 @@ import {
   DollarSign,
   Tag,
   Map,
-  Clock
+  Clock,
+  Heart
 } from 'lucide-react';
 import cropsBg from './assets/crops-bg.jpg';
 import heroBeautiful from './assets/hero-beautiful.jpg';
@@ -93,6 +94,9 @@ export default function App() {
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || null);
   const [token, setToken] = useState(() => localStorage.getItem('token') || '');
   const [currentTab, setCurrentTab] = useState('market'); // market, bulletins, dashboard, profile
+  const [dashboardSubTab, setDashboardSubTab] = useState('overview'); // overview, production, inventory, quality, financial, selling
+  const [buyerDashboardSubTab, setBuyerDashboardSubTab] = useState('overview'); // overview, wishlist, reviews, financial
+  const [adminDashboardSubTab, setAdminDashboardSubTab] = useState('overview'); // overview, users, quality, disputes, system
   
   // Auth state
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -159,6 +163,77 @@ export default function App() {
   const [profileCoords, setProfileCoords] = useState('');
   const [profileSaved, setProfileSaved] = useState(false);
 
+  // Farmer Production & Inventory Management
+  const [cropPlans, setCropPlans] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [equipmentList, setEquipmentList] = useState([]);
+  const [storageFacilities, setStorageFacilities] = useState([]);
+  const [batchLots, setBatchLots] = useState([]);
+  
+  // Quality & Certification
+  const [qualityGrades, setQualityGrades] = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [labTests, setLabTests] = useState([]);
+  const [qualityInspections, setQualityInspections] = useState([]);
+  
+  // Financial Tools
+  const [productionCosts, setProductionCosts] = useState([]);
+  const [loanApplications, setLoanApplications] = useState([]);
+  const [insurancePolicies, setInsurancePolicies] = useState([]);
+  const [subsidyApplications, setSubsidyApplications] = useState([]);
+  
+  // Market Intelligence
+  const [priceAlerts, setPriceAlerts] = useState([]);
+  const [competitorPrices, setCompetitorPrices] = useState([]);
+  const [marketNews, setMarketNews] = useState([]);
+  
+  // Operational Support
+  const [irrigationSchedules, setIrrigationSchedules] = useState([]);
+  const [pestAdvisories, setPestAdvisories] = useState([]);
+  const [expertConsultations, setExpertConsultations] = useState([]);
+  const [trainingResources, setTrainingResources] = useState([]);
+  
+  // Advanced Selling
+  const [auctionBids, setAuctionBids] = useState([]);
+  const [contractFarming, setContractFarming] = useState([]);
+  const [advanceBookings, setAdvanceBookings] = useState([]);
+  const [bulkDiscounts, setBulkDiscounts] = useState([]);
+  
+  // Buyer Features
+  const [wishlist, setWishlist] = useState([]);
+  const [supplierReviews, setSupplierReviews] = useState([]);
+  const [trustedSuppliers, setTrustedSuppliers] = useState([]);
+  const [buyerBudgets, setBuyerBudgets] = useState([]);
+  const [buyerInvoices, setBuyerInvoices] = useState([]);
+  const [refundRequests, setRefundRequests] = useState([]);
+  
+  // Admin Advanced Features
+  const [qualityAudits, setQualityAudits] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [priceMonitoring, setPriceMonitoring] = useState([]);
+  const [fraudAlerts, setFraudAlerts] = useState([]);
+  const [customReports, setCustomReports] = useState([]);
+  const [systemConfig, setSystemConfig] = useState({});
+  
+  // Modal States
+  const [cropPlanModalOpen, setCropPlanModalOpen] = useState(false);
+  const [inventoryModalOpen, setInventoryModalOpen] = useState(false);
+  const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
+  const [qualityGradeModalOpen, setQualityGradeModalOpen] = useState(false);
+  const [certificationModalOpen, setCertificationModalOpen] = useState(false);
+  const [loanModalOpen, setLoanModalOpen] = useState(false);
+  const [wishlistModalOpen, setWishlistModalOpen] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewOrderId, setReviewOrderId] = useState('');
+  const [reviewFarmerId, setReviewFarmerId] = useState('');
+  const [reviewFarmerName, setReviewFarmerName] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [budgetModalOpen, setBudgetModalOpen] = useState(false);
+  const [budgetAmount, setBudgetAmount] = useState('');
+  const [auditModalOpen, setAuditModalOpen] = useState(false);
+  const [disputeResolutionModalOpen, setDisputeResolutionModalOpen] = useState(false);
+
   // Sync dark theme
   useEffect(() => {
     if (dark) {
@@ -195,6 +270,52 @@ export default function App() {
         });
         if (ordRes.ok) setOrders(await ordRes.json());
 
+        // Fetch farmer-specific data
+        if (user?.role === 'farmer') {
+          const cropPlansRes = await fetch(`/api/crop-plans?farmerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (cropPlansRes.ok) setCropPlans(await cropPlansRes.json());
+
+          const inventoryRes = await fetch(`/api/inventory?farmerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (inventoryRes.ok) setInventoryItems(await inventoryRes.json());
+
+          const equipmentRes = await fetch(`/api/equipment?farmerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (equipmentRes.ok) setEquipmentList(await equipmentRes.json());
+
+          const qualityGradesRes = await fetch(`/api/quality-grades?farmerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (qualityGradesRes.ok) setQualityGrades(await qualityGradesRes.json());
+
+          const certificationsRes = await fetch(`/api/certifications?farmerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (certificationsRes.ok) setCertifications(await certificationsRes.json());
+
+          const loansRes = await fetch(`/api/loans?farmerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (loansRes.ok) setLoanApplications(await loansRes.json());
+        }
+
+        // Fetch buyer-specific data
+        if (user?.role === 'buyer') {
+          const wishlistRes = await fetch(`/api/wishlist?buyerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (wishlistRes.ok) setWishlist(await wishlistRes.json());
+
+          const reviewsRes = await fetch(`/api/supplier-reviews?buyerId=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (reviewsRes.ok) setSupplierReviews(await reviewsRes.json());
+        }
+
         // Fetch admin data if user is admin
         if (user?.role === 'admin') {
           const usersRes = await fetch('/api/admin/users', {
@@ -207,10 +328,15 @@ export default function App() {
           });
           if (analyticsRes.ok) setAdminAnalytics(await analyticsRes.json());
 
-          const disputesRes = await fetch('/api/admin/disputes', {
+          const disputesRes = await fetch('/api/disputes', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (disputesRes.ok) setDisputes(await disputesRes.json());
+
+          const auditsRes = await fetch('/api/quality-audits', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (auditsRes.ok) setQualityAudits(await auditsRes.json());
         }
       }
     } catch (err) {
@@ -245,35 +371,6 @@ export default function App() {
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setAuthError('');
-
-    // Hardcoded admin credentials check
-    if (authMode === 'login' && authEmail === 'kenenijunedin@gmail.com' && authPassword === '12345@K') {
-      const adminUser = {
-        id: 'admin_001',
-        email: 'kenenijunedin@gmail.com',
-        name: 'Kenen Junadin',
-        role: 'admin',
-        location: 'Hararghe'
-      };
-      const adminToken = 'admin_token_' + Date.now();
-      
-      localStorage.setItem('token', adminToken);
-      localStorage.setItem('user', JSON.stringify(adminUser));
-      setToken(adminToken);
-      setUser(adminUser);
-      setAuthModalOpen(false);
-      
-      // Clear forms
-      setAuthEmail('');
-      setAuthPassword('');
-      setAuthName('');
-      setAuthPhone('');
-      setAuthLocation('');
-      
-      confetti({ particleCount: 50, spread: 60 });
-      fetchData();
-      return;
-    }
 
     const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
     const payload = authMode === 'login' 
@@ -518,6 +615,469 @@ export default function App() {
       });
       if (res.ok) {
         fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ===== NEW CRUD HANDLERS =====
+  
+  // Crop Plan CRUD
+  const handleAddCropPlan = async (planData) => {
+    try {
+      const res = await fetch('/api/crop-plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...planData, farmerId: user.id })
+      });
+      if (res.ok) {
+        const newPlan = await res.json();
+        setCropPlans([...cropPlans, newPlan]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateCropPlan = async (id, planData) => {
+    try {
+      const res = await fetch(`/api/crop-plans/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(planData)
+      });
+      if (res.ok) {
+        setCropPlans(cropPlans.map(p => p.id === id ? { ...p, ...planData } : p));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteCropPlan = async (id) => {
+    try {
+      const res = await fetch(`/api/crop-plans/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setCropPlans(cropPlans.filter(p => p.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Inventory CRUD
+  const handleAddInventory = async (inventoryData) => {
+    try {
+      const res = await fetch('/api/inventory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...inventoryData, farmerId: user.id })
+      });
+      if (res.ok) {
+        const newItem = await res.json();
+        setInventoryItems([...inventoryItems, newItem]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateInventory = async (id, inventoryData) => {
+    try {
+      const res = await fetch(`/api/inventory/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(inventoryData)
+      });
+      if (res.ok) {
+        setInventoryItems(inventoryItems.map(i => i.id === id ? { ...i, ...inventoryData } : i));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteInventory = async (id) => {
+    try {
+      const res = await fetch(`/api/inventory/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setInventoryItems(inventoryItems.filter(i => i.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Equipment CRUD
+  const handleAddEquipment = async (equipmentData) => {
+    try {
+      const res = await fetch('/api/equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...equipmentData, farmerId: user.id })
+      });
+      if (res.ok) {
+        const newEquipment = await res.json();
+        setEquipmentList([...equipmentList, newEquipment]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateEquipment = async (id, equipmentData) => {
+    try {
+      const res = await fetch(`/api/equipment/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(equipmentData)
+      });
+      if (res.ok) {
+        setEquipmentList(equipmentList.map(e => e.id === id ? { ...e, ...equipmentData } : e));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteEquipment = async (id) => {
+    try {
+      const res = await fetch(`/api/equipment/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setEquipmentList(equipmentList.filter(e => e.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Quality Grade CRUD
+  const handleAddQualityGrade = async (gradeData) => {
+    try {
+      const res = await fetch('/api/quality-grades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...gradeData, farmerId: user.id })
+      });
+      if (res.ok) {
+        const newGrade = await res.json();
+        setQualityGrades([...qualityGrades, newGrade]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateQualityGrade = async (id, gradeData) => {
+    try {
+      const res = await fetch(`/api/quality-grades/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(gradeData)
+      });
+      if (res.ok) {
+        setQualityGrades(qualityGrades.map(g => g.id === id ? { ...g, ...gradeData } : g));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteQualityGrade = async (id) => {
+    try {
+      const res = await fetch(`/api/quality-grades/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setQualityGrades(qualityGrades.filter(g => g.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Certification CRUD
+  const handleAddCertification = async (certData) => {
+    try {
+      const res = await fetch('/api/certifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...certData, farmerId: user.id })
+      });
+      if (res.ok) {
+        const newCert = await res.json();
+        setCertifications([...certifications, newCert]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateCertification = async (id, certData) => {
+    try {
+      const res = await fetch(`/api/certifications/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(certData)
+      });
+      if (res.ok) {
+        setCertifications(certifications.map(c => c.id === id ? { ...c, ...certData } : c));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteCertification = async (id) => {
+    try {
+      const res = await fetch(`/api/certifications/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setCertifications(certifications.filter(c => c.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Loan Application CRUD
+  const handleAddLoanApplication = async (loanData) => {
+    try {
+      const res = await fetch('/api/loans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...loanData, farmerId: user.id })
+      });
+      if (res.ok) {
+        const newLoan = await res.json();
+        setLoanApplications([...loanApplications, newLoan]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateLoanApplication = async (id, loanData) => {
+    try {
+      const res = await fetch(`/api/loans/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(loanData)
+      });
+      if (res.ok) {
+        setLoanApplications(loanApplications.map(l => l.id === id ? { ...l, ...loanData } : l));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteLoanApplication = async (id) => {
+    try {
+      const res = await fetch(`/api/loans/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setLoanApplications(loanApplications.filter(l => l.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Wishlist CRUD (Buyer)
+  const handleAddToWishlist = async (product) => {
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ 
+          buyerId: user.id,
+          productId: product.id,
+          productName: product.name,
+          price: product.price,
+          farmerId: product.farmerId,
+          farmerName: product.farmerName
+        })
+      });
+      if (res.ok) {
+        const newItem = await res.json();
+        setWishlist([...wishlist, newItem]);
+        confetti({ particleCount: 20, spread: 30 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleRemoveFromWishlist = async (id) => {
+    try {
+      const res = await fetch(`/api/wishlist/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setWishlist(wishlist.filter(w => w.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Supplier Review CRUD
+  const handleAddReview = async (reviewData) => {
+    try {
+      const res = await fetch('/api/supplier-reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...reviewData, buyerId: user.id })
+      });
+      if (res.ok) {
+        const newReview = await res.json();
+        setSupplierReviews([...supplierReviews, newReview]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateReview = async (id, reviewData) => {
+    try {
+      const res = await fetch(`/api/supplier-reviews/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(reviewData)
+      });
+      if (res.ok) {
+        setSupplierReviews(supplierReviews.map(r => r.id === id ? { ...r, ...reviewData } : r));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteReview = async (id) => {
+    try {
+      const res = await fetch(`/api/supplier-reviews/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setSupplierReviews(supplierReviews.filter(r => r.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Admin Quality Audit CRUD
+  const handleAddQualityAudit = async (auditData) => {
+    try {
+      const res = await fetch('/api/quality-audits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(auditData)
+      });
+      if (res.ok) {
+        const newAudit = await res.json();
+        setQualityAudits([...qualityAudits, newAudit]);
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateQualityAudit = async (id, auditData) => {
+    try {
+      const res = await fetch(`/api/quality-audits/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(auditData)
+      });
+      if (res.ok) {
+        setQualityAudits(qualityAudits.map(a => a.id === id ? { ...a, ...auditData } : a));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteQualityAudit = async (id) => {
+    try {
+      const res = await fetch(`/api/quality-audits/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setQualityAudits(qualityAudits.filter(a => a.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Admin Dispute Resolution
+  const handleResolveDispute = async (disputeId, resolutionData) => {
+    try {
+      const res = await fetch(`/api/disputes/${disputeId}/resolve`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(resolutionData)
+      });
+      if (res.ok) {
+        setDisputes(disputes.map(d => d.id === disputeId ? { ...d, status: 'resolved', resolution: resolutionData } : d));
+        confetti({ particleCount: 30, spread: 40 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Admin User Management
+  const handleSuspendUser = async (userId) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/suspend`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setAllUsers(allUsers.map(u => u.id === userId ? { ...u, suspended: true } : u));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleActivateUser = async (userId) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/activate`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setAllUsers(allUsers.map(u => u.id === userId ? { ...u, suspended: false } : u));
       }
     } catch (err) {
       console.error(err);
@@ -893,17 +1453,34 @@ export default function App() {
                         </button>
                       ) : null
                     ) : (
-                      <button 
-                        onClick={() => {
-                          if (!user) { setAuthModalOpen(true); return; }
-                          setCheckoutProduct(prod);
-                          setCheckoutQuantity(1);
-                        }}
-                        className="glass-btn-primary px-4 py-2 text-xs flex items-center space-x-1.5"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>{t('addToCart')}</span>
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={() => {
+                            if (!user) { setAuthModalOpen(true); return; }
+                            const isInWishlist = wishlist.some(w => w.productId === prod.id);
+                            if (isInWishlist) {
+                              const wishlistItem = wishlist.find(w => w.productId === prod.id);
+                              handleRemoveFromWishlist(wishlistItem.id);
+                            } else {
+                              handleAddToWishlist(prod);
+                            }
+                          }}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 ${wishlist.some(w => w.productId === prod.id) ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'}`}
+                        >
+                          <Heart className={`w-3.5 h-3.5 ${wishlist.some(w => w.productId === prod.id) ? 'fill-current' : ''}`} />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (!user) { setAuthModalOpen(true); return; }
+                            setCheckoutProduct(prod);
+                            setCheckoutQuantity(1);
+                          }}
+                          className="glass-btn-primary px-4 py-2 text-xs flex items-center space-x-1.5"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>{t('addToCart')}</span>
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1011,8 +1588,44 @@ export default function App() {
               </div>
             </div>
 
-            {/* Admin Analytics Overview */}
-            {adminAnalytics && (
+            {/* Admin Dashboard Sub-Navigation */}
+            <div className="mb-8">
+              <div className="flex flex-wrap gap-2 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <button 
+                  onClick={() => setAdminDashboardSubTab('overview')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${adminDashboardSubTab === 'overview' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400'}`}
+                >
+                  Overview
+                </button>
+                <button 
+                  onClick={() => setAdminDashboardSubTab('users')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${adminDashboardSubTab === 'users' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400'}`}
+                >
+                  User Management
+                </button>
+                <button 
+                  onClick={() => setAdminDashboardSubTab('quality')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${adminDashboardSubTab === 'quality' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400'}`}
+                >
+                  Quality Control
+                </button>
+                <button 
+                  onClick={() => setAdminDashboardSubTab('disputes')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${adminDashboardSubTab === 'disputes' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400'}`}
+                >
+                  Dispute Resolution
+                </button>
+                <button 
+                  onClick={() => setAdminDashboardSubTab('system')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${adminDashboardSubTab === 'system' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400'}`}
+                >
+                  System Configuration
+                </button>
+              </div>
+            </div>
+
+            {/* Admin Analytics Overview - Only show on overview */}
+            {adminDashboardSubTab === 'overview' && adminAnalytics && (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(99,102,241,0.12)' }}></div>
@@ -1047,7 +1660,8 @@ export default function App() {
               </div>
             )}
 
-            {/* User Management Section */}
+            {/* User Management Section - Only show on users sub-tab */}
+            {adminDashboardSubTab === 'users' && (
             <div className="glass-card rounded-2xl p-6 mb-8">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Management</h3>
@@ -1097,12 +1711,35 @@ export default function App() {
                         </td>
                         <td className="py-4 px-4 flex justify-center items-center space-x-2">
                           {!u.approved && u.role !== 'admin' && (
-                            <button className="px-2.5 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold">
+                            <button 
+                              onClick={async () => {
+                                const res = await fetch(`/api/admin/users/${u.id}/approve`, {
+                                  method: 'PUT',
+                                  headers: { 'Authorization': `Bearer ${token}` }
+                                });
+                                if (res.ok) {
+                                  fetchData();
+                                  confetti({ particleCount: 30, spread: 40 });
+                                }
+                              }}
+                              className="px-2.5 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold"
+                            >
                               Approve
                             </button>
                           )}
                           {!u.suspended && u.role !== 'admin' && (
-                            <button className="px-2.5 py-1.5 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold">
+                            <button 
+                              onClick={async () => {
+                                const res = await fetch(`/api/admin/users/${u.id}/suspend`, {
+                                  method: 'PUT',
+                                  headers: { 'Authorization': `Bearer ${token}` }
+                                });
+                                if (res.ok) {
+                                  fetchData();
+                                }
+                              }}
+                              className="px-2.5 py-1.5 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold"
+                            >
                               Suspend
                             </button>
                           )}
@@ -1113,9 +1750,135 @@ export default function App() {
                 </table>
               </div>
             </div>
+            )}
 
-            {/* Recent Activity */}
-            {adminAnalytics && (
+            {/* Quality Control Sub-tab */}
+            {adminDashboardSubTab === 'quality' && (
+              <div className="glass-card rounded-2xl p-6 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Quality Audits</h3>
+                  <button 
+                    onClick={() => setAuditModalOpen(true)}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Schedule Audit</span>
+                  </button>
+                </div>
+                {qualityAudits.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <p>No quality audits scheduled</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {qualityAudits.map(audit => (
+                      <div key={audit.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                        <div>
+                          <h4 className="font-bold text-slate-900 dark:text-white">{audit.target} - {audit.type}</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">Scheduled: {audit.scheduledDate} | Status: {audit.status}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button onClick={() => handleDeleteQualityAudit(audit.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Dispute Resolution Sub-tab */}
+            {adminDashboardSubTab === 'disputes' && (
+              <div className="glass-card rounded-2xl p-6 mb-8">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Dispute Resolution</h3>
+                {disputes.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <p>No active disputes</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {disputes.map(dispute => (
+                      <div key={dispute.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">Dispute #{dispute.id}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Type: {dispute.type} | Status: {dispute.status}</p>
+                          </div>
+                          {dispute.status !== 'resolved' && (
+                            <button 
+                              onClick={() => handleResolveDispute(dispute.id, { resolution: 'Resolved by admin', resolvedBy: user.name })}
+                              className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg"
+                            >
+                              Resolve
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{dispute.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* System Configuration Sub-tab */}
+            {adminDashboardSubTab === 'system' && (
+              <div className="space-y-8">
+                <div className="glass-card rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Payment Gateway Configuration</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white">CBE Birr</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Commercial Bank of Ethiopia mobile payment</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${paymentConfig.cbeBirrEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {paymentConfig.cbeBirrEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white">Telebirr</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Ethio Telecom mobile payment</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${paymentConfig.telebirrEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {paymentConfig.telebirrEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white">Cash on Delivery</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Pay upon delivery option</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${paymentConfig.codEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {paymentConfig.codEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="glass-card rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Audit Logs</h3>
+                  {auditLogs.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No audit logs available</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {auditLogs.map(log => (
+                        <div key={log.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                          <p className="text-sm text-slate-600 dark:text-slate-400">{log.action} by {log.user} at {log.timestamp}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Recent Activity - Only show on overview */}
+            {adminDashboardSubTab === 'overview' && adminAnalytics && (
               <div className="glass-card rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Recent Orders Activity</h3>
                 <div className="space-y-4">
@@ -1167,79 +1930,413 @@ export default function App() {
               </div>
             </div>
 
+            {/* Dashboard Sub-Navigation */}
+            <div className="mb-8">
+              <div className="flex flex-wrap gap-2 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <button 
+                  onClick={() => setDashboardSubTab('overview')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dashboardSubTab === 'overview' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+                >
+                  Overview
+                </button>
+                <button 
+                  onClick={() => setDashboardSubTab('production')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dashboardSubTab === 'production' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+                >
+                  Production & Inventory
+                </button>
+                <button 
+                  onClick={() => setDashboardSubTab('quality')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dashboardSubTab === 'quality' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+                >
+                  Quality & Certification
+                </button>
+                <button 
+                  onClick={() => setDashboardSubTab('financial')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dashboardSubTab === 'financial' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+                >
+                  Financial Tools
+                </button>
+                <button 
+                  onClick={() => setDashboardSubTab('selling')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dashboardSubTab === 'selling' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+                >
+                  Advanced Selling
+                </button>
+              </div>
+            </div>
+
             {/* Header dashboard stats */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-5 border-b border-slate-200 dark:border-slate-800">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-                  Sales Overview
+                  {dashboardSubTab === 'overview' ? 'Sales Overview' : 
+                   dashboardSubTab === 'production' ? 'Production & Inventory Management' :
+                   dashboardSubTab === 'quality' ? 'Quality & Certification' :
+                   dashboardSubTab === 'financial' ? 'Financial Tools' : 'Advanced Selling'}
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                  Track your product performance and order management
+                  {dashboardSubTab === 'overview' ? 'Track your product performance and order management' :
+                   dashboardSubTab === 'production' ? 'Manage crop planning, inventory, equipment, and storage' :
+                   dashboardSubTab === 'quality' ? 'Quality grading, certifications, and lab test management' :
+                   dashboardSubTab === 'financial' ? 'Production costs, loans, insurance, and subsidies' : 'Auctions, contracts, and bulk selling options'}
                 </p>
               </div>
 
-              <button 
-                onClick={() => setAddProductOpen(true)}
-                className="mt-4 md:mt-0 px-4.5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-500/20 transition-all flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>List New Product</span>
-              </button>
+              {dashboardSubTab === 'overview' && (
+                <button 
+                  onClick={() => setAddProductOpen(true)}
+                  className="mt-4 md:mt-0 px-4.5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-500/20 transition-all flex items-center space-x-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>List New Product</span>
+                </button>
+              )}
             </div>
 
-            {/* Dashboard grid metrics cards — Glass */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
-                <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{orders.length}</p>
-                <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">Pending/Completed</p>
+            {/* Dashboard grid metrics cards — Glass - Only show on overview */}
+            {dashboardSubTab === 'overview' && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{orders.length}</p>
+                  <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">Pending/Completed</p>
+                </div>
+                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(217,119,6,0.12)' }}></div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                    {user.role === 'farmer' ? 'Total Earnings' : 'Total Spent'}
+                  </p>
+                  <p className="text-3xl font-black bg-gradient-to-r from-amber-600 to-amber-800 dark:from-amber-300 dark:to-amber-500 bg-clip-text text-transparent mt-1">
+                    {orders.reduce((acc, o) => acc + (o.paymentStatus === 'paid' ? o.totalPrice : 0), 0)} ETB
+                  </p>
+                  <p className="text-[10px] text-amber-500 dark:text-amber-400 font-bold mt-1">Paid Invoices Only</p>
+                </div>
+                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(99,102,241,0.12)' }}></div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">CBE Birr payments</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">
+                    {orders.filter(o => o.paymentMethod === 'CBE_BIRR').length}
+                  </p>
+                  <p className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold mt-1">Mobile transfers</p>
+                </div>
+                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.1)' }}></div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Logistics Status</p>
+                  <p className="text-xl font-black text-teal-600 dark:text-teal-400 mt-2 flex items-center">
+                    <Truck className="w-5 h-5 mr-2 animate-bounce" />
+                    <span>{orders.filter(o => o.status === 'shipped').length} In Transit</span>
+                  </p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">Dispatched deliveries</p>
+                </div>
               </div>
-              <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(217,119,6,0.12)' }}></div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-                  {user.role === 'farmer' ? 'Total Earnings' : 'Total Spent'}
-                </p>
-                <p className="text-3xl font-black bg-gradient-to-r from-amber-600 to-amber-800 dark:from-amber-300 dark:to-amber-500 bg-clip-text text-transparent mt-1">
-                  {orders.reduce((acc, o) => acc + (o.paymentStatus === 'paid' ? o.totalPrice : 0), 0)} ETB
-                </p>
-                <p className="text-[10px] text-amber-500 dark:text-amber-400 font-bold mt-1">Paid Invoices Only</p>
-              </div>
-              <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(99,102,241,0.12)' }}></div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">CBE Birr payments</p>
-                <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">
-                  {orders.filter(o => o.paymentMethod === 'CBE_BIRR').length}
-                </p>
-                <p className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold mt-1">Mobile transfers</p>
-              </div>
-              <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.1)' }}></div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Logistics Status</p>
-                <p className="text-xl font-black text-teal-600 dark:text-teal-400 mt-2 flex items-center">
-                  <Truck className="w-5 h-5 mr-2 animate-bounce" />
-                  <span>{orders.filter(o => o.status === 'shipped').length} In Transit</span>
-                </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">Dispatched deliveries</p>
-              </div>
-            </div>
+            )}
 
-            {/* Chart Widgets */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-              {user.role === 'farmer' && (
-                <div className="lg:col-span-2 glass-card rounded-2xl p-6 relative overflow-hidden">
-                  <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full blur-3xl" style={{ background: 'rgba(20,184,166,0.1)' }}></div>
-                  <h3 className="text-md font-bold mb-4 flex items-center">
-                    <div className="w-7 h-7 rounded-lg bg-teal-500/15 flex items-center justify-center mr-2">
-                      <TrendingUp className="w-4 h-4 text-teal-500" />
+            {/* Production & Inventory Sub-tab */}
+            {dashboardSubTab === 'production' && (
+              <div className="space-y-8">
+                {/* Crop Plans Section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Crop Planning & Scheduling</h3>
+                    <button 
+                      onClick={() => setCropPlanModalOpen(true)}
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Crop Plan</span>
+                    </button>
+                  </div>
+                  {cropPlans.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No crop plans created yet</p>
                     </div>
-                    <span className="text-slate-800 dark:text-slate-100">Monthly Sales Activity</span>
-                  </h3>
-                  <div className="h-64">
-                    <Line data={getFarmerSalesChartData()} options={{ responsive: true, maintainAspectRatio: false }} />
+                  ) : (
+                    <div className="space-y-4">
+                      {cropPlans.map(plan => (
+                        <div key={plan.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">{plan.cropType}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Planting: {plan.plantingDate} | Harvest: {plan.harvestDate}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => handleDeleteCropPlan(plan.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Inventory Section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Inventory Management</h3>
+                    <button 
+                      onClick={() => setInventoryModalOpen(true)}
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Inventory</span>
+                    </button>
+                  </div>
+                  {inventoryItems.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No inventory items tracked</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {inventoryItems.map(item => (
+                        <div key={item.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">{item.itemName}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Quantity: {item.quantity} {item.unit} | Location: {item.location}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => handleDeleteInventory(item.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Equipment Section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Equipment Tracking</h3>
+                    <button 
+                      onClick={() => setEquipmentModalOpen(true)}
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Equipment</span>
+                    </button>
+                  </div>
+                  {equipmentList.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No equipment tracked</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {equipmentList.map(equip => (
+                        <div key={equip.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">{equip.equipmentName}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Status: {equip.status} | Last Maintenance: {equip.lastMaintenance}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => handleDeleteEquipment(equip.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Quality & Certification Sub-tab */}
+            {dashboardSubTab === 'quality' && (
+              <div className="space-y-8">
+                {/* Quality Grades Section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Quality Grading</h3>
+                    <button 
+                      onClick={() => setQualityGradeModalOpen(true)}
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Quality Grade</span>
+                    </button>
+                  </div>
+                  {qualityGrades.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No quality grades recorded</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {qualityGrades.map(grade => (
+                        <div key={grade.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">{grade.productName} - Grade {grade.grade}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Date: {grade.assessmentDate} | Inspector: {grade.inspector}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => handleDeleteQualityGrade(grade.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Certifications Section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Certifications</h3>
+                    <button 
+                      onClick={() => setCertificationModalOpen(true)}
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Certification</span>
+                    </button>
+                  </div>
+                  {certifications.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No certifications recorded</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {certifications.map(cert => (
+                        <div key={cert.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">{cert.certificationName}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Issued: {cert.issueDate} | Expires: {cert.expiryDate}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => handleDeleteCertification(cert.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Financial Tools Sub-tab */}
+            {dashboardSubTab === 'financial' && (
+              <div className="space-y-8">
+                {/* Loan Applications Section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Loan Applications</h3>
+                    <button 
+                      onClick={() => setLoanModalOpen(true)}
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Apply for Loan</span>
+                    </button>
+                  </div>
+                  {loanApplications.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No loan applications submitted</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {loanApplications.map(loan => (
+                        <div key={loan.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">{loan.loanType} - {loan.amount} ETB</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Status: {loan.status} | Applied: {loan.applicationDate}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => handleDeleteLoanApplication(loan.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Production Costs Section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Production Cost Calculator</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Seed Costs</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white">0 ETB</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Fertilizer Costs</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white">0 ETB</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Labor Costs</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white">0 ETB</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Equipment Costs</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white">0 ETB</p>
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
+
+            {/* Advanced Selling Sub-tab */}
+            {dashboardSubTab === 'selling' && (
+              <div className="space-y-8">
+                <div className="glass-card rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Advanced Selling Options</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700">
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-2">Auction/Bidding</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">List products for competitive bidding</p>
+                      <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl">
+                        Start Auction
+                      </button>
+                    </div>
+                    <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700">
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-2">Contract Farming</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Secure advance bookings with buyers</p>
+                      <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl">
+                        Create Contract
+                      </button>
+                    </div>
+                    <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700">
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-2">Bulk Discounts</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Set volume-based pricing tiers</p>
+                      <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl">
+                        Configure Discounts
+                      </button>
+                    </div>
+                    <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700">
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-2">Pre-Harvest Sales</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Sell before harvest for guaranteed income</p>
+                      <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl">
+                        List Pre-Sale
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Chart Widgets - Only show on overview */}
+            {dashboardSubTab === 'overview' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                {user.role === 'farmer' && (
+                  <div className="lg:col-span-2 glass-card rounded-2xl p-6 relative overflow-hidden">
+                    <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full blur-3xl" style={{ background: 'rgba(20,184,166,0.1)' }}></div>
+                    <h3 className="text-md font-bold mb-4 flex items-center">
+                      <div className="w-7 h-7 rounded-lg bg-teal-500/15 flex items-center justify-center mr-2">
+                        <TrendingUp className="w-4 h-4 text-teal-500" />
+                      </div>
+                      <span className="text-slate-800 dark:text-slate-100">Monthly Sales Activity</span>
+                    </h3>
+                    <div className="h-64">
+                      <Line data={getFarmerSalesChartData()} options={{ responsive: true, maintainAspectRatio: false }} />
+                    </div>
+                  </div>
+                )}
 
               <div className={user.role === 'farmer' ? "glass-card rounded-2xl p-6 relative overflow-hidden" : "lg:col-span-3 glass-card rounded-2xl p-6 relative overflow-hidden"}>
                 <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full blur-3xl" style={{ background: 'rgba(217,119,6,0.1)' }}></div>
@@ -1254,9 +2351,11 @@ export default function App() {
                 </div>
               </div>
             </div>
+            )}
 
-            {/* Active Orders List */}
-            <div className="glass-card rounded-2xl p-6 overflow-hidden mb-8">
+            {/* Active Orders List - Only show on overview */}
+            {dashboardSubTab === 'overview' && (
+              <div className="glass-card rounded-2xl p-6 overflow-hidden mb-8">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
                 Active Orders
               </h3>
@@ -1329,12 +2428,25 @@ export default function App() {
                               Delivered
                             </button>
                           )}
-                          {user.role === 'buyer' && ord.status === 'pending' && (
+                          {user.role === 'buyer' && ord.status === 'pending' && ord.paymentStatus !== 'paid' && (
                             <button 
                               onClick={() => handleUpdateOrderStatus(ord.id, 'cancelled')}
                               className="px-2.5 py-1.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/50 text-xs font-bold"
                             >
                               Cancel
+                            </button>
+                          )}
+                          {user.role === 'buyer' && ord.status === 'delivered' && !supplierReviews.some(r => r.orderId === ord.id) && (
+                            <button 
+                              onClick={() => {
+                                setReviewOrderId(ord.id);
+                                setReviewFarmerId(ord.farmerId);
+                                setReviewFarmerName(ord.farmerName);
+                                setReviewModalOpen(true);
+                              }}
+                              className="px-2.5 py-1.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50 text-xs font-bold"
+                            >
+                              Review
                             </button>
                           )}
                         </td>
@@ -1352,6 +2464,7 @@ export default function App() {
                 </table>
               </div>
             </div>
+            )}
           </div>
         )}
 
@@ -1378,26 +2491,61 @@ export default function App() {
               </div>
             </div>
 
+            {/* Buyer Dashboard Sub-Navigation */}
+            <div className="mb-8">
+              <div className="flex flex-wrap gap-2 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <button 
+                  onClick={() => setBuyerDashboardSubTab('overview')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${buyerDashboardSubTab === 'overview' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'text-slate-600 hover:text-amber-600 dark:text-slate-300 dark:hover:text-amber-400'}`}
+                >
+                  Overview
+                </button>
+                <button 
+                  onClick={() => setBuyerDashboardSubTab('wishlist')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${buyerDashboardSubTab === 'wishlist' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'text-slate-600 hover:text-amber-600 dark:text-slate-300 dark:hover:text-amber-400'}`}
+                >
+                  Wishlist
+                </button>
+                <button 
+                  onClick={() => setBuyerDashboardSubTab('reviews')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${buyerDashboardSubTab === 'reviews' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'text-slate-600 hover:text-amber-600 dark:text-slate-300 dark:hover:text-amber-400'}`}
+                >
+                  Supplier Reviews
+                </button>
+                <button 
+                  onClick={() => setBuyerDashboardSubTab('financial')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${buyerDashboardSubTab === 'financial' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'text-slate-600 hover:text-amber-600 dark:text-slate-300 dark:hover:text-amber-400'}`}
+                >
+                  Financial Management
+                </button>
+              </div>
+            </div>
+
             {/* Header dashboard stats */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-5 border-b border-slate-200 dark:border-slate-800">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-                  Purchase Overview
+                  {buyerDashboardSubTab === 'overview' ? 'Purchase Overview' : 
+                   buyerDashboardSubTab === 'wishlist' ? 'My Wishlist' :
+                   buyerDashboardSubTab === 'reviews' ? 'Supplier Reviews' : 'Financial Management'}
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                  Your agricultural procurement summary
+                  {buyerDashboardSubTab === 'overview' ? 'Your agricultural procurement summary' :
+                   buyerDashboardSubTab === 'wishlist' ? 'Save products for later purchase' :
+                   buyerDashboardSubTab === 'reviews' ? 'Rate and review your suppliers' : 'Manage budgets, invoices, and expenses'}
                 </p>
               </div>
             </div>
 
-            {/* Dashboard grid metrics cards — Glass */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
-                <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{orders.length}</p>
-                <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">All time purchases</p>
-              </div>
+            {/* Dashboard grid metrics cards — Glass - Only show on overview */}
+            {buyerDashboardSubTab === 'overview' && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{orders.length}</p>
+                  <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">All time purchases</p>
+                </div>
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(217,119,6,0.12)' }}></div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Spent</p>
@@ -1423,10 +2571,134 @@ export default function App() {
                 </p>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">Processing orders</p>
               </div>
-            </div>
+              </div>
+            )}
 
-            {/* Chart Widgets */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            {/* Wishlist Sub-tab */}
+            {buyerDashboardSubTab === 'wishlist' && (
+              <div className="glass-card rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">My Wishlist</h3>
+                {wishlist.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <p>No items in your wishlist</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {wishlist.map(item => (
+                      <div key={item.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                        <h4 className="font-bold text-slate-900 dark:text-white">{item.productName}</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">{item.price} ETB</p>
+                        <button 
+                          onClick={() => handleRemoveFromWishlist(item.id)}
+                          className="mt-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reviews Sub-tab */}
+            {buyerDashboardSubTab === 'reviews' && (
+              <div className="glass-card rounded-2xl p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Supplier Reviews</h3>
+                  <button 
+                    onClick={() => setReviewModalOpen(true)}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Review</span>
+                  </button>
+                </div>
+                {supplierReviews.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <p>No reviews submitted yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {supplierReviews.map(review => (
+                      <div key={review.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                        <div>
+                          <h4 className="font-bold text-slate-900 dark:text-white">{review.supplierName}</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">Rating: {review.rating}/5 | {review.date}</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{review.comment}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button onClick={() => handleDeleteReview(review.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Financial Sub-tab */}
+            {buyerDashboardSubTab === 'financial' && (
+              <div className="space-y-8">
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Budget Management</h3>
+                    <button 
+                      onClick={() => setBudgetModalOpen(true)}
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Set Budget</span>
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Monthly Budget</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white">
+                        {buyerBudgets.length > 0 ? buyerBudgets[0].amount + ' ETB' : '0 ETB'}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">Spent This Month</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white">
+                        {orders.filter(o => o.paymentStatus === 'paid').reduce((sum, o) => sum + o.totalPrice, 0)} ETB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="glass-card rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Invoice Management</h3>
+                  {orders.filter(o => o.paymentStatus === 'paid').length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <p>No invoices available</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.filter(o => o.paymentStatus === 'paid').map(order => (
+                        <div key={order.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center">
+                          <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">Invoice #{order.id}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                              {order.productName} | {order.quantity} {order.productUnit} | {order.totalPrice} ETB
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-500">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${order.status === 'delivered' ? 'bg-green-500/15 text-green-600' : 'bg-amber-500/15 text-amber-600'}`}>
+                            {order.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Chart Widgets - Only show on overview */}
+            {buyerDashboardSubTab === 'overview' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
               <div className="lg:col-span-2 glass-card rounded-2xl p-6 relative overflow-hidden">
                 <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full blur-3xl" style={{ background: 'rgba(217,119,6,0.1)' }}></div>
                 <h3 className="text-md font-bold mb-4 flex items-center">
@@ -1462,9 +2734,11 @@ export default function App() {
                 </div>
               </div>
             </div>
+            )}
 
-            {/* Active Orders List */}
-            <div className="glass-card rounded-2xl p-6 overflow-hidden mb-8">
+            {/* Active Orders List - Only show on overview */}
+            {buyerDashboardSubTab === 'overview' && (
+              <div className="glass-card rounded-2xl p-6 overflow-hidden mb-8">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
                 My Orders
               </h3>
@@ -1535,6 +2809,7 @@ export default function App() {
                 </table>
               </div>
             </div>
+            )}
           </div>
         )}
 
@@ -1658,9 +2933,9 @@ export default function App() {
               )}
 
               <form onSubmit={handleAuthSubmit} className="space-y-4">
-                {authMode === 'register' && (
-                  <>
-                    <div className="flex space-x-2 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl mb-2">
+                <div className="flex space-x-2 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl mb-2">
+                  {authMode === 'register' && (
+                    <>
                       <button 
                         type="button"
                         onClick={() => setAuthRole('buyer')}
@@ -1675,8 +2950,37 @@ export default function App() {
                       >
                         Farmer
                       </button>
-                    </div>
+                    </>
+                  )}
+                  {authMode === 'login' && (
+                    <>
+                      <button 
+                        type="button"
+                        onClick={() => setAuthRole('buyer')}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${authRole === 'buyer' ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-700 dark:text-teal-400' : 'text-slate-500'}`}
+                      >
+                        Buyer
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setAuthRole('farmer')}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${authRole === 'farmer' ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-700 dark:text-teal-400' : 'text-slate-500'}`}
+                      >
+                        Farmer
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setAuthRole('admin')}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${authRole === 'admin' ? 'bg-white dark:bg-slate-900 shadow-sm text-indigo-700 dark:text-indigo-400' : 'text-slate-500'}`}
+                      >
+                        Admin
+                      </button>
+                    </>
+                  )}
+                </div>
 
+                {authMode === 'register' && (
+                  <>
                     <div>
                       <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Full Name</label>
                       <input 
@@ -2160,6 +3464,300 @@ export default function App() {
                     Post Listing
                   </button>
                 </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Budget Modal */}
+      {budgetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button 
+              onClick={() => setBudgetModalOpen(false)}
+              className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">
+                Set Monthly Budget
+              </h3>
+
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const newBudget = {
+                  id: 'budget_' + Date.now(),
+                  buyerId: user.id,
+                  amount: parseInt(budgetAmount),
+                  month: new Date().toISOString().slice(0, 7),
+                  createdAt: new Date().toISOString()
+                };
+                setBuyerBudgets([...buyerBudgets, newBudget]);
+                setBudgetModalOpen(false);
+                setBudgetAmount('');
+                confetti({ particleCount: 30, spread: 40 });
+              }} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Budget Amount (ETB)</label>
+                  <input
+                    type="number"
+                    value={budgetAmount}
+                    onChange={(e) => setBudgetAmount(e.target.value)}
+                    required
+                    placeholder="e.g. 50000"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                <div className="flex justify-end pt-4 space-x-2">
+                  <button 
+                    type="button" 
+                    onClick={() => setBudgetModalOpen(false)}
+                    className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all"
+                  >
+                    Set Budget
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Supplier Review Modal */}
+      {reviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button 
+              onClick={() => setReviewModalOpen(false)}
+              className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">
+                Review Supplier
+              </h3>
+
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                await handleAddSupplierReview({
+                  orderId: reviewOrderId,
+                  farmerId: reviewFarmerId,
+                  farmerName: reviewFarmerName,
+                  rating: reviewRating,
+                  comment: reviewComment
+                });
+                setReviewModalOpen(false);
+                setReviewRating(5);
+                setReviewComment('');
+              }} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Farmer: {reviewFarmerName}</label>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-2">Rating</label>
+                  <div className="flex space-x-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className={`text-2xl ${star <= reviewRating ? 'text-amber-500' : 'text-slate-300'}`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Your Review</label>
+                  <textarea
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    rows="4"
+                    required
+                    placeholder="Share your experience with this supplier..."
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  ></textarea>
+                </div>
+
+                <div className="flex justify-end pt-4 space-x-2">
+                  <button 
+                    type="button" 
+                    onClick={() => setReviewModalOpen(false)}
+                    className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all"
+                  >
+                    Submit Review
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Crop Plan Modal */}
+      {cropPlanModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setCropPlanModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Add Crop Plan</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddCropPlan({ cropName: e.target.cropName.value, plantingDate: e.target.plantingDate.value, expectedHarvest: e.target.expectedHarvest.value, area: e.target.area.value }); setCropPlanModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Crop Name</label><input name="cropName" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Coffee" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Planting Date</label><input name="plantingDate" type="date" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Expected Harvest</label><input name="expectedHarvest" type="date" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Area (hectares)</label><input name="area" type="number" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. 5" /></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setCropPlanModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all">Add Plan</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Inventory Modal */}
+      {inventoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setInventoryModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Add Inventory Item</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddInventory({ itemName: e.target.itemName.value, quantity: e.target.quantity.value, unit: e.target.unit.value, location: e.target.location.value }); setInventoryModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Item Name</label><input name="itemName" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Coffee Beans" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Quantity</label><input name="quantity" type="number" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. 500" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Unit</label><input name="unit" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. kg" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Location</label><input name="location" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Warehouse A" /></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setInventoryModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all">Add Item</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Equipment Modal */}
+      {equipmentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setEquipmentModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Add Equipment</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddEquipment({ equipmentName: e.target.equipmentName.value, type: e.target.type.value, status: e.target.status.value, purchaseDate: e.target.purchaseDate.value }); setEquipmentModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Equipment Name</label><input name="equipmentName" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Tractor" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Type</label><input name="type" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Heavy Machinery" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Status</label><select name="status" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="operational">Operational</option><option value="maintenance">Under Maintenance</option><option value="retired">Retired</option></select></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Purchase Date</label><input name="purchaseDate" type="date" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setEquipmentModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all">Add Equipment</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Quality Grade Modal */}
+      {qualityGradeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setQualityGradeModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Add Quality Grade</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddQualityGrade({ productName: e.target.productName.value, grade: e.target.grade.value, criteria: e.target.criteria.value, testDate: e.target.testDate.value }); setQualityGradeModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Product Name</label><input name="productName" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Coffee Grade 1" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Grade</label><input name="grade" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. A" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Criteria</label><textarea name="criteria" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Quality criteria..."></textarea></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Test Date</label><input name="testDate" type="date" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setQualityGradeModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all">Add Grade</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Certification Modal */}
+      {certificationModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setCertificationModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Add Certification</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddCertification({ certName: e.target.certName.value, issuingBody: e.target.issuingBody.value, issueDate: e.target.issueDate.value, expiryDate: e.target.expiryDate.value }); setCertificationModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Certification Name</label><input name="certName" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Organic Certification" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Issuing Body</label><input name="issuingBody" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Ministry of Agriculture" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Issue Date</label><input name="issueDate" type="date" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Expiry Date</label><input name="expiryDate" type="date" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setCertificationModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all">Add Certification</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Loan Modal */}
+      {loanModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setLoanModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Apply for Loan</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddLoanApplication({ loanType: e.target.loanType.value, amount: e.target.amount.value, purpose: e.target.purpose.value, term: e.target.term.value }); setLoanModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Loan Type</label><select name="loanType" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="production">Production Loan</option><option value="equipment">Equipment Loan</option><option value="operational">Operational Loan</option></select></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Amount (ETB)</label><input name="amount" type="number" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. 100000" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Purpose</label><textarea name="purpose" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Loan purpose..."></textarea></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Term (months)</label><input name="term" type="number" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. 12" /></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setLoanModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all">Submit Application</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Audit Modal */}
+      {auditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setAuditModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Schedule Quality Audit</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddQualityAudit({ target: e.target.target.value, type: e.target.type.value, scheduledDate: e.target.scheduledDate.value, auditor: e.target.auditor.value }); setAuditModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Target (Farmer/Product)</label><input name="target" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Farmer John" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Audit Type</label><select name="type" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="quality">Quality Check</option><option value="safety">Safety Inspection</option><option value="compliance">Compliance Audit</option></select></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Scheduled Date</label><input name="scheduledDate" type="date" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Auditor</label><input name="auditor" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Audit Team A" /></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setAuditModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all">Schedule Audit</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Dispute Resolution Modal */}
+      {disputeResolutionModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+            <button onClick={() => setDisputeResolutionModalOpen(false)} className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-6">Resolve Dispute</h3>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleResolveDispute(disputeResolutionModalOpen, e.target.resolution.value); setDisputeResolutionModalOpen(false); }} className="space-y-4">
+                <div><label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Resolution</label><textarea name="resolution" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Resolution details..."></textarea></div>
+                <div className="flex justify-end pt-4 space-x-2"><button type="button" onClick={() => setDisputeResolutionModalOpen(false)} className="px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl">Cancel</button><button type="submit" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all">Resolve</button></div>
               </form>
             </div>
           </div>
