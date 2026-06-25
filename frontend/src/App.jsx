@@ -152,6 +152,7 @@ export default function App() {
   const [newProdHarvestDate, setNewProdHarvestDate] = useState('');
   const [newProdLocation, setNewProdLocation] = useState('');
   const [newProdDesc, setNewProdDesc] = useState('');
+  const [newProdImage, setNewProdImage] = useState(null);
   const [prodFormError, setProdFormError] = useState('');
 
   // Profile Edit
@@ -467,23 +468,26 @@ export default function App() {
     e.preventDefault();
     setProdFormError('');
     try {
+      const formData = new FormData();
+      formData.append('name', newProdName);
+      formData.append('category', newProdCategory);
+      formData.append('type', newProdType);
+      formData.append('price', newProdPrice);
+      formData.append('quantity', newProdQty);
+      formData.append('unit', newProdUnit);
+      formData.append('harvestDate', newProdHarvestDate);
+      formData.append('location', newProdLocation);
+      formData.append('description', newProdDesc);
+      if (newProdImage) {
+        formData.append('image', newProdImage);
+      }
+
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          name: newProdName,
-          category: newProdCategory,
-          type: newProdType,
-          price: parseFloat(newProdPrice),
-          quantity: parseFloat(newProdQty),
-          unit: newProdUnit,
-          harvestDate: newProdHarvestDate,
-          location: newProdLocation,
-          description: newProdDesc
-        })
+        body: formData
       });
       const data = await res.json();
       if (!res.ok) {
@@ -498,6 +502,7 @@ export default function App() {
       setNewProdHarvestDate('');
       setNewProdLocation('');
       setNewProdDesc('');
+      setNewProdImage(null);
       
       confetti({ particleCount: 80, spread: 80 });
       fetchData();
@@ -1403,7 +1408,7 @@ export default function App() {
                   {/* Product Image - FIXED: Using getLivestockImage function */}
                   <div className="h-48 overflow-hidden relative">
                     <img 
-                      src={prod.category === 'Crops' ? coffeeImg : getLivestockImage(prod.type)} 
+                      src={prod.imageUrl ? prod.imageUrl : (prod.category === 'Crops' ? coffeeImg : getLivestockImage(prod.type))} 
                       alt={prod.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -3435,6 +3440,16 @@ export default function App() {
                     onChange={(e) => setNewProdLocation(e.target.value)}
                     placeholder="e.g. Alem Maya, Babille"
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Product Image</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setNewProdImage(e.target.files[0])}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-650 dark:text-slate-450"
                   />
                 </div>
 

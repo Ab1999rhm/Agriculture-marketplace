@@ -3,7 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
+const fs = require('fs');
 const authMiddleware = require('./middleware/auth');
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 const farmerRoutes = require('./routes/farmers');
 const buyerRoutes = require('./routes/buyers');
 const productRoutes = require('./routes/products');
@@ -26,9 +32,15 @@ const disputeRoutes = require('./routes/disputes');
 const app = express();
 
 app.use(cors());
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(morgan('combined'));
 app.use(express.json());
+
+// Serve uploaded product images
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+
+// Apply token verification middleware globally
+app.use(authMiddleware.verifyToken);
 
 // Public routes (no auth required)
 app.use('/api/auth', authRoutes);

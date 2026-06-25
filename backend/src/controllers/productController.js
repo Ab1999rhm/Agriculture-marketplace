@@ -85,6 +85,10 @@ exports.createProduct = async (req, res, next) => {
       createdAt: new Date().toISOString()
     };
 
+    if (req.file) {
+      newProduct.imageUrl = `/uploads/${req.file.filename}`;
+    }
+
     await db.collection('products').doc(productId).set(newProduct);
     res.status(201).json(newProduct);
   } catch (error) {
@@ -118,6 +122,10 @@ exports.updateProduct = async (req, res, next) => {
       description: description || '',
       updatedAt: new Date().toISOString()
     };
+
+    if (req.file) {
+      updateData.imageUrl = `/uploads/${req.file.filename}`;
+    }
 
     await db.collection('products').doc(id).update(updateData);
     res.status(200).json({ id, ...product, ...updateData });
