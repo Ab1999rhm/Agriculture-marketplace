@@ -1,0 +1,224 @@
+{
+  "farmers": [
+    {
+      "id": "farmer1",
+      "name": "Kenenisa Jila",
+      "phone": "0911223344",
+      "location": "Alem Maya",
+      "coordinates": "9.3900, 42.0800",
+      "crops": [
+        "Coffee",
+        "Chat",
+        "Maize"
+      ],
+      "bio": "Experienced organic coffee farmer from Hararghe highlands."
+    },
+    {
+      "id": "farmer2",
+      "name": "Fadila Ahmed",
+      "phone": "0912345678",
+      "location": "Babille",
+      "coordinates": "9.2100, 42.2500",
+      "crops": [
+        "Groundnuts",
+        "Mangoes",
+        "Onions"
+      ],
+      "bio": "Specializing in Babille groundnuts and orchard fruits."
+    },
+    {
+      "id": "user_a3a4pewsk",
+      "name": "Abraham Fikadu",
+      "phone": "0929570426",
+      "location": "Alemaya",
+      "coordinates": "",
+      "crops": [],
+      "bio": "",
+      "createdAt": "2026-06-24T19:49:27.164Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod1",
+      "farmerId": "farmer1",
+      "farmerName": "Kenenisa Jila",
+      "name": "Harar Organic Coffee",
+      "category": "Crops",
+      "type": "Coffee",
+      "price": 350,
+      "quantity": 498,
+      "unit": "kg",
+      "harvestDate": "2026-06-15",
+      "location": "Alem Maya",
+      "description": "Premium Harar Grade 1 green coffee beans, naturally sun-dried."
+    },
+    {
+      "id": "prod2",
+      "farmerId": "farmer2",
+      "farmerName": "Fadila Ahmed",
+      "name": "Babille Groundnuts",
+      "category": "Crops",
+      "type": "Groundnuts",
+      "price": 120,
+      "quantity": 1000,
+      "unit": "kg",
+      "harvestDate": "2026-06-10",
+      "location": "Babille",
+      "description": "Sweet, shelled red peanuts, high quality crop."
+    },
+    {
+      "id": "prod3",
+      "farmerId": "farmer1",
+      "farmerName": "Kenenisa Jila",
+      "name": "Hararghe Bull",
+      "category": "Livestock",
+      "type": "Bull",
+      "price": 45000,
+      "quantity": 2,
+      "unit": "head",
+      "harvestDate": "2026-06-20",
+      "location": "Alem Maya",
+      "description": "Fat, well-fed local breed bull, ready for market."
+    },
+    {
+      "id": "prod_7b4zg0nai",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "name": "Harar City Bean",
+      "category": "Livestock",
+      "type": "Bean",
+      "price": 400,
+      "quantity": 19998,
+      "unit": "kg",
+      "harvestDate": "2026-06-23T00:00:00.000Z",
+      "location": "Harar City ",
+      "description": "This production has high quality with 6% discount\nour phone contact is 0929570426",
+      "createdAt": "2026-06-25T07:15:12.102Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord_6i3hcwl9g",
+      "productId": "prod1",
+      "productName": "Harar Organic Coffee",
+      "productUnit": "kg",
+      "farmerId": "farmer1",
+      "farmerName": "Kenenisa Jila",
+      "buyerId": "user_so6cga6k6",
+      "buyerName": "Abraham ",
+      "quantity": 2,
+      "totalPrice": 700,
+      "paymentMethod": "CBE_BIRR",
+      "paymentStatus": "paid",
+      "shippingAddress": "SOS Alert",
+      "pickupPointId": "central_hub_01",
+      "status": "confirmed",
+      "logistics": {
+        "carrier": "Hararghe Cooperative Logistics",
+        "trackingNumber": "TRK-334897",
+        "status": "order_placed",
+        "pickupPoint": "Alem Maya Central Hub",
+        "estimatedDelivery": "2026-06-28"
+      },
+      "createdAt": "2026-06-25T07:20:46.567Z",
+      "transactionId": "TXN-CBE-0M9OFKRJI",
+      "logistics.status": "ready_for_pickup",
+      "updatedAt": "2026-06-25T07:20:46.873Z"
+    },
+    {
+      "id": "ord_80aspqfus",
+      "productId": "prod_7b4zg0nai",
+      "productName": "Harar City Bean",
+      "productUnit": "kg",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "buyerId": "user_so6cga6k6",
+      "buyerName": "Abraham ",
+      "quantity": 2,
+      "totalPrice": 800,
+      "paymentMethod": "CBE_BIRR",
+      "paymentStatus": "paid",
+      "shippingAddress": "Dire Dawa",
+      "pickupPointId": "central_hub_01",
+      "status": "delivered",
+      "logistics": {
+        "carrier": "Hararghe Cooperative Logistics",
+        "trackingNumber": "TRK-565708",
+        "status": "order_placed",
+        "pickupPoint": "Alem Maya Central Hub",
+        "estimatedDelivery": "2026-06-28"
+      },
+      "createdAt": "2026-06-25T07:23:41.929Z",
+      "transactionId": "TXN-CBE-JVQYGWA37",
+      "logistics.status": "delivered",
+      "updatedAt": "2026-06-25T07:30:30.217Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "user1",
+      "email": "farmer@hararghe.com",
+      "passwordHash": "$2a$10$X7m6ZskFz8t5sC9B6E0M.O81g4v9mD.2r5g4v9mD.2r5g4v9mD.",
+      "name": "Kenenisa Jila",
+      "role": "farmer",
+      "phone": "0911223344",
+      "location": "Alem Maya"
+    },
+    {
+      "id": "user2",
+      "email": "buyer@hararghe.com",
+      "passwordHash": "$2a$10$X7m6ZskFz8t5sC9B6E0M.O81g4v9mD.2r5g4v9mD.2r5g4v9mD.",
+      "name": "Abdi Yusuf",
+      "role": "buyer",
+      "phone": "0922334455",
+      "location": "Harar City"
+    },
+    {
+      "id": "user_a3a4pewsk",
+      "email": "fikaduabraham093@gmail.com",
+      "name": "Abraham Fikadu",
+      "role": "farmer",
+      "phone": "0929570426",
+      "location": "Alemaya",
+      "createdAt": "2026-06-24T19:49:20.771Z",
+      "passwordHash": "$2a$10$.7p3GchVREXrbPi.MpWxe.qjW6v/hSsaF89Oi8y1E20jjdAiDZNPa"
+    },
+    {
+      "id": "user_so6cga6k6",
+      "email": "fikaduabraham93@gmail.com",
+      "name": "Abraham ",
+      "role": "buyer",
+      "phone": "0929570426",
+      "location": "Alemaya",
+      "createdAt": "2026-06-24T19:51:05.490Z",
+      "passwordHash": "$2a$10$4pCdTCDA/Hx9b4wdU6cGa.I/HjOLqtTMnytrKouAT8wk/X0nIbmjO",
+      "updatedAt": "2026-06-25T07:18:14.770Z"
+    }
+  ],
+  "bulletins": [
+    {
+      "id": "b1",
+      "title": "Market Update: Coffee prices up by 5%",
+      "type": "market",
+      "content": "Coffee (Harar Grade 1) has seen an increase of 5% in the local auction market this week.",
+      "date": "2026-06-24",
+      "author": "Ministry of Agriculture"
+    },
+    {
+      "id": "b2",
+      "title": "Weather Warning: Heavy rainfall expected in Harar region",
+      "type": "weather",
+      "content": "Farmers are advised to take necessary precautions as heavy rains are expected over the next three days.",
+      "date": "2026-06-23",
+      "author": "Meteorology Agency"
+    },
+    {
+      "id": "b3",
+      "title": "Government Subsidized Fertilizer Distribution",
+      "type": "government",
+      "content": "Fertilizer distribution has started at local cooperatives. Please bring your farmer ID.",
+      "date": "2026-06-22",
+      "author": "Agricultural Bureau"
+    }
+  ]
+}

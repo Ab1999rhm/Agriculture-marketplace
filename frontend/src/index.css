@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-slate-50 text-slate-800 transition-colors duration-500 overflow-x-hidden;
+  }
+
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* ── Premium Frosted Glass Card ───────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.40);
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.60);
+  transition: all 0.3s ease;
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.50);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ── Glass Navigation Bar ─────────────────────────────────── */
+.glass-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.30);
+  transition: all 0.3s ease;
+}
+
+.dark .glass-nav {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── Glassmorphic Input Fields ────────────────────────────── */
+.glass-input {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(203, 213, 225, 0.65);
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s ease;
+  color: #1e293b;
+}
+
+.glass-input:focus {
+  border-color: rgba(20, 184, 166, 0.7);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.12);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.dark .glass-input {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(51, 65, 85, 0.70);
+  color: #e2e8f0;
+}
+
+.dark .glass-input::placeholder {
+  color: #475569;
+}
+
+.dark .glass-input:focus {
+  border-color: rgba(20, 184, 166, 0.60);
+  background: rgba(15, 23, 42, 0.80);
+}
+
+/* ── Glassmorphic Primary Button ──────────────────────────── */
+.glass-btn-primary {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.92), rgba(15, 118, 110, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  box-shadow:
+    0 4px 15px -3px rgba(20, 184, 166, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+}
+
+.glass-btn-primary:hover {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 1), rgba(15, 118, 110, 1));
+  box-shadow:
+    0 8px 25px -5px rgba(20, 184, 166, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.glass-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ── Ambient Background Blobs ─────────────────────────────── */
+.ambient-blob-1 {
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.18) 0%, rgba(20, 184, 166, 0) 70%);
+}
+
+.ambient-blob-2 {
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.14) 0%, rgba(217, 119, 6, 0) 70%);
+}
+
+.ambient-blob-3 {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.10) 0%, rgba(168, 85, 247, 0) 70%);
+}
+
+/* ── Glow Effects ─────────────────────────────────────────── */
+.glow-teal {
+  box-shadow: 0 0 30px -8px rgba(20, 184, 166, 0.35);
+}
+
+.glow-amber {
+  box-shadow: 0 0 30px -8px rgba(245, 158, 11, 0.30);
+}
+
+/* ── Custom Scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
