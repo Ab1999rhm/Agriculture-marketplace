@@ -585,7 +585,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-500 overflow-x-hidden relative">
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-500 overflow-x-hidden relative">
       {/* Ambient Glow Blurs */}
       <div className="fixed -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none ambient-blob-1 animate-pulse" style={{ animationDuration: '8s' }}></div>
       <div className="fixed -bottom-40 -right-40 w-[650px] h-[650px] rounded-full blur-[120px] pointer-events-none ambient-blob-2 animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }}></div>
@@ -602,7 +602,7 @@ export default function App() {
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-teal-600 to-amber-600 dark:from-teal-400 dark:to-amber-500 bg-clip-text text-transparent m-0 tracking-tight leading-none">
                 {t('appName')}
               </h1>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block">
+              <p className="text-[10px] text-slate-600 dark:text-slate-400 font-medium hidden sm:block">
                 {t('slogan')}
               </p>
             </div>
@@ -611,13 +611,13 @@ export default function App() {
           <nav className="hidden md:flex items-center space-x-1">
             <button 
               onClick={() => setCurrentTab('market')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentTab === 'market' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentTab === 'market' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
             >
               {t('navMarket')}
             </button>
             <button 
               onClick={() => setCurrentTab('bulletins')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all relative ${currentTab === 'bulletins' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all relative ${currentTab === 'bulletins' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
             >
               {t('navBulletins')}
               {bulletins.length > 0 && (
@@ -627,7 +627,7 @@ export default function App() {
             {user && (
               <button 
                 onClick={() => setCurrentTab('dashboard')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentTab === 'dashboard' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentTab === 'dashboard' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
               >
                 {user.role === 'admin' ? 'Admin Panel' : user.role === 'farmer' ? t('navDashboard') : 'My Orders'}
               </button>
@@ -635,7 +635,7 @@ export default function App() {
             {user && (
               <button 
                 onClick={() => setCurrentTab('profile')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentTab === 'profile' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-600 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentTab === 'profile' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' : 'text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400'}`}
               >
                 {t('navProfile')}
               </button>
@@ -645,7 +645,7 @@ export default function App() {
           <div className="flex items-center space-x-3">
             {/* Language Selector */}
             <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{t('languageLabel')}:</span>
+              <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">{t('languageLabel')}:</span>
               <select 
                 value={i18n.language} 
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -661,7 +661,7 @@ export default function App() {
             {/* Dark Mode Switcher */}
             <button 
               onClick={() => setDark(!dark)}
-              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
             >
               {dark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
             </button>
@@ -669,7 +669,7 @@ export default function App() {
             {/* User Session buttons */}
             {user ? (
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 hidden lg:inline-block">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-400 hidden lg:inline-block">
                   {user.name} ({user.role === 'farmer' ? t('navProfile') : 'Buyer'})
                 </span>
                 <button 
@@ -750,7 +750,7 @@ export default function App() {
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                   Featured Products
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
                   Browse our selection of quality agricultural products
                 </p>
               </div>
@@ -762,7 +762,7 @@ export default function App() {
                     <Tag className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Coffee Price</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Coffee Price</p>
                     <p className="text-sm font-extrabold bg-gradient-to-r from-teal-600 to-teal-800 dark:from-teal-300 dark:to-teal-500 bg-clip-text text-transparent">350 ETB/kg</p>
                   </div>
                 </div>
@@ -771,7 +771,7 @@ export default function App() {
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Active Hubs</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Active Hubs</p>
                     <p className="text-sm font-extrabold bg-gradient-to-r from-amber-600 to-amber-800 dark:from-amber-300 dark:to-amber-500 bg-clip-text text-transparent">Babille, Alem Maya</p>
                   </div>
                 </div>
@@ -795,7 +795,7 @@ export default function App() {
                 <select 
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="glass-input cursor-pointer dark:text-slate-200"
+                  className="glass-input cursor-pointer dark:text-slate-300"
                 >
                   <option value="">{t('filterCategory')}: All</option>
                   <option value="Crops">Crops</option>
@@ -805,7 +805,7 @@ export default function App() {
                 <select 
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
-                  className="glass-input cursor-pointer dark:text-slate-200"
+                  className="glass-input cursor-pointer dark:text-slate-300"
                 >
                   <option value="">{t('filterLocation')}: All Locations</option>
                   <option value="Alem Maya">Alem Maya</option>
@@ -821,7 +821,7 @@ export default function App() {
                     placeholder="Min"
                     className="glass-input w-24"
                   />
-                  <span className="text-slate-400 font-bold">–</span>
+                  <span className="text-slate-500 font-bold">–</span>
                   <input 
                     type="number"
                     value={maxPrice}
@@ -855,21 +855,21 @@ export default function App() {
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide backdrop-blur-sm ${prod.category === 'Crops' ? 'bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/20' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20'}`}>
                         {prod.category === 'Crops' ? '🌾 Crops' : '🐂 Livestock'}
                       </span>
-                      <span className="text-slate-400 dark:text-slate-500 text-[10px] font-bold flex items-center space-x-1">
+                      <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold flex items-center space-x-1">
                         <Clock className="w-3.5 h-3.5" />
                         <span>Harvest: {prod.harvestDate}</span>
                       </span>
                     </div>
 
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300">{prod.name}</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-2 mb-4 leading-relaxed">{prod.description}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-xs line-clamp-2 mb-4 leading-relaxed">{prod.description}</p>
                     
                     <div className="space-y-1.5 mb-4">
-                      <div className="flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center text-xs font-semibold text-slate-600 dark:text-slate-400">
                         <MapPin className="w-3.5 h-3.5 text-teal-500 mr-2" />
                         <span>Hub: {prod.location}</span>
                       </div>
-                      <div className="flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center text-xs font-semibold text-slate-600 dark:text-slate-400">
                         <User className="w-3.5 h-3.5 text-amber-500 mr-2" />
                         <span>Farmer: {prod.farmerName}</span>
                       </div>
@@ -879,7 +879,7 @@ export default function App() {
                   <div className="relative z-10 px-6 py-4 flex items-center justify-between" style={{ background: 'rgba(248,250,252,0.4)', backdropFilter: 'blur(8px)', borderTop: '1px solid rgba(203,213,225,0.3)' }}>
                     <div>
                       <span className="text-xl font-black text-slate-900 dark:text-white">{prod.price}</span>
-                      <span className="text-xs font-bold text-slate-400 dark:text-slate-500 ml-1">ETB/{prod.unit}</span>
+                      <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
                       <p className="text-[10px] text-teal-600 dark:text-teal-400 font-bold uppercase mt-0.5">Stock: {prod.quantity} {prod.unit}</p>
                     </div>
 
@@ -968,15 +968,15 @@ export default function App() {
 
                     <div className="flex-1">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-[10px] font-extrabold tracking-wider uppercase text-slate-400 dark:text-slate-500">
+                        <span className="text-[10px] font-extrabold tracking-wider uppercase text-slate-500 dark:text-slate-400">
                           {bul.type === 'weather' ? t('weatherAlert') : bul.type === 'market' ? t('marketUpdate') : t('govAlert')}
                         </span>
-                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">{bul.date}</span>
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">{bul.date}</span>
                       </div>
                       <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-2">{bul.title}</h3>
                       <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">{bul.content}</p>
                       
-                      <div className="flex items-center text-xs font-semibold text-slate-400 dark:text-slate-500">
+                      <div className="flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400">
                         <User className="w-3.5 h-3.5 mr-1.5" />
                         <span>{t('publishedBy')}: {bul.author}</span>
                       </div>
@@ -1016,7 +1016,7 @@ export default function App() {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(99,102,241,0.12)' }}></div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Total Users</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Users</p>
                   <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{adminAnalytics.users.total}</p>
                   <p className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold mt-1">
                     {adminAnalytics.users.farmers} Farmers, {adminAnalytics.users.buyers} Buyers
@@ -1024,7 +1024,7 @@ export default function App() {
                 </div>
                 <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Total Products</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Products</p>
                   <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{adminAnalytics.products.total}</p>
                   <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">
                     {adminAnalytics.products.crops} Crops, {adminAnalytics.products.livestock} Livestock
@@ -1032,7 +1032,7 @@ export default function App() {
                 </div>
                 <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(217,119,6,0.12)' }}></div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Total Orders</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
                   <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{adminAnalytics.orders.total}</p>
                   <p className="text-[10px] text-amber-500 dark:text-amber-400 font-semibold mt-1">
                     {adminAnalytics.orders.paid} Paid · {adminAnalytics.orders.revenue} ETB Revenue
@@ -1040,7 +1040,7 @@ export default function App() {
                 </div>
                 <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(239,68,68,0.12)' }}></div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Active Disputes</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Active Disputes</p>
                   <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{disputes.length}</p>
                   <p className="text-[10px] text-red-500 dark:text-red-400 font-semibold mt-1">Require attention</p>
                 </div>
@@ -1191,13 +1191,13 @@ export default function App() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Total Orders</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
                 <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{orders.length}</p>
                 <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">Pending/Completed</p>
               </div>
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(217,119,6,0.12)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
                   {user.role === 'farmer' ? 'Total Earnings' : 'Total Spent'}
                 </p>
                 <p className="text-3xl font-black bg-gradient-to-r from-amber-600 to-amber-800 dark:from-amber-300 dark:to-amber-500 bg-clip-text text-transparent mt-1">
@@ -1207,7 +1207,7 @@ export default function App() {
               </div>
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(99,102,241,0.12)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">CBE Birr payments</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">CBE Birr payments</p>
                 <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">
                   {orders.filter(o => o.paymentMethod === 'CBE_BIRR').length}
                 </p>
@@ -1215,12 +1215,12 @@ export default function App() {
               </div>
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.1)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Logistics Status</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Logistics Status</p>
                 <p className="text-xl font-black text-teal-600 dark:text-teal-400 mt-2 flex items-center">
                   <Truck className="w-5 h-5 mr-2 animate-bounce" />
                   <span>{orders.filter(o => o.status === 'shipped').length} In Transit</span>
                 </p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1">Dispatched deliveries</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">Dispatched deliveries</p>
               </div>
             </div>
 
@@ -1394,13 +1394,13 @@ export default function App() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Total Orders</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
                 <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{orders.length}</p>
                 <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">All time purchases</p>
               </div>
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(217,119,6,0.12)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Total Spent</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Spent</p>
                 <p className="text-3xl font-black bg-gradient-to-r from-amber-600 to-amber-800 dark:from-amber-300 dark:to-amber-500 bg-clip-text text-transparent mt-1">
                   {orders.reduce((acc, o) => acc + (o.paymentStatus === 'paid' ? o.totalPrice : 0), 0)} ETB
                 </p>
@@ -1408,7 +1408,7 @@ export default function App() {
               </div>
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(99,102,241,0.12)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">CBE Birr Payments</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">CBE Birr Payments</p>
                 <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">
                   {orders.filter(o => o.paymentMethod === 'CBE_BIRR').length}
                 </p>
@@ -1416,12 +1416,12 @@ export default function App() {
               </div>
               <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.1)' }}></div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Pending Orders</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Pending Orders</p>
                 <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-2 flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
                   <span>{orders.filter(o => o.status === 'pending').length} Awaiting</span>
                 </p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1">Processing orders</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">Processing orders</p>
               </div>
             </div>
 
@@ -1433,7 +1433,7 @@ export default function App() {
                   <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center mr-2">
                     <TrendingUp className="w-4 h-4 text-amber-500" />
                   </div>
-                  <span className="text-slate-800 dark:text-slate-100">Purchase History by Category</span>
+                  <span className="text-slate-900 dark:text-slate-100">Purchase History by Category</span>
                 </h3>
                 <div className="h-64">
                   <Doughnut data={getCategoryBreakdownData()} options={{ responsive: true, maintainAspectRatio: false }} />
@@ -1446,7 +1446,7 @@ export default function App() {
                   <div className="w-7 h-7 rounded-lg bg-teal-500/15 flex items-center justify-center mr-2">
                     <MapPin className="w-4 h-4 text-teal-500" />
                   </div>
-                  <span className="text-slate-800 dark:text-slate-100">Purchase by Location</span>
+                  <span className="text-slate-900 dark:text-slate-100">Purchase by Location</span>
                 </h3>
                 <div className="space-y-3">
                   {['Alem Maya', 'Babille', 'Harar City'].map(location => {
@@ -1454,7 +1454,7 @@ export default function App() {
                     const locationTotal = locationOrders.reduce((sum, o) => sum + o.totalPrice, 0);
                     return (
                       <div key={location} className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{location}</span>
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{location}</span>
                         <span className="text-sm font-bold text-slate-900 dark:text-white">{locationTotal} ETB</span>
                       </div>
                     );
