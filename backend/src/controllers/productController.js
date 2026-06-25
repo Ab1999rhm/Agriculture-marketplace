@@ -109,7 +109,7 @@ exports.updateProduct = async (req, res, next) => {
       return res.status(403).json({ error: 'Forbidden: You can only update your own products' });
     }
 
-    const { name, category, type, price, quantity, unit, harvestDate, location, description } = req.body;
+    const { name, category, type, price, quantity, unit, harvestDate, location, description, hidden } = req.body;
     const updateData = {
       name,
       category,
@@ -122,6 +122,12 @@ exports.updateProduct = async (req, res, next) => {
       description: description || '',
       updatedAt: new Date().toISOString()
     };
+
+    // Handle visibility toggle (hidden comes as string 'true'/'false' from FormData)
+    if (hidden !== undefined) {
+      updateData.hidden = hidden === 'true' || hidden === true;
+    }
+
 
     if (req.file) {
       updateData.imageUrl = `/uploads/${req.file.filename}`;

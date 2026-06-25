@@ -35,6 +35,26 @@
       "crops": [],
       "bio": "",
       "createdAt": "2026-06-24T19:49:27.164Z"
+    },
+    {
+      "id": "user_kwy36mg5g",
+      "name": "Auto Test Farmer",
+      "phone": "0911223344",
+      "location": "Alem Maya",
+      "coordinates": "",
+      "crops": [],
+      "bio": "",
+      "createdAt": "2026-06-25T18:56:58.173Z"
+    },
+    {
+      "id": "user_k4u0l5vc1",
+      "name": "Auto Test Farmer",
+      "phone": "0911223344",
+      "location": "Alem Maya",
+      "coordinates": "",
+      "crops": [],
+      "bio": "",
+      "createdAt": "2026-06-25T18:57:46.001Z"
     }
   ],
   "products": [
@@ -92,8 +112,42 @@
       "unit": "kg",
       "harvestDate": "2026-06-23T00:00:00.000Z",
       "location": "Harar City ",
-      "description": "This production has high quality with 6% discount\nour phone contact is 0929570426",
-      "createdAt": "2026-06-25T07:15:12.102Z"
+      "description": "This production has high quality with 6% discount\r\nour phone contact is 0929570426",
+      "createdAt": "2026-06-25T07:15:12.102Z",
+      "updatedAt": "2026-06-25T19:44:08.071Z",
+      "hidden": false
+    },
+    {
+      "id": "prod_a428b43js",
+      "farmerId": "user_k4u0l5vc1",
+      "farmerName": "Auto Test Farmer",
+      "name": "Alem Maya Sweet Onions",
+      "category": "Crops",
+      "type": "Onion",
+      "price": 60,
+      "quantity": 200,
+      "unit": "kg",
+      "harvestDate": "2026-06-25",
+      "location": "Alem Maya",
+      "description": "Fresh harvested red onions from Alem Maya",
+      "createdAt": "2026-06-25T18:57:46.680Z",
+      "imageUrl": "/uploads/product-1782413866669-462851437.jpg"
+    },
+    {
+      "id": "prod_wrecnkxdd",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "name": "Maize from Awaday",
+      "category": "Crops",
+      "type": "Maize",
+      "price": 325,
+      "quantity": 2000,
+      "unit": "kg",
+      "harvestDate": "2026-06-23",
+      "location": "Awaday,Harar",
+      "description": "This corn has sweety test",
+      "createdAt": "2026-06-25T19:49:12.625Z",
+      "imageUrl": "/uploads/product-1782416952599-724296864.jpg"
     }
   ],
   "orders": [
@@ -202,6 +256,26 @@
       "role": "admin",
       "phone": "0911223344",
       "location": "Hararghe"
+    },
+    {
+      "id": "user_kwy36mg5g",
+      "email": "farmer9584@hararghe.com",
+      "name": "Auto Test Farmer",
+      "role": "farmer",
+      "phone": "0911223344",
+      "location": "Alem Maya",
+      "createdAt": "2026-06-25T18:56:58.170Z",
+      "passwordHash": "$2a$10$vVlx/3YJfF0fP0cY5PGda.4UC/Uf2BHRkrEa7Pmrl4eu1QUo/L.tS"
+    },
+    {
+      "id": "user_k4u0l5vc1",
+      "email": "farmer4008@hararghe.com",
+      "name": "Auto Test Farmer",
+      "role": "farmer",
+      "phone": "0911223344",
+      "location": "Alem Maya",
+      "createdAt": "2026-06-25T18:57:45.996Z",
+      "passwordHash": "$2a$10$mOrFdoejSUYBZ8LEIqCa..qXwSFPAtP9zbgxD21LcymYqw3bP8/Fm"
     }
   ],
   "bulletins": [
@@ -228,6 +302,23 @@
       "content": "Fertilizer distribution has started at local cooperatives. Please bring your farmer ID.",
       "date": "2026-06-22",
       "author": "Agricultural Bureau"
+    }
+  ],
+  "cropPlans": [
+    {
+      "id": "5l7a719pqbt",
+      "farmerId": "user_a3a4pewsk",
+      "plantingDate": "2026-06-23",
+      "createdAt": "2026-06-25T19:50:16.045Z"
+    }
+  ],
+  "qualityGrades": [
+    {
+      "id": "xcjcab1d59k",
+      "farmerId": "user_a3a4pewsk",
+      "productName": "VMware",
+      "grade": "B",
+      "createdAt": "2026-06-25T19:51:34.252Z"
     }
   ]
 }

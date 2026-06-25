@@ -29,7 +29,13 @@ import {
   Tag,
   Map,
   Clock,
-  Heart
+  Heart,
+  Pencil,
+  Eye,
+  EyeOff,
+  Package,
+  XCircle,
+  BarChart3
 } from 'lucide-react';
 import cropsBg from './assets/crops-bg.jpg';
 import heroBeautiful from './assets/hero-beautiful.jpg';
@@ -154,6 +160,21 @@ export default function App() {
   const [newProdDesc, setNewProdDesc] = useState('');
   const [newProdImage, setNewProdImage] = useState(null);
   const [prodFormError, setProdFormError] = useState('');
+
+  // Edit product form (Farmer only)
+  const [editProductOpen, setEditProductOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editProdName, setEditProdName] = useState('');
+  const [editProdCategory, setEditProdCategory] = useState('Crops');
+  const [editProdType, setEditProdType] = useState('');
+  const [editProdPrice, setEditProdPrice] = useState('');
+  const [editProdQty, setEditProdQty] = useState('');
+  const [editProdUnit, setEditProdUnit] = useState('kg');
+  const [editProdHarvestDate, setEditProdHarvestDate] = useState('');
+  const [editProdLocation, setEditProdLocation] = useState('');
+  const [editProdDesc, setEditProdDesc] = useState('');
+  const [editProdImage, setEditProdImage] = useState(null);
+  const [editProdFormError, setEditProdFormError] = useState('');
 
   // Profile Edit
   const [profileName, setProfileName] = useState('');
@@ -608,6 +629,89 @@ export default function App() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  // Farmer: Reject order when payment is false
+  const handleRejectOrder = async (orderId) => {
+    if (!confirm('Reject this order? Stock will be returned.')) return;
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status: 'cancelled' })
+      });
+      if (res.ok) { fetchData(); }
+      else { const e = await res.json(); alert(e.error || 'Failed to reject order'); }
+    } catch (err) { console.error(err); }
+  };
+
+  // Farmer: Toggle product visibility (hide/show)
+  const handleToggleVisibility = async (prod) => {
+    try {
+      const formData = new FormData();
+      formData.append('name', prod.name);
+      formData.append('category', prod.category);
+      formData.append('type', prod.type);
+      formData.append('price', prod.price);
+      formData.append('quantity', prod.quantity);
+      formData.append('unit', prod.unit);
+      formData.append('harvestDate', prod.harvestDate);
+      formData.append('location', prod.location);
+      formData.append('description', prod.description || '');
+      formData.append('hidden', prod.hidden ? 'false' : 'true');
+      const res = await fetch(`/api/products/${prod.id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      if (res.ok) { fetchData(); }
+    } catch (err) { console.error(err); }
+  };
+
+  // Open edit modal
+  const handleOpenEdit = (prod) => {
+    setEditingProduct(prod);
+    setEditProdName(prod.name);
+    setEditProdCategory(prod.category);
+    setEditProdType(prod.type);
+    setEditProdPrice(String(prod.price));
+    setEditProdQty(String(prod.quantity));
+    setEditProdUnit(prod.unit);
+    setEditProdHarvestDate(prod.harvestDate);
+    setEditProdLocation(prod.location);
+    setEditProdDesc(prod.description || '');
+    setEditProdImage(null);
+    setEditProdFormError('');
+    setEditProductOpen(true);
+  };
+
+  // Submit edited product
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    setEditProdFormError('');
+    try {
+      const formData = new FormData();
+      formData.append('name', editProdName);
+      formData.append('category', editProdCategory);
+      formData.append('type', editProdType);
+      formData.append('price', editProdPrice);
+      formData.append('quantity', editProdQty);
+      formData.append('unit', editProdUnit);
+      formData.append('harvestDate', editProdHarvestDate);
+      formData.append('location', editProdLocation);
+      formData.append('description', editProdDesc);
+      if (editProdImage) formData.append('image', editProdImage);
+      const res = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) { setEditProdFormError(data.error || 'Failed to update'); return; }
+      setEditProductOpen(false);
+      setEditingProduct(null);
+      fetchData();
+    } catch (err) { setEditProdFormError('Network error'); }
   };
 
   // Farmer delete listing
@@ -1400,7 +1504,7 @@ export default function App() {
 
             {/* Listings Grid — Premium Glass Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map(prod => (
+              {products.filter(p => !p.hidden).map(prod => (
                 <div key={prod.id} className="group glass-card rounded-2xl overflow-hidden hover:scale-[1.025] hover:shadow-2xl hover:shadow-teal-500/10 dark:hover:shadow-teal-500/5 transition-all duration-400 flex flex-col justify-between relative">
                   {/* Hover shimmer border */}
                   <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(20,184,166,0.07) 0%, rgba(217,119,6,0.05) 100%)' }}></div>
@@ -1991,7 +2095,7 @@ export default function App() {
               {dashboardSubTab === 'overview' && (
                 <button 
                   onClick={() => setAddProductOpen(true)}
-                  className="mt-4 md:mt-0 px-4.5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-500/20 transition-all flex items-center space-x-2"
+                  className="mt-4 md:mt-0 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-500/20 transition-all flex items-center space-x-2 shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   <span>List New Product</span>
@@ -1999,46 +2103,226 @@ export default function App() {
               )}
             </div>
 
-            {/* Dashboard grid metrics cards — Glass - Only show on overview */}
+            {/* ============ OVERVIEW SUB-TAB ============ */}
             {dashboardSubTab === 'overview' && (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.12)' }}></div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
-                  <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{orders.length}</p>
-                  <p className="text-[10px] text-teal-500 dark:text-teal-400 font-semibold mt-1">Pending/Completed</p>
+              <div className="space-y-8">
+
+                {/* KPI Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col gap-1 shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Orders</p>
+                      <div className="w-8 h-8 rounded-xl bg-teal-500/10 flex items-center justify-center"><ShoppingBag className="w-4 h-4 text-teal-600" /></div>
+                    </div>
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">{orders.length}</p>
+                    <p className="text-[10px] text-teal-500 font-semibold">All time</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col gap-1 shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Earnings</p>
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center"><DollarSign className="w-4 h-4 text-amber-600" /></div>
+                    </div>
+                    <p className="text-2xl font-black text-amber-600 dark:text-amber-400">{orders.reduce((acc, o) => acc + (o.paymentStatus === 'paid' ? o.totalPrice : 0), 0).toLocaleString()} ETB</p>
+                    <p className="text-[10px] text-amber-500 font-bold">Paid invoices only</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col gap-1 shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Pending Orders</p>
+                      <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-orange-600" /></div>
+                    </div>
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">{orders.filter(o => o.status === 'pending').length}</p>
+                    <p className="text-[10px] text-orange-500 font-semibold">Awaiting action</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col gap-1 shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Active Listings</p>
+                      <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center"><Package className="w-4 h-4 text-indigo-600" /></div>
+                    </div>
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">{products.filter(p => p.farmerId === user.id && !p.hidden).length}</p>
+                    <p className="text-[10px] text-indigo-500 font-semibold">Visible in market</p>
+                  </div>
                 </div>
-                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(217,119,6,0.12)' }}></div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-                    {user.role === 'farmer' ? 'Total Earnings' : 'Total Spent'}
-                  </p>
-                  <p className="text-3xl font-black bg-gradient-to-r from-amber-600 to-amber-800 dark:from-amber-300 dark:to-amber-500 bg-clip-text text-transparent mt-1">
-                    {orders.reduce((acc, o) => acc + (o.paymentStatus === 'paid' ? o.totalPrice : 0), 0)} ETB
-                  </p>
-                  <p className="text-[10px] text-amber-500 dark:text-amber-400 font-bold mt-1">Paid Invoices Only</p>
+
+                {/* Charts row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-teal-500" />Monthly Sales Activity</h3>
+                    <div className="h-52"><Line data={getFarmerSalesChartData()} options={{ responsive: true, maintainAspectRatio: false }} /></div>
+                  </div>
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-amber-500" />Category Breakdown</h3>
+                    <div className="h-52 flex justify-center"><Doughnut data={getCategoryBreakdownData()} options={{ responsive: true, maintainAspectRatio: false }} /></div>
+                  </div>
                 </div>
-                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(99,102,241,0.12)' }}></div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">CBE Birr payments</p>
-                  <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">
-                    {orders.filter(o => o.paymentMethod === 'CBE_BIRR').length}
-                  </p>
-                  <p className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold mt-1">Mobile transfers</p>
+
+                {/* My Products Table */}
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Package className="w-4 h-4 text-teal-500" />My Listings</h3>
+                      <p className="text-xs text-slate-400 mt-0.5">Manage, edit, hide, or delete your products</p>
+                    </div>
+                    <button onClick={() => setAddProductOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-all shrink-0">
+                      <Plus className="w-3.5 h-3.5" /><span>Add Product</span>
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-[10px] text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
+                          <th className="py-3 px-4">Product</th>
+                          <th className="py-3 px-4 hidden sm:table-cell">Category</th>
+                          <th className="py-3 px-4">Price</th>
+                          <th className="py-3 px-4 hidden md:table-cell">Stock</th>
+                          <th className="py-3 px-4 hidden lg:table-cell">Location</th>
+                          <th className="py-3 px-4 text-center">Status</th>
+                          <th className="py-3 px-4 text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {products.filter(p => p.farmerId === user.id).length === 0 ? (
+                          <tr><td colSpan="7" className="py-12 text-center text-slate-400 text-sm">No products listed yet. Click "Add Product" to start.</td></tr>
+                        ) : (
+                          products.filter(p => p.farmerId === user.id).map(prod => (
+                            <tr key={prod.id} className={`transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40 ${prod.hidden ? 'opacity-50' : ''}`}>
+                              <td className="py-3 px-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800">
+                                    <img src={prod.imageUrl ? prod.imageUrl : (prod.category === 'Crops' ? coffeeImg : getLivestockImage(prod.type))} alt={prod.name} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{prod.name}</p>
+                                    <p className="text-[10px] text-slate-400">{prod.type}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 hidden sm:table-cell">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${prod.category === 'Crops' ? 'bg-teal-500/10 text-teal-700 dark:text-teal-400' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400'}`}>{prod.category}</span>
+                              </td>
+                              <td className="py-3 px-4 text-sm font-bold text-slate-800 dark:text-slate-200">{prod.price?.toLocaleString()} ETB/{prod.unit}</td>
+                              <td className="py-3 px-4 hidden md:table-cell text-sm text-slate-600 dark:text-slate-300">{prod.quantity} {prod.unit}</td>
+                              <td className="py-3 px-4 hidden lg:table-cell text-xs text-slate-500 dark:text-slate-400">{prod.location}</td>
+                              <td className="py-3 px-4 text-center">
+                                {prod.hidden
+                                  ? <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400">Hidden</span>
+                                  : <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-green-500/10 text-green-700 dark:text-green-400">Live</span>
+                                }
+                              </td>
+                              <td className="py-3 px-4">
+                                <div className="flex items-center justify-center gap-1">
+                                  <button onClick={() => handleOpenEdit(prod)} title="Edit" className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 transition-colors">
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button onClick={() => handleToggleVisibility(prod)} title={prod.hidden ? 'Show' : 'Hide'} className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
+                                    {prod.hidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                  </button>
+                                  <button onClick={() => handleDeleteProduct(prod.id)} title="Delete" className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 transition-colors">
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <div className="glass-card rounded-2xl p-5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: 'rgba(20,184,166,0.1)' }}></div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Logistics Status</p>
-                  <p className="text-xl font-black text-teal-600 dark:text-teal-400 mt-2 flex items-center">
-                    <Truck className="w-5 h-5 mr-2 animate-bounce" />
-                    <span>{orders.filter(o => o.status === 'shipped').length} In Transit</span>
-                  </p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1">Dispatched deliveries</p>
+
+                {/* Orders Management */}
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Truck className="w-4 h-4 text-teal-500" />Order Management</h3>
+                      <p className="text-xs text-slate-400 mt-0.5">Confirm, ship, deliver, or reject unpaid orders</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
+                        <AlertTriangle className="w-3 h-3" />{orders.filter(o => o.status === 'pending').length} Pending
+                      </span>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-[10px] text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
+                          <th className="py-3 px-4">Order</th>
+                          <th className="py-3 px-4 hidden sm:table-cell">Buyer</th>
+                          <th className="py-3 px-4">Total</th>
+                          <th className="py-3 px-4">Payment</th>
+                          <th className="py-3 px-4">Status</th>
+                          <th className="py-3 px-4 text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                        {orders.length === 0 ? (
+                          <tr><td colSpan="6" className="py-12 text-center text-slate-400 text-sm">No orders yet.</td></tr>
+                        ) : (
+                          orders.map(ord => (
+                            <tr key={ord.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                              <td className="py-3 px-4">
+                                <p className="font-bold text-slate-900 dark:text-white text-xs leading-tight">{ord.productName}</p>
+                                <p className="text-[10px] text-slate-400 font-mono mt-0.5">{ord.id}</p>
+                              </td>
+                              <td className="py-3 px-4 hidden sm:table-cell text-slate-600 dark:text-slate-300">{ord.buyerName}</td>
+                              <td className="py-3 px-4 font-bold text-slate-800 dark:text-slate-200">{ord.totalPrice?.toLocaleString()} ETB</td>
+                              <td className="py-3 px-4">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                                  ord.paymentStatus === 'paid' ? 'bg-teal-500/10 text-teal-700 dark:text-teal-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'
+                                }`}>
+                                  {ord.paymentStatus === 'paid' ? '✓ Paid' : '✗ Unpaid'}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                                  ord.status === 'delivered' ? 'bg-green-500/15 text-green-700' :
+                                  ord.status === 'shipped'   ? 'bg-blue-500/15 text-blue-700' :
+                                  ord.status === 'confirmed' ? 'bg-indigo-500/15 text-indigo-700' :
+                                  ord.status === 'cancelled' ? 'bg-slate-200 text-slate-500' :
+                                  'bg-orange-500/15 text-orange-700'
+                                }`}>{ord.status}</span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <div className="flex items-center justify-center gap-1 flex-wrap">
+                                  <button onClick={() => setTrackingOrder(ord)} title="Track" className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
+                                    <Truck className="w-3.5 h-3.5" />
+                                  </button>
+                                  {ord.status === 'pending' && (
+                                    <button onClick={() => handleUpdateOrderStatus(ord.id, 'confirmed')} className="px-2 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[10px] font-bold transition-colors">
+                                      Confirm
+                                    </button>
+                                  )}
+                                  {ord.status === 'confirmed' && (
+                                    <button onClick={() => handleUpdateOrderStatus(ord.id, 'shipped')} className="px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold transition-colors">
+                                      Ship
+                                    </button>
+                                  )}
+                                  {ord.status === 'shipped' && (
+                                    <button onClick={() => handleUpdateOrderStatus(ord.id, 'delivered')} className="px-2 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold transition-colors">
+                                      Delivered
+                                    </button>
+                                  )}
+                                  {(ord.status === 'pending' || ord.status === 'confirmed') && ord.paymentStatus !== 'paid' && (
+                                    <button onClick={() => handleRejectOrder(ord.id)} title="Reject (unpaid)" className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 transition-colors">
+                                      <XCircle className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+
               </div>
             )}
 
+
             {/* Production & Inventory Sub-tab */}
+
             {dashboardSubTab === 'production' && (
               <div className="space-y-8">
                 {/* Crop Plans Section */}
@@ -3320,10 +3604,92 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL: Edit Product (Farmer only) */}
+      {editProductOpen && editingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="w-full max-w-md overflow-y-auto max-h-[90vh] relative bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-3xl shadow-2xl shadow-slate-900/20">
+            <button onClick={() => setEditProductOpen(false)} className="absolute right-4 top-4 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-500 transition-colors z-10">
+              <X className="w-4 h-4" />
+            </button>
+            <div className="px-6 py-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center"><Pencil className="w-5 h-5 text-blue-600" /></div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">Edit Product</h3>
+                  <p className="text-xs text-slate-400">Update your listing details</p>
+                </div>
+              </div>
+              {editProdFormError && (<div className="mb-4 p-3 rounded-lg bg-red-500/15 border border-red-500/20 text-red-600 text-xs font-bold">{editProdFormError}</div>)}
+              <form onSubmit={handleUpdateProduct} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Product Title</label>
+                  <input type="text" required value={editProdName} onChange={e => setEditProdName(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Category</label>
+                    <select value={editProdCategory} onChange={e => setEditProdCategory(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none cursor-pointer">
+                      <option value="Crops">Crops</option>
+                      <option value="Livestock">Livestock</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Crop/Breed Type</label>
+                    <input type="text" required value={editProdType} onChange={e => setEditProdType(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Unit Price (ETB)</label>
+                    <input type="number" required value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Unit</label>
+                    <input type="text" required value={editProdUnit} onChange={e => setEditProdUnit(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Quantity Stock</label>
+                    <input type="number" required value={editProdQty} onChange={e => setEditProdQty(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Harvest Date</label>
+                    <input type="date" required value={editProdHarvestDate} onChange={e => setEditProdHarvestDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none cursor-pointer" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Location / Hub Point</label>
+                  <input type="text" required value={editProdLocation} onChange={e => setEditProdLocation(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Replace Image (optional)</label>
+                  <input type="file" accept="image/*" onChange={e => setEditProdImage(e.target.files[0])} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none" />
+                  {editingProduct.imageUrl && !editProdImage && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <img src={editingProduct.imageUrl} alt="current" className="w-12 h-12 rounded-lg object-cover border border-slate-200" />
+                      <p className="text-[10px] text-slate-400">Current image — upload a new one to replace</p>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Short Description</label>
+                  <textarea value={editProdDesc} onChange={e => setEditProdDesc(e.target.value)} rows="3" className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div className="flex justify-end pt-2 space-x-2">
+                  <button type="button" onClick={() => setEditProductOpen(false)} className="px-4 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold text-xs rounded-xl">Cancel</button>
+                  <button type="submit" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL 4: Add Product Modal (Farmer only) */}
       {addProductOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-          <div className="w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in-95 duration-200" style={{ background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.45)', borderRadius: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+          <div className="w-full max-w-md overflow-y-auto max-h-[90vh] relative bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-3xl shadow-2xl shadow-slate-900/20">
             <button 
               onClick={() => setAddProductOpen(false)}
               className="absolute right-4.5 top-4.5 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 transition-colors"
