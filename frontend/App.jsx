@@ -11,8 +11,7 @@ import {
   Sun,
   Moon,
   CloudRain,
-  Menu,
-  X,
+  Plus,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -25,7 +24,6 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler,
 } from "chart.js";
 
 // Assets
@@ -71,7 +69,6 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler,
 );
 
 const getLivestockImage = (type) => {
@@ -91,24 +88,16 @@ const getLivestockImage = (type) => {
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  // ── Theme
+  // ── Theme ──────────────────────────────────────────────────────────────
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  useEffect(() => {
-    document.body.style.overflow = mobileNavOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileNavOpen]);
-
-  // ── Auth
+  // ── Auth ───────────────────────────────────────────────────────────────
   const [user, setUser] = useState(
     () => JSON.parse(localStorage.getItem("user")) || null,
   );
@@ -123,17 +112,13 @@ export default function App() {
   const [authLocation, setAuthLocation] = useState("");
   const [authError, setAuthError] = useState("");
 
-  // ── Navigation
+  // ── Navigation ─────────────────────────────────────────────────────────
   const [currentTab, setCurrentTab] = useState("market");
   const [dashboardSubTab, setDashboardSubTab] = useState("overview");
   const [buyerDashboardSubTab, setBuyerDashboardSubTab] = useState("overview");
   const [adminDashboardSubTab, setAdminDashboardSubTab] = useState("overview");
 
-  useEffect(() => {
-    setMobileNavOpen(false);
-  }, [currentTab, user]);
-
-  // ── Catalog
+  // ── Catalog & Market ───────────────────────────────────────────────────
   const [products, setProducts] = useState([]);
   const [bulletins, setBulletins] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -149,14 +134,14 @@ export default function App() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  // ── Admin
+  // ── Admin ──────────────────────────────────────────────────────────────
   const [allUsers, setAllUsers] = useState([]);
   const [adminAnalytics, setAdminAnalytics] = useState(null);
   const [disputes, setDisputes] = useState([]);
   const [qualityAudits, setQualityAudits] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
 
-  // ── Farmer
+  // ── Farmer State ───────────────────────────────────────────────────────
   const [cropPlans, setCropPlans] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
   const [equipmentList, setEquipmentList] = useState([]);
@@ -174,12 +159,12 @@ export default function App() {
   const [bulkDiscounts, setBulkDiscounts] = useState([]);
   const [advanceBookings, setAdvanceBookings] = useState([]);
 
-  // ── Buyer
+  // ── Buyer State ────────────────────────────────────────────────────────
   const [wishlist, setWishlist] = useState([]);
   const [supplierReviews, setSupplierReviews] = useState([]);
   const [buyerBudgets, setBuyerBudgets] = useState([]);
 
-  // ── Profile
+  // ── Profile ────────────────────────────────────────────────────────────
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
   const [profileLocation, setProfileLocation] = useState("");
@@ -188,7 +173,7 @@ export default function App() {
   const [profileCoords, setProfileCoords] = useState("");
   const [profileSaved, setProfileSaved] = useState(false);
 
-  // ── Checkout
+  // ── Checkout ───────────────────────────────────────────────────────────
   const [checkoutProduct, setCheckoutProduct] = useState(null);
   const [checkoutQuantity, setCheckoutQuantity] = useState(1);
   const [checkoutPaymentMethod, setCheckoutPaymentMethod] =
@@ -200,7 +185,7 @@ export default function App() {
   const [paymentError, setPaymentError] = useState("");
   const [processingPayment, setProcessingPayment] = useState(false);
 
-  // ── Other UI
+  // ── UI Modal State ─────────────────────────────────────────────────────
   const [trackingOrder, setTrackingOrder] = useState(null);
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [editProductOpen, setEditProductOpen] = useState(false);
@@ -217,7 +202,7 @@ export default function App() {
     useState(false);
   const [auditModalOpen, setAuditModalOpen] = useState(false);
 
-  // ── Add product fields
+  // ── Add/Edit product fields ────────────────────────────────────────────
   const [newProdName, setNewProdName] = useState("");
   const [newProdCategory, setNewProdCategory] = useState("Crops");
   const [newProdType, setNewProdType] = useState("Coffee");
@@ -229,8 +214,6 @@ export default function App() {
   const [newProdDesc, setNewProdDesc] = useState("");
   const [newProdImage, setNewProdImage] = useState(null);
   const [prodFormError, setProdFormError] = useState("");
-
-  // ── Edit product fields
   const [editProdName, setEditProdName] = useState("");
   const [editProdCategory, setEditProdCategory] = useState("Crops");
   const [editProdType, setEditProdType] = useState("");
@@ -243,7 +226,7 @@ export default function App() {
   const [editProdImage, setEditProdImage] = useState(null);
   const [editProdFormError, setEditProdFormError] = useState("");
 
-  // ── Farmer modal flags
+  // ── Farmer modal open/close state ──────────────────────────────────────
   const [cropPlanModalOpen, setCropPlanModalOpen] = useState(false);
   const [inventoryModalOpen, setInventoryModalOpen] = useState(false);
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
@@ -262,7 +245,7 @@ export default function App() {
   const [bulkDiscountModalOpen, setBulkDiscountModalOpen] = useState(false);
   const [preHarvestModalOpen, setPreHarvestModalOpen] = useState(false);
 
-  // ── Data Fetching
+  // ── Data Fetching ──────────────────────────────────────────────────────
   const fetchData = async () => {
     try {
       const q = new URLSearchParams();
@@ -348,7 +331,7 @@ export default function App() {
     fetchData();
   }, [token, user, search, category, locationFilter, minPrice, maxPrice]);
 
-  // ── Auth
+  // ── Auth Handlers ──────────────────────────────────────────────────────
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setAuthError("");
@@ -356,7 +339,7 @@ export default function App() {
       authMode === "login" ? "/api/auth/login" : "/api/auth/register";
     const payload =
       authMode === "login"
-        ? { email: authEmail, password: authPassword }
+        ? { email: authEmail, password: authPassword, role: authRole }
         : {
             email: authEmail,
             password: authPassword,
@@ -398,7 +381,7 @@ export default function App() {
     setCurrentTab("market");
   };
 
-  // ── Profile
+  // ── Profile ────────────────────────────────────────────────────────────
   const handleProfileSave = async (e) => {
     e.preventDefault();
     const url =
@@ -444,7 +427,7 @@ export default function App() {
     }
   };
 
-  // ── Checkout
+  // ── Checkout ───────────────────────────────────────────────────────────
   const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
     setPaymentError("");
@@ -502,7 +485,7 @@ export default function App() {
     }
   };
 
-  // ── Handler Hooks
+  // ── Custom Hooks (handlers) ────────────────────────────────────────────
   const farmerHandlers = useFarmerHandlers({
     token,
     user,
@@ -592,6 +575,7 @@ export default function App() {
     supplierReviews,
     setSupplierReviews,
   });
+
   const adminHandlers = useAdminHandlers({
     token,
     user,
@@ -602,7 +586,7 @@ export default function App() {
     fetchData,
   });
 
-  // ── Chart helpers
+  // ── Chart Data ─────────────────────────────────────────────────────────
   const getFarmerSalesChartData = () => {
     const paid = orders.filter((o) => o.paymentStatus === "paid");
     const monthly = {};
@@ -655,9 +639,10 @@ export default function App() {
     };
   };
 
-  // ── Render
+  // ── Render ─────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-500 overflow-x-hidden relative">
+      {/* Ambient glows */}
       <div
         className="fixed -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none ambient-blob-1 animate-pulse"
         style={{ animationDuration: "8s" }}
@@ -673,16 +658,16 @@ export default function App() {
 
       {/* Header */}
       <header className="glass-nav sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-3 flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div
-            className="flex min-w-0 items-center space-x-3 cursor-pointer"
+            className="flex items-center space-x-3 cursor-pointer"
             onClick={() => setCurrentTab("market")}
           >
-            <div className="w-10 h-10 shrink-0 rounded-xl bg-teal-600 dark:bg-teal-500 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
+            <div className="w-10 h-10 rounded-xl bg-teal-600 dark:bg-teal-500 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <div className="min-w-0">
-              <h1 className="truncate text-lg sm:text-2xl font-bold bg-gradient-to-r from-teal-600 to-amber-600 dark:from-teal-400 dark:to-amber-500 bg-clip-text text-transparent m-0 tracking-tight leading-none">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-teal-600 to-amber-600 dark:from-teal-400 dark:to-amber-500 bg-clip-text text-transparent m-0 tracking-tight leading-none">
                 {t("appName")}
               </h1>
               <p className="text-[10px] text-slate-600 dark:text-slate-400 font-medium hidden sm:block">
@@ -690,47 +675,43 @@ export default function App() {
               </p>
             </div>
           </div>
-
-          <nav className="hidden md:flex items-center space-x-1 rounded-2xl border border-slate-200/80 bg-white/60 px-2 py-1.5 dark:border-slate-800 dark:bg-slate-900/60">
-            <button
-              onClick={() => setCurrentTab("market")}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${currentTab === "market" ? "bg-teal-600 text-white shadow-md shadow-teal-500/20 dark:bg-teal-500 dark:text-slate-950" : "text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-300"}`}
-            >
-              {t("navMarket")}
-            </button>
-            <button
-              onClick={() => setCurrentTab("bulletins")}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all relative ${currentTab === "bulletins" ? "bg-teal-600 text-white shadow-md shadow-teal-500/20 dark:bg-teal-500 dark:text-slate-950" : "text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-300"}`}
-            >
-              {t("navBulletins")}
-              {bulletins.length > 0 && (
-                <span className="absolute top-1.5 right-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white dark:ring-slate-950 animate-pulse"></span>
-              )}
-            </button>
-            {user && (
+          <nav className="hidden md:flex items-center space-x-1">
+            {[
+              { key: "market", label: t("navMarket") },
+              {
+                key: "bulletins",
+                label: t("navBulletins"),
+                badge: bulletins.length > 0,
+              },
+              ...(user
+                ? [
+                    {
+                      key: "dashboard",
+                      label:
+                        user.role === "admin"
+                          ? "Admin Panel"
+                          : user.role === "farmer"
+                            ? t("navDashboard")
+                            : "My Orders",
+                    },
+                  ]
+                : []),
+              ...(user ? [{ key: "profile", label: t("navProfile") }] : []),
+            ].map((nav) => (
               <button
-                onClick={() => setCurrentTab("dashboard")}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${currentTab === "dashboard" ? "bg-teal-600 text-white shadow-md shadow-teal-500/20 dark:bg-teal-500 dark:text-slate-950" : "text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-300"}`}
+                key={nav.key}
+                onClick={() => setCurrentTab(nav.key)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all relative ${currentTab === nav.key ? "bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400" : "text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400"}`}
               >
-                {user.role === "admin"
-                  ? "Admin Panel"
-                  : user.role === "farmer"
-                    ? t("navDashboard")
-                    : "My Orders"}
+                {nav.label}
+                {nav.badge && (
+                  <span className="absolute top-1.5 right-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white dark:ring-slate-950 animate-pulse"></span>
+                )}
               </button>
-            )}
-            {user && (
-              <button
-                onClick={() => setCurrentTab("profile")}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${currentTab === "profile" ? "bg-teal-600 text-white shadow-md shadow-teal-500/20 dark:bg-teal-500 dark:text-slate-950" : "text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-300"}`}
-              >
-                {t("navProfile")}
-              </button>
-            )}
+            ))}
           </nav>
-
-          <div className="hidden md:flex items-center space-x-3">
-            <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
               <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">
                 {t("languageLabel")}:
               </span>
@@ -747,7 +728,7 @@ export default function App() {
             </div>
             <button
               onClick={() => setDark(!dark)}
-              className="action-icon-btn border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
             >
               {dark ? (
                 <Sun className="w-4.5 h-4.5" />
@@ -762,10 +743,12 @@ export default function App() {
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="app-btn-danger px-3 py-2 text-xs"
+                  className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:text-red-400 dark:border-red-950/30 transition-all flex items-center space-x-1"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="hidden lg:inline">{t("navLogout")}</span>
+                  <span className="text-xs font-semibold hidden md:inline">
+                    {t("navLogout")}
+                  </span>
                 </button>
               </div>
             ) : (
@@ -774,160 +757,15 @@ export default function App() {
                   setAuthMode("login");
                   setAuthModalOpen(true);
                 }}
-                className="app-btn-primary"
+                className="px-4.5 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm shadow-md shadow-teal-500/20 flex items-center space-x-2 transition-all"
               >
                 <LogIn className="w-4 h-4" />
                 <span>{t("navLogin")}</span>
               </button>
             )}
           </div>
-
-          <button
-            onClick={() => setMobileNavOpen(true)}
-            className="md:hidden action-icon-btn border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
-            aria-label="Open navigation menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
         </div>
       </header>
-
-      {mobileNavOpen && (
-        <>
-          <button
-            className="mobile-sidebar-overlay"
-            onClick={() => setMobileNavOpen(false)}
-            aria-label="Close navigation menu"
-          />
-          <aside className="mobile-sidebar flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-600 dark:text-teal-400">
-                  Navigation
-                </p>
-                <h2 className="mt-1 text-xl font-extrabold text-slate-900 dark:text-white">
-                  {t("appName")}
-                </h2>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Browse the marketplace and manage your account easily on
-                  mobile.
-                </p>
-              </div>
-              <button
-                onClick={() => setMobileNavOpen(false)}
-                className="action-icon-btn border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
-                aria-label="Close navigation menu"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {user && (
-              <div className="mobile-sidebar-section">
-                <p className="text-sm font-bold text-slate-900 dark:text-white">
-                  {user.name}
-                </p>
-                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mt-1">
-                  {user.role}
-                </p>
-              </div>
-            )}
-
-            <div className="mobile-sidebar-section space-y-2">
-              <button
-                onClick={() => setCurrentTab("market")}
-                className={`mobile-nav-link ${currentTab === "market" ? "mobile-nav-link-active" : ""}`}
-              >
-                <span>{t("navMarket")}</span>
-              </button>
-              <button
-                onClick={() => setCurrentTab("bulletins")}
-                className={`mobile-nav-link ${currentTab === "bulletins" ? "mobile-nav-link-active" : ""}`}
-              >
-                <span>{t("navBulletins")}</span>
-                {bulletins.length > 0 && (
-                  <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-amber-500 px-2 text-[10px] font-bold text-white">
-                    {bulletins.length}
-                  </span>
-                )}
-              </button>
-              {user && (
-                <button
-                  onClick={() => setCurrentTab("dashboard")}
-                  className={`mobile-nav-link ${currentTab === "dashboard" ? "mobile-nav-link-active" : ""}`}
-                >
-                  <span>
-                    {user.role === "admin"
-                      ? "Admin Panel"
-                      : user.role === "farmer"
-                        ? t("navDashboard")
-                        : "My Orders"}
-                  </span>
-                </button>
-              )}
-              {user && (
-                <button
-                  onClick={() => setCurrentTab("profile")}
-                  className={`mobile-nav-link ${currentTab === "profile" ? "mobile-nav-link-active" : ""}`}
-                >
-                  <span>{t("navProfile")}</span>
-                </button>
-              )}
-            </div>
-
-            <div className="mobile-sidebar-section space-y-3">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {t("languageLabel")}
-              </label>
-              <select
-                value={i18n.language}
-                onChange={(e) => i18n.changeLanguage(e.target.value)}
-                className="glass-input"
-              >
-                <option value="en">English</option>
-                <option value="am">አማርኛ</option>
-                <option value="om">Afaan Oromo</option>
-                <option value="so">Soomaali</option>
-              </select>
-              <button
-                onClick={() => setDark(!dark)}
-                className="app-btn-secondary w-full"
-              >
-                {dark ? (
-                  <Sun className="w-4 h-4" />
-                ) : (
-                  <Moon className="w-4 h-4" />
-                )}
-                <span>{dark ? "Use light mode" : "Use dark mode"}</span>
-              </button>
-            </div>
-
-            <div className="mt-auto pt-2">
-              {user ? (
-                <button
-                  onClick={handleLogout}
-                  className="app-btn-danger w-full"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>{t("navLogout")}</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setAuthMode("login");
-                    setAuthModalOpen(true);
-                    setMobileNavOpen(false);
-                  }}
-                  className="app-btn-primary w-full"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>{t("navLogin")}</span>
-                </button>
-              )}
-            </div>
-          </aside>
-        </>
-      )}
 
       {/* Main */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -1147,13 +985,13 @@ export default function App() {
       <footer className="mt-auto border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950/50 py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">
-            © 2026 Hararghe Agricultural Marketplace Hub. Powered by Node.js
-            &amp; React.
+            © 2026 Hararghe Agricultural Marketplace Hub. Powered by Node.js &
+            React.
           </p>
         </div>
       </footer>
 
-      {/* ── Modals ── */}
+      {/* Modals */}
       {authModalOpen && (
         <AuthModal
           authMode={authMode}

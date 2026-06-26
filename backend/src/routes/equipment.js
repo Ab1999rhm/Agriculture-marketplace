@@ -1,17 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { db } = require('../services/firebase');
+const { db } = require("../services/firebase");
 
 // Get all equipment for a farmer
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { farmerId } = req.query;
-    let query = db.collection('equipment');
+    let query = db.collection("equipment");
     if (farmerId) {
-      query = query.where('farmerId', '==', farmerId);
+      query = query.where("farmerId", "==", farmerId);
     }
     const snapshot = await query.get();
-    const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     res.json(items);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -19,11 +19,11 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single equipment item
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const doc = await db.collection('equipment').doc(req.params.id).get();
+    const doc = await db.collection("equipment").doc(req.params.id).get();
     if (!doc.exists) {
-      return res.status(404).json({ error: 'Equipment not found' });
+      return res.status(404).json({ error: "Equipment not found" });
     }
     res.json({ id: doc.id, ...doc.data() });
   } catch (error) {
@@ -32,18 +32,28 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create new equipment
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const { farmerId, equipmentName, type, status, purchaseDate, lastMaintenance, notes } = req.body;
-    const docRef = await db.collection('equipment').add({
+    const {
       farmerId,
       equipmentName,
       type,
       status,
       purchaseDate,
       lastMaintenance,
+      nextMaintenance,
       notes,
-      createdAt: new Date().toISOString()
+    } = req.body;
+    const docRef = await db.collection("equipment").add({
+      farmerId,
+      equipmentName,
+      type,
+      status,
+      purchaseDate,
+      lastMaintenance,
+      nextMaintenance,
+      notes,
+      createdAt: new Date().toISOString(),
     });
     const doc = await docRef.get();
     res.status(201).json({ id: doc.id, ...doc.data() });
@@ -53,19 +63,28 @@ router.post('/', async (req, res) => {
 });
 
 // Update equipment
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
-    const { equipmentName, type, status, purchaseDate, lastMaintenance, notes } = req.body;
-    await db.collection('equipment').doc(req.params.id).update({
+    const {
       equipmentName,
       type,
       status,
       purchaseDate,
       lastMaintenance,
+      nextMaintenance,
       notes,
-      updatedAt: new Date().toISOString()
+    } = req.body;
+    await db.collection("equipment").doc(req.params.id).update({
+      equipmentName,
+      type,
+      status,
+      purchaseDate,
+      lastMaintenance,
+      nextMaintenance,
+      notes,
+      updatedAt: new Date().toISOString(),
     });
-    const doc = await db.collection('equipment').doc(req.params.id).get();
+    const doc = await db.collection("equipment").doc(req.params.id).get();
     res.json({ id: doc.id, ...doc.data() });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -73,10 +92,10 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete equipment
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    await db.collection('equipment').doc(req.params.id).delete();
-    res.json({ message: 'Equipment deleted successfully' });
+    await db.collection("equipment").doc(req.params.id).delete();
+    res.json({ message: "Equipment deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

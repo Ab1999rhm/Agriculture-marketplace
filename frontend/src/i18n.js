@@ -1,5 +1,5 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
 
 const resources = {
   en: {
@@ -10,11 +10,12 @@ const resources = {
       navMarket: "Browse Market",
       navDashboard: "Dashboard",
       navBulletins: "Bulletins & Alerts",
-      navProfile: "My Profile",
+      // navProfile: "My Profile",
       navLogin: "Sign In",
       navSignup: "Register",
       navLogout: "Sign Out",
-      searchPlaceholder: "Search crops (Coffee, Chat, Groundnuts, Livestock)...",
+      searchPlaceholder:
+        "Search crops (Coffee, Chat, Groundnuts, Livestock)...",
       filterCategory: "Category",
       filterLocation: "Location",
       filterPriceRange: "Price Range (ETB)",
@@ -41,8 +42,8 @@ const resources = {
       viewLogistics: "Logistics Tracking",
       salesAnalytics: "Farmer Sales Analytics",
       purchaseHistory: "Purchase History",
-      languageLabel: "Language"
-    }
+      languageLabel: "Language",
+    },
   },
   am: {
     translation: {
@@ -83,8 +84,8 @@ const resources = {
       viewLogistics: "የሎጅስቲክስ ክትትል",
       salesAnalytics: "የገበሬዎች ሽያጭ ትንታኔ",
       purchaseHistory: "የግዢ ታሪክ",
-      languageLabel: "ቋንቋ"
-    }
+      languageLabel: "ቋንቋ",
+    },
   },
   om: {
     translation: {
@@ -125,8 +126,8 @@ const resources = {
       viewLogistics: "Haala Dhiyeessii",
       salesAnalytics: "Xiinxala Gurgurtaa Qonnaan Bulaa",
       purchaseHistory: "Seenaa Bitannaa",
-      languageLabel: "Afaan"
-    }
+      languageLabel: "Afaan",
+    },
   },
   so: {
     translation: {
@@ -167,20 +168,18 @@ const resources = {
       viewLogistics: "Dabasgalka Logistics-ka",
       salesAnalytics: "Falanqaynta Iibka Beeraleyda",
       purchaseHistory: "Taariikhda Iibsiga",
-      languageLabel: "Luuqada"
-    }
-  }
+      languageLabel: "Luuqada",
+    },
+  },
 };
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: "en", // default language
-    fallbackLng: "en",
-    interpolation: {
-      escapeValue: false
-    }
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  lng: "en", // default language
+  fallbackLng: "en",
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
 export default i18n;

@@ -310,6 +310,12 @@
       "farmerId": "user_a3a4pewsk",
       "plantingDate": "2026-06-23",
       "createdAt": "2026-06-25T19:50:16.045Z"
+    },
+    {
+      "id": "eq9e0v2h74",
+      "farmerId": "user_a3a4pewsk",
+      "plantingDate": "2026-06-24",
+      "createdAt": "2026-06-26T08:09:39.557Z"
     }
   ],
   "qualityGrades": [
@@ -319,6 +325,63 @@
       "productName": "VMware",
       "grade": "B",
       "createdAt": "2026-06-25T19:51:34.252Z"
+    }
+  ],
+  "inventory": [
+    {
+      "id": "yt632y4om5",
+      "farmerId": "user_a3a4pewsk",
+      "itemName": "COFFEE",
+      "quantity": "400",
+      "unit": "Kg",
+      "location": "Dire Mall",
+      "createdAt": "2026-06-26T08:11:00.224Z"
+    }
+  ],
+  "equipment": [
+    {
+      "id": "p7rsjtvp8w9",
+      "farmerId": "user_a3a4pewsk",
+      "equipmentName": "what i want to",
+      "type": "Heavy matchinery",
+      "status": "maintenance",
+      "purchaseDate": "2026-06-27",
+      "createdAt": "2026-06-26T08:12:35.910Z"
+    }
+  ],
+  "loans": [
+    {
+      "id": "66s4bsbeb4o",
+      "farmerId": "user_a3a4pewsk",
+      "loanType": "operational",
+      "amount": "10000",
+      "purpose": "to maintain",
+      "status": "pending",
+      "applicationDate": "2026-06-26T08:14:18.762Z",
+      "createdAt": "2026-06-26T08:14:18.762Z"
+    }
+  ],
+  "supplierReviews": [
+    {
+      "id": "tkb364uy6al",
+      "buyerId": "user_so6cga6k6",
+      "rating": 5,
+      "comment": "Abraham's production has good quality",
+      "orderId": "ord_80aspqfus",
+      "date": "2026-06-26T15:31:19.575Z",
+      "createdAt": "2026-06-26T15:31:19.579Z"
+    }
+  ],
+  "wishlist": [
+    {
+      "id": "htsvhtxaw25",
+      "buyerId": "user_so6cga6k6",
+      "productId": "prod_7b4zg0nai",
+      "productName": "Harar City Bean",
+      "price": 400,
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "createdAt": "2026-06-26T15:35:08.075Z"
     }
   ]
 }

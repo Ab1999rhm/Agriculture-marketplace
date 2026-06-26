@@ -8,6 +8,9 @@ cd c:\yaalii\KeneniJunadin\Hararghe\backend
 npm start
 cd c:\yaalii\KeneniJunadin\Hararghe\frontend
 npm run dev
+or
+npm --prefix backend run dev
+npm --prefix frontend run dev
 1. **Farmer Portals**: Set up profiles, manage crop listings (harvest dates, price, unit), track sales metrics, and update order fulfillment statuses.
 2. **Buyer Catalog**: Advanced search & filter (filter by category, type, price ranges, and hubs like Babille or Alem Maya).
 3. **Multilingual Interface**: Full translation support in **Amharic (አማርኛ)**, **Somali (Soomaali)**, **Afaan Oromo**, and **English** via `react-i18next`.
