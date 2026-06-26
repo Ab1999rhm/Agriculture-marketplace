@@ -55,13 +55,13 @@ app.use(authMiddleware.verifyToken);
 // Public routes (no auth required)
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/bulletins", bulletinRoutes);
 
 // Protected routes (auth required)
 app.use("/api/farmers", authMiddleware.verifyToken, farmerRoutes);
 app.use("/api/buyers", authMiddleware.verifyToken, buyerRoutes);
 app.use("/api/orders", authMiddleware.verifyToken, orderRoutes);
 app.use("/api/payments", authMiddleware.verifyToken, paymentRoutes);
-app.use("/api/bulletins", authMiddleware.verifyToken, bulletinRoutes);
 app.use("/api/admin", authMiddleware.requireAdmin, adminRoutes);
 app.use("/api/crop-plans", authMiddleware.verifyToken, cropPlanRoutes);
 app.use("/api/inventory", authMiddleware.verifyToken, inventoryRoutes);

@@ -2,10 +2,10 @@ import ModalShell from "../shared/ModalShell";
 
 /* ── helpers ─────────────────────────────────────────── */
 const inp =
-  "w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500";
-const lbl = "block text-[10px] font-extrabold uppercase text-slate-400 mb-1";
+  "w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500";
+const lbl = "block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1";
 const cancelBtn =
-  "px-4.5 py-2.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-450 font-bold text-xs rounded-xl";
+  "px-4.5 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all";
 const submitBtn =
   "px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 transition-all";
 

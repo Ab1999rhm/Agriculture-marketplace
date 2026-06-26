@@ -104,18 +104,18 @@
       "id": "prod_7b4zg0nai",
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
-      "name": "Harar City Bean",
-      "category": "Livestock",
-      "type": "Bean",
-      "price": 400,
-      "quantity": 19998,
-      "unit": "kg",
-      "harvestDate": "2026-06-23T00:00:00.000Z",
-      "location": "Harar City ",
-      "description": "This production has high quality with 6% discount\r\nour phone contact is 0929570426",
+      "price": 200,
+      "quantity": 3,
+      "description": "",
       "createdAt": "2026-06-25T07:15:12.102Z",
-      "updatedAt": "2026-06-25T19:44:08.071Z",
-      "hidden": false
+      "updatedAt": "2026-06-26T19:27:56.671Z",
+      "hidden": false,
+      "name": "bean",
+      "category": "Crops",
+      "type": "bean",
+      "unit": "kg",
+      "harvestDate": "2026-06-24",
+      "location": "Dire"
     },
     {
       "id": "prod_a428b43js",
@@ -137,17 +137,13 @@
       "id": "prod_wrecnkxdd",
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
-      "name": "Maize from Awaday",
-      "category": "Crops",
-      "type": "Maize",
-      "price": 325,
-      "quantity": 2000,
-      "unit": "kg",
-      "harvestDate": "2026-06-23",
-      "location": "Awaday,Harar",
-      "description": "This corn has sweety test",
+      "price": null,
+      "quantity": null,
+      "description": "",
       "createdAt": "2026-06-25T19:49:12.625Z",
-      "imageUrl": "/uploads/product-1782416952599-724296864.jpg"
+      "imageUrl": "/uploads/product-1782416952599-724296864.jpg",
+      "updatedAt": "2026-06-26T19:10:40.778Z",
+      "hidden": false
     }
   ],
   "orders": [
@@ -302,6 +298,60 @@
       "content": "Fertilizer distribution has started at local cooperatives. Please bring your farmer ID.",
       "date": "2026-06-22",
       "author": "Agricultural Bureau"
+    },
+    {
+      "id": "bul_weather_001",
+      "title": "Heavy Rainfall Alert for Hararghe Region",
+      "type": "weather",
+      "content": "Meteorological services predict heavy rainfall in the Hararghe region over the next 72 hours. Farmers are advised to secure harvested crops and ensure proper drainage in coffee plantations. Expected rainfall: 80-120mm.",
+      "date": "2026-06-26",
+      "author": "Ethiopian Meteorological Agency",
+      "createdAt": "2026-06-26T20:44:23.809Z"
+    },
+    {
+      "id": "bul_market_001",
+      "title": "Coffee Price Surge: Harar Grade A Reaches Record High",
+      "type": "market",
+      "content": "Local market rates show significant increase in Harar coffee prices. Grade A coffee now trading at $4.85/kg, up 15% from last month. Farmers are encouraged to sell through certified cooperatives for better rates.",
+      "date": "2026-06-25",
+      "author": "Hararghe Agricultural Bureau",
+      "createdAt": "2026-06-25T20:44:23.809Z"
+    },
+    {
+      "id": "bul_gov_001",
+      "title": "Fertilizer Distribution Schedule Announced",
+      "type": "government",
+      "content": "The government has announced the fertilizer distribution schedule for the upcoming planting season. DAP and UREA fertilizers will be available at cooperative centers starting next week. Farmers should register with local agricultural offices to receive allocations.",
+      "date": "2026-06-24",
+      "author": "Ministry of Agriculture",
+      "createdAt": "2026-06-24T20:44:23.809Z"
+    },
+    {
+      "id": "bul_weather_002",
+      "title": "Drought Warning: Eastern Zones",
+      "type": "weather",
+      "content": "Eastern zones of Hararghe are experiencing below-average rainfall. Farmers in these areas are advised to implement water conservation measures and consider drought-resistant crop varieties for the next planting season.",
+      "date": "2026-06-23",
+      "author": "Regional Disaster Prevention",
+      "createdAt": "2026-06-23T20:44:23.809Z"
+    },
+    {
+      "id": "bul_market_002",
+      "title": "Cereal Market Update: Wheat and Barley Prices Stable",
+      "type": "market",
+      "content": "Cereal market analysis shows stable prices for wheat and barley across the region. Current market rates: Wheat - $0.45/kg, Barley - $0.38/kg. Good harvest expected from highland areas.",
+      "date": "2026-06-22",
+      "author": "Market Analysis Bureau",
+      "createdAt": "2026-06-22T20:44:23.809Z"
+    },
+    {
+      "id": "bul_gov_002",
+      "title": "Agricultural Loan Program Extended",
+      "type": "government",
+      "content": "The agricultural loan program has been extended with additional funding. Smallholder farmers can now access low-interest loans for equipment purchase and farm improvement. Contact local agricultural offices for application details.",
+      "date": "2026-06-21",
+      "author": "Development Bank of Ethiopia",
+      "createdAt": "2026-06-21T20:44:23.809Z"
     }
   ],
   "cropPlans": [

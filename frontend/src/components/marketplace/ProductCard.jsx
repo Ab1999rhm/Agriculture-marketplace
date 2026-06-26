@@ -19,6 +19,8 @@ export default function ProductCard({
 }) {
   const isWishlisted = wishlist.some((item) => item.productId === prod.id);
   const grade = qualityGrade?.grade?.toUpperCase();
+  const isOutOfStock = prod.quantity <= 0;
+  const isLowStock = prod.quantity > 0 && prod.quantity <= 5;
 
   return (
     <div className="group glass-card rounded-2xl overflow-hidden hover:scale-[1.025] hover:shadow-2xl hover:shadow-teal-500/10 dark:hover:shadow-teal-500/5 transition-all duration-400 flex flex-col justify-between relative">
@@ -31,9 +33,16 @@ export default function ProductCard({
         <img
           src={prod.imageUrl ? prod.imageUrl : (prod.category === 'Crops' ? coffeeImg : getLivestockImage(prod.type))}
           alt={prod.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wider shadow-lg">
+              Sold Out
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="p-6 relative z-10">
@@ -45,6 +54,11 @@ export default function ProductCard({
             {grade && (
               <span className={`px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide ${gradeBadgeClasses[grade] || gradeBadgeClasses.C}`}>
                 Grade {grade}
+              </span>
+            )}
+            {isLowStock && !isOutOfStock && (
+              <span className="px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 border border-orange-200 dark:border-orange-800">
+                Low Stock
               </span>
             )}
           </div>
@@ -78,7 +92,9 @@ export default function ProductCard({
         <div>
           <span className="text-xl font-black text-slate-900 dark:text-white">{prod.price}</span>
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
-          <p className="text-[10px] text-teal-600 dark:text-teal-400 font-bold uppercase mt-0.5">Stock: {prod.quantity} {prod.unit}</p>
+          <p className={`text-[10px] font-bold uppercase mt-0.5 ${isOutOfStock ? 'text-red-600 dark:text-red-400' : 'text-teal-600 dark:text-teal-400'}`}>
+            {isOutOfStock ? 'Sold Out' : `Stock: ${prod.quantity} ${prod.unit}`}
+          </p>
         </div>
 
         {user?.role === 'farmer' ? (
@@ -101,10 +117,11 @@ export default function ProductCard({
             </button>
             <button
               onClick={() => onBuy(prod)}
-              className="glass-btn-primary px-4 py-2 text-xs flex items-center space-x-1.5"
+              disabled={isOutOfStock}
+              className={`glass-btn-primary px-4 py-2 text-xs flex items-center space-x-1.5 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Buy Now</span>
+              <span>{isOutOfStock ? 'Sold Out' : 'Buy Now'}</span>
             </button>
           </div>
         )}

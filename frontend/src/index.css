@@ -270,25 +270,25 @@
     }
 
     .mobile-sidebar {
-        @apply fixed right-0 top-0 z-50 h-full w-[88vw] max-w-sm border-l border-slate-200 p-5 shadow-2xl backdrop-blur-xl dark:border-slate-800 md:hidden;
-        background: rgba(255, 255, 255, 0.96);
+        @apply fixed right-0 top-0 z-50 h-full w-[88vw] max-w-sm border-l border-slate-200 p-6 shadow-2xl backdrop-blur-xl dark:border-slate-800 md:hidden;
+        background: rgba(255, 255, 255, 0.97);
     }
 
     .dark .mobile-sidebar {
-        background: rgba(2, 6, 23, 0.96);
+        background: rgba(15, 23, 42, 0.97);
     }
 
     .mobile-sidebar-section {
-        @apply rounded-2xl border border-slate-200 p-3 dark:border-slate-800;
-        background: rgba(248, 250, 252, 0.9);
+        @apply rounded-2xl border border-slate-200/80 p-4 dark:border-slate-800;
+        background: rgba(248, 250, 252, 0.6);
     }
 
     .dark .mobile-sidebar-section {
-        background: rgba(15, 23, 42, 0.8);
+        background: rgba(15, 23, 42, 0.6);
     }
 
     .mobile-nav-link {
-        @apply flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800;
+        @apply flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-all hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800;
     }
 
     .mobile-nav-link-active {

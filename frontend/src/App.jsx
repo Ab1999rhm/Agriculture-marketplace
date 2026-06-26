@@ -13,6 +13,9 @@ import {
   CloudRain,
   Menu,
   X,
+  User,
+  Languages,
+  ChevronDown,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -128,6 +131,7 @@ export default function App() {
   const [dashboardSubTab, setDashboardSubTab] = useState("overview");
   const [buyerDashboardSubTab, setBuyerDashboardSubTab] = useState("overview");
   const [adminDashboardSubTab, setAdminDashboardSubTab] = useState("overview");
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -719,21 +723,11 @@ export default function App() {
                     : "My Orders"}
               </button>
             )}
-            {user && (
-              <button
-                onClick={() => setCurrentTab("profile")}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${currentTab === "profile" ? "bg-teal-600 text-white shadow-md shadow-teal-500/20 dark:bg-teal-500 dark:text-slate-950" : "text-slate-700 hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-300"}`}
-              >
-                {t("navProfile")}
-              </button>
-            )}
           </nav>
 
           <div className="hidden md:flex items-center space-x-3">
             <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800">
-              <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">
-                {t("languageLabel")}:
-              </span>
+              <Languages className="w-4 h-4 text-slate-600 dark:text-slate-400" />
               <select
                 value={i18n.language}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -756,17 +750,42 @@ export default function App() {
               )}
             </button>
             {user ? (
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-400 hidden lg:inline-block">
-                  {user.name} ({user.role})
-                </span>
+              <div className="relative">
                 <button
-                  onClick={handleLogout}
-                  className="app-btn-danger px-3 py-2 text-xs"
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="action-icon-btn border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden lg:inline">{t("navLogout")}</span>
+                  <User className="w-4.5 h-4.5" />
                 </button>
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50">
+                    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+                        {user.role}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCurrentTab("profile");
+                        setProfileDropdownOpen(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center space-x-2"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>{t("navProfile")}</span>
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-b-xl flex items-center space-x-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>{t("navLogout")}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <button
@@ -865,19 +884,12 @@ export default function App() {
                   </span>
                 </button>
               )}
-              {user && (
-                <button
-                  onClick={() => setCurrentTab("profile")}
-                  className={`mobile-nav-link ${currentTab === "profile" ? "mobile-nav-link-active" : ""}`}
-                >
-                  <span>{t("navProfile")}</span>
-                </button>
-              )}
             </div>
 
             <div className="mobile-sidebar-section space-y-3">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {t("languageLabel")}
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center space-x-2">
+                <Languages className="w-4 h-4" />
+                <span>{t("languageLabel")}</span>
               </label>
               <select
                 value={i18n.language}
