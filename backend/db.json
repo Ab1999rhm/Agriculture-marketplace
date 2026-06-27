@@ -104,18 +104,12 @@
       "id": "prod_7b4zg0nai",
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
-      "price": 200,
-      "quantity": 3,
+      "price": null,
+      "quantity": null,
       "description": "",
       "createdAt": "2026-06-25T07:15:12.102Z",
-      "updatedAt": "2026-06-26T19:27:56.671Z",
-      "hidden": false,
-      "name": "bean",
-      "category": "Crops",
-      "type": "bean",
-      "unit": "kg",
-      "harvestDate": "2026-06-24",
-      "location": "Dire"
+      "updatedAt": "2026-06-27T20:03:44.342Z",
+      "hidden": false
     },
     {
       "id": "prod_a428b43js",
@@ -134,16 +128,21 @@
       "imageUrl": "/uploads/product-1782413866669-462851437.jpg"
     },
     {
-      "id": "prod_wrecnkxdd",
+      "id": "prod_a1nw37nxy",
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
-      "price": null,
-      "quantity": null,
-      "description": "",
-      "createdAt": "2026-06-25T19:49:12.625Z",
-      "imageUrl": "/uploads/product-1782416952599-724296864.jpg",
-      "updatedAt": "2026-06-26T19:10:40.778Z",
-      "hidden": false
+      "name": "Alaaya",
+      "category": "Crops",
+      "type": "Coffee",
+      "price": 44,
+      "quantity": 400,
+      "unit": "kg",
+      "harvestDate": "2026-06-30",
+      "location": "Alemaya",
+      "description": "rrrrrr",
+      "hidden": false,
+      "createdAt": "2026-06-27T20:32:50.095Z",
+      "imageUrl": "/uploads/product-1782592370073-643607225.jpg"
     }
   ],
   "orders": [
@@ -356,16 +355,26 @@
   ],
   "cropPlans": [
     {
-      "id": "5l7a719pqbt",
-      "farmerId": "user_a3a4pewsk",
-      "plantingDate": "2026-06-23",
-      "createdAt": "2026-06-25T19:50:16.045Z"
-    },
-    {
       "id": "eq9e0v2h74",
       "farmerId": "user_a3a4pewsk",
       "plantingDate": "2026-06-24",
       "createdAt": "2026-06-26T08:09:39.557Z"
+    },
+    {
+      "id": "xhkn8ioi3im",
+      "farmerId": "user_a3a4pewsk",
+      "cropType": "Mango",
+      "plantingDate": "2026-06-28",
+      "harvestDate": "2026-07-11",
+      "expectedYield": "2999.8",
+      "fieldSize": "34",
+      "area": "34",
+      "fieldUnit": "acre",
+      "seedVariety": "2155",
+      "yieldUnit": "kg",
+      "irrigation": "Rain-fed",
+      "notes": "Iexpect to get good quality of the product on my farm",
+      "createdAt": "2026-06-27T19:13:20.227Z"
     }
   ],
   "qualityGrades": [
@@ -374,18 +383,24 @@
       "farmerId": "user_a3a4pewsk",
       "productName": "VMware",
       "grade": "B",
-      "createdAt": "2026-06-25T19:51:34.252Z"
+      "createdAt": "2026-06-25T19:51:34.252Z",
+      "assessmentDate": "2026-06-04",
+      "inspector": "Mana raabsaa Jimaa",
+      "notes": "Good Idea",
+      "updatedAt": "2026-06-27T19:25:08.511Z"
     }
   ],
   "inventory": [
     {
-      "id": "yt632y4om5",
+      "id": "4kcexu72m64",
       "farmerId": "user_a3a4pewsk",
-      "itemName": "COFFEE",
-      "quantity": "400",
-      "unit": "Kg",
-      "location": "Dire Mall",
-      "createdAt": "2026-06-26T08:11:00.224Z"
+      "itemName": "Farra Aramaa",
+      "quantity": "20",
+      "unit": "litter",
+      "location": "Warehouse 3",
+      "category": "Antibiotic",
+      "expiryDate": "2026-07-11",
+      "createdAt": "2026-06-27T19:15:23.609Z"
     }
   ],
   "equipment": [
@@ -397,6 +412,18 @@
       "status": "maintenance",
       "purchaseDate": "2026-06-27",
       "createdAt": "2026-06-26T08:12:35.910Z"
+    },
+    {
+      "id": "qwage6jcz6l",
+      "farmerId": "user_a3a4pewsk",
+      "equipmentName": "Tractor",
+      "type": "Heavy matchinery",
+      "status": "operational",
+      "purchaseDate": "2026-07-10",
+      "lastMaintenance": "2026-07-11",
+      "nextMaintenance": "2026-08-08",
+      "notes": "Hin dagatiin Qananii",
+      "createdAt": "2026-06-27T19:17:13.641Z"
     }
   ],
   "loans": [
@@ -406,9 +433,11 @@
       "loanType": "operational",
       "amount": "10000",
       "purpose": "to maintain",
-      "status": "pending",
       "applicationDate": "2026-06-26T08:14:18.762Z",
-      "createdAt": "2026-06-26T08:14:18.762Z"
+      "createdAt": "2026-06-26T08:14:18.762Z",
+      "repaymentPeriod": "4",
+      "interestRate": "",
+      "updatedAt": "2026-06-27T19:27:00.585Z"
     }
   ],
   "supplierReviews": [
@@ -432,6 +461,139 @@
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
       "createdAt": "2026-06-26T15:35:08.075Z"
+    },
+    {
+      "id": "bg45ktau4dm",
+      "buyerId": "user_so6cga6k6",
+      "productId": "prod3",
+      "productName": "Hararghe Bull",
+      "price": 45000,
+      "farmerId": "farmer1",
+      "farmerName": "Kenenisa Jila",
+      "createdAt": "2026-06-27T20:41:19.588Z"
+    }
+  ],
+  "storageFacilities": [
+    {
+      "id": "2vexwcj5exh",
+      "farmerId": "user_a3a4pewsk",
+      "name": "Mana Kusaa jalqabaa",
+      "type": "Waantooto goggogaa",
+      "location": "Dire Dawa",
+      "totalCapacity": "23",
+      "usedCapacity": "21",
+      "capacityUnit": "ton",
+      "status": "Full",
+      "createdAt": "2026-06-27T19:18:35.617Z"
+    },
+    {
+      "id": "g756r63zpud",
+      "farmerId": "user_a3a4pewsk",
+      "name": "Mana qulqullina",
+      "type": "Heavy matchinery",
+      "location": "wollega",
+      "totalCapacity": "5",
+      "usedCapacity": "5",
+      "capacityUnit": "ton",
+      "status": "Active",
+      "createdAt": "2026-06-27T19:20:14.284Z"
+    }
+  ],
+  "batchLots": [
+    {
+      "id": "p6vd7vsjh6e",
+      "farmerId": "user_a3a4pewsk",
+      "batchId": "LOT-1782588022742",
+      "product": "Harar Coffee Beans",
+      "quantity": "30000",
+      "unit": "kg",
+      "harvestDate": "2026-07-09",
+      "storageLocation": "Mana kuusaa 3 kutaa 2ffaa",
+      "status": "In Transit",
+      "createdAt": "2026-06-27T19:21:24.959Z"
+    }
+  ],
+  "qualityAudits": [
+    {
+      "id": "ymmdpg6ec8g",
+      "target": "Batch LOT-2026-3",
+      "type": "safety",
+      "scheduledDate": "2026-07-09",
+      "auditor": "GAREE 3",
+      "status": "scheduled",
+      "createdAt": "2026-06-27T19:22:49.038Z"
+    }
+  ],
+  "labTests": [
+    {
+      "id": "qwkm1fzx76d",
+      "farmerId": "user_a3a4pewsk",
+      "testType": "moisture test",
+      "laboratory": "Harar lab",
+      "testedDate": "2026-07-09",
+      "result": "Pass",
+      "notes": "thanks",
+      "createdAt": "2026-06-27T19:23:34.449Z"
+    }
+  ],
+  "certifications": [
+    {
+      "id": "pjdz5rzihb",
+      "farmerId": "user_a3a4pewsk",
+      "certificationName": "Organic certificate",
+      "issuingAuthority": "Ministry of Agro",
+      "issueDate": "2026-07-03",
+      "expiryDate": "2026-07-09",
+      "certificateNumber": "CERT-234-2026",
+      "createdAt": "2026-06-27T19:24:29.610Z"
+    }
+  ],
+  "productionCosts": [
+    {
+      "id": "6o4yssa88vu",
+      "farmerId": "user_a3a4pewsk",
+      "category": "Fertilizer",
+      "item": "Hybrid maize seed",
+      "amount": "23000",
+      "date": "2026-07-09",
+      "notes": "i will",
+      "createdAt": "2026-06-27T19:26:15.834Z"
+    }
+  ],
+  "auctions": [
+    {
+      "id": "0nwsc6pyz7j",
+      "farmerId": "user_a3a4pewsk",
+      "product": "Harar Coffee Beans",
+      "startingPrice": "240",
+      "duration": "24 hours",
+      "minBid": "23",
+      "createdAt": "2026-06-27T19:27:50.984Z",
+      "updatedAt": "2026-06-27T19:46:27.912Z"
+    }
+  ],
+  "bulkDiscounts": [
+    {
+      "id": "9o3jfc264d",
+      "farmerId": "user_a3a4pewsk",
+      "minQuantity": "400",
+      "discountPercent": "50",
+      "createdAt": "2026-06-27T19:46:57.707Z",
+      "updatedAt": "2026-06-27T20:40:09.320Z"
+    }
+  ],
+  "contracts": [],
+  "preHarvestSales": [
+    {
+      "id": "vmb7vgs7vph",
+      "farmerId": "user_a3a4pewsk",
+      "crop": "Coffee",
+      "harvestDate": "2026-07-08",
+      "quantity": "34444",
+      "price": "22",
+      "depositPercent": "50",
+      "createdAt": "2026-06-27T19:48:02.890Z",
+      "updatedAt": "2026-06-27T20:36:49.550Z"
     }
   ]
 }

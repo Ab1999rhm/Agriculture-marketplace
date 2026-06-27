@@ -5,6 +5,7 @@ export function useAdminHandlers({
   qualityAudits, setQualityAudits,
   disputes, setDisputes,
   fetchData,
+  products, setProducts,
 }) {
   const handleAddQualityAudit = async (auditData) => {
     try {
@@ -78,8 +79,45 @@ export function useAdminHandlers({
     } catch (err) { console.error(err); }
   };
 
+  const handleHideProduct = async (productId) => {
+    try {
+      const res = await fetch(`/api/admin/products/${productId}/hide`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setProducts(products.map(p => p.id === productId ? { ...p, hidden: true } : p));
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleExpireProduct = async (productId) => {
+    try {
+      const res = await fetch(`/api/admin/products/${productId}/expire`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setProducts(products.map(p => p.id === productId ? { ...p, expired: true } : p));
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setProducts(products.filter(p => p.id !== productId));
+      }
+    } catch (err) { console.error(err); }
+  };
+
   return {
     handleAddQualityAudit, handleUpdateQualityAudit, handleDeleteQualityAudit,
     handleResolveDispute, handleSuspendUser, handleActivateUser,
+    handleHideProduct, handleExpireProduct, handleDeleteProduct,
   };
 }

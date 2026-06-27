@@ -24,6 +24,12 @@ exports.getProducts = async (req, res, next) => {
     const snapshot = await query.get();
     let products = snapshot.docs.map(doc => doc.data());
 
+    // Filter out hidden products for public marketplace
+    // Only show hidden products if farmerId filter is present (farmer viewing their own products)
+    if (!farmerId) {
+      products = products.filter(p => !p.hidden);
+    }
+
     // In-memory filters for range and text search (to avoid Firestore index restrictions)
     if (minPrice) {
       const min = parseFloat(minPrice);
@@ -82,6 +88,7 @@ exports.createProduct = async (req, res, next) => {
       harvestDate,
       location,
       description: description || '',
+      hidden: false, // Explicitly set to false so products are visible by default
       createdAt: new Date().toISOString()
     };
 

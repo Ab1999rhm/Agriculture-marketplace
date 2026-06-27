@@ -985,8 +985,8 @@ export default function App() {
       <footer className="mt-auto border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950/50 py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">
-            © 2026 Hararghe Agricultural Marketplace Hub. Powered by Node.js &
-            React.
+            © 2026 Hararghe Agricultural Marketplace Hub. All rights reserved. 
+           
           </p>
         </div>
       </footer>

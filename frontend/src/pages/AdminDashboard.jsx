@@ -1,4 +1,4 @@
-import { Plus, X, ShoppingBag } from "lucide-react";
+import { Plus, X, ShoppingBag, Eye, EyeOff, Trash2, Check, X as XIcon, FileText, Building, Sprout } from "lucide-react";
 import confetti from "canvas-confetti";
 
 export default function AdminDashboard({
@@ -17,6 +17,10 @@ export default function AdminDashboard({
   onOpenAudit,
   handleDeleteQualityAudit,
   handleResolveDispute,
+  allProducts,
+  handleHideProduct,
+  handleExpireProduct,
+  handleDeleteProduct,
 }) {
   return (
     <div>
@@ -32,9 +36,12 @@ export default function AdminDashboard({
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-2">
               Admin Control Panel
             </h2>
-            <p className="text-teal-100 text-sm">
+            <p className="text-teal-100 text-sm mb-1">
               Manage users, monitor marketplace, publish bulletins, and oversee
               system analytics.
+            </p>
+            <p className="text-white/80 text-xs italic">
+              "Empowering agriculture through innovation and trust."
             </p>
           </div>
         </div>
@@ -42,7 +49,7 @@ export default function AdminDashboard({
 
       <div className="app-tab-bar">
         <div className="app-tab-list">
-          {["overview", "users", "quality", "disputes", "system"].map((tab) => (
+          {["overview", "users", "products", "quality", "disputes", "system"].map((tab) => (
             <button
               key={tab}
               onClick={() => setAdminDashboardSubTab(tab)}
@@ -52,11 +59,13 @@ export default function AdminDashboard({
                 ? "Overview"
                 : tab === "users"
                   ? "User Management"
-                  : tab === "quality"
-                    ? "Quality Control"
-                    : tab === "disputes"
-                      ? "Dispute Resolution"
-                      : "System Configuration"}
+                  : tab === "products"
+                    ? "Product Management"
+                    : tab === "quality"
+                      ? "Quality Control"
+                      : tab === "disputes"
+                        ? "Dispute Resolution"
+                        : "System Configuration"}
             </button>
           ))}
         </div>
@@ -177,8 +186,11 @@ export default function AdminDashboard({
                   <th className="py-3 px-4">User ID</th>
                   <th className="py-3 px-4">Name</th>
                   <th className="py-3 px-4">Email</th>
+                  <th className="py-3 px-4">Phone</th>
                   <th className="py-3 px-4">Role</th>
                   <th className="py-3 px-4">Location</th>
+                  <th className="py-3 px-4">Business/Farm Info</th>
+                  <th className="py-3 px-4">License</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-center">Actions</th>
                 </tr>
@@ -194,6 +206,7 @@ export default function AdminDashboard({
                     </td>
                     <td className="py-4 px-4">{u.name}</td>
                     <td className="py-4 px-4">{u.email}</td>
+                    <td className="py-4 px-4">{u.phone || "N/A"}</td>
                     <td className="py-4 px-4">
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${u.role === "admin" ? "bg-indigo-500/15 text-indigo-600" : u.role === "farmer" ? "bg-teal-500/15 text-teal-600" : "bg-amber-500/15 text-amber-600"}`}
@@ -203,34 +216,92 @@ export default function AdminDashboard({
                     </td>
                     <td className="py-4 px-4">{u.location || "N/A"}</td>
                     <td className="py-4 px-4">
+                      {u.role === "farmer" ? (
+                        <div className="text-xs">
+                          <div className="flex items-center space-x-1">
+                            <Sprout className="w-3 h-3" />
+                            <span>{u.farmName || "N/A"}</span>
+                          </div>
+                          <div className="text-slate-400">{u.farmSize ? `${u.farmSize} ha` : ""}</div>
+                          <div className="text-slate-400">{u.crops || ""}</div>
+                        </div>
+                      ) : u.role === "buyer" ? (
+                        <div className="text-xs">
+                          <div className="flex items-center space-x-1">
+                            <Building className="w-3 h-3" />
+                            <span>{u.businessName || "N/A"}</span>
+                          </div>
+                          <div className="text-slate-400">{u.businessType || ""}</div>
+                        </div>
+                      ) : (
+                        "N/A"
+                      )}
+                    </td>
+                    <td className="py-4 px-4">
+                      {u.licenseFile ? (
+                        <button
+                          onClick={() => window.open(u.licenseFile, '_blank')}
+                          className="flex items-center space-x-1 text-teal-600 hover:text-teal-700 text-xs"
+                        >
+                          <FileText className="w-3 h-3" />
+                          <span>View</span>
+                        </button>
+                      ) : (
+                        <span className="text-slate-400 text-xs">None</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-4">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${u.suspended ? "bg-red-500/15 text-red-600" : "bg-green-500/15 text-green-600"}`}
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                          !u.approved ? "bg-amber-500/15 text-amber-600" : 
+                          u.suspended ? "bg-red-500/15 text-red-600" : 
+                          "bg-green-500/15 text-green-600"
+                        }`}
                       >
-                        {u.suspended ? "Suspended" : "Active"}
+                        {!u.approved ? "Pending" : u.suspended ? "Suspended" : "Active"}
                       </span>
                     </td>
                     <td className="py-4 px-4 flex justify-center items-center space-x-2">
                       {!u.approved && u.role !== "admin" && (
-                        <button
-                          onClick={async () => {
-                            const res = await fetch(
-                              `/api/admin/users/${u.id}/approve`,
-                              {
-                                method: "PUT",
-                                headers: { Authorization: `Bearer ${token}` },
-                              },
-                            );
-                            if (res.ok) {
-                              fetchData();
-                              confetti({ particleCount: 30, spread: 40 });
-                            }
-                          }}
-                          className="px-2.5 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold"
-                        >
-                          Approve
-                        </button>
+                        <>
+                          <button
+                            onClick={async () => {
+                              const res = await fetch(
+                                `/api/admin/users/${u.id}/approve`,
+                                {
+                                  method: "PUT",
+                                  headers: { Authorization: `Bearer ${token}` },
+                                },
+                              );
+                              if (res.ok) {
+                                fetchData();
+                                confetti({ particleCount: 30, spread: 40 });
+                              }
+                            }}
+                            className="px-2.5 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center space-x-1"
+                          >
+                            <Check className="w-3 h-3" />
+                            <span>Approve</span>
+                          </button>
+                          <button
+                            onClick={async () => {
+                              const res = await fetch(
+                                `/api/admin/users/${u.id}/reject`,
+                                {
+                                  method: "PUT",
+                                  headers: { Authorization: `Bearer ${token}` },
+                                },
+                              );
+                              if (res.ok) fetchData();
+                            }}
+                            className="px-2.5 py-1.5 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center space-x-1"
+                          >
+                            <XIcon className="w-3 h-3" />
+                            <span>Reject</span>
+                          </button>
+                        </>
                       )}
-                      {!u.suspended && u.role !== "admin" && (
+                      {u.approved && !u.suspended && u.role !== "admin" && (
                         <button
                           onClick={async () => {
                             const res = await fetch(
@@ -247,6 +318,128 @@ export default function AdminDashboard({
                           Suspend
                         </button>
                       )}
+                      {u.suspended && u.role !== "admin" && (
+                        <button
+                          onClick={async () => {
+                            const res = await fetch(
+                              `/api/admin/users/${u.id}/activate`,
+                              {
+                                method: "PUT",
+                                headers: { Authorization: `Bearer ${token}` },
+                              },
+                            );
+                            if (res.ok) fetchData();
+                          }}
+                          className="px-2.5 py-1.5 rounded bg-green-600 hover:bg-green-700 text-white text-xs font-bold"
+                        >
+                          Activate
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {adminDashboardSubTab === "products" && (
+        <div className="glass-card rounded-2xl p-6 mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              Product Management
+            </h3>
+            <select className="glass-input text-xs">
+              <option>All Products</option>
+              <option>Crops</option>
+              <option>Livestock</option>
+              <option>Equipment</option>
+            </select>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="app-data-table border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-slate-800 text-xs text-slate-400 font-bold uppercase">
+                  <th className="py-3 px-4">Product ID</th>
+                  <th className="py-3 px-4">Name</th>
+                  <th className="py-3 px-4">Category</th>
+                  <th className="py-3 px-4">Farmer</th>
+                  <th className="py-3 px-4">Price</th>
+                  <th className="py-3 px-4">Quantity</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                {allProducts && allProducts.map((product) => (
+                  <tr
+                    key={product.id}
+                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-900/30"
+                  >
+                    <td className="py-4 px-4 font-mono text-xs">
+                      {product.id.substring(0, 8)}...
+                    </td>
+                    <td className="py-4 px-4">{product.name}</td>
+                    <td className="py-4 px-4">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                        {product.category}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">{product.farmerName || "N/A"}</td>
+                    <td className="py-4 px-4">{product.price} ETB</td>
+                    <td className="py-4 px-4">{product.quantity || 0}</td>
+                    <td className="py-4 px-4">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                          product.hidden ? "bg-slate-500/15 text-slate-600" : 
+                          product.expired ? "bg-red-500/15 text-red-600" : 
+                          product.quantity === 0 ? "bg-amber-500/15 text-amber-600" :
+                          "bg-green-500/15 text-green-600"
+                        }`}
+                      >
+                        {product.hidden ? "Hidden" : product.expired ? "Expired" : product.quantity === 0 ? "Out of Stock" : "Active"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 flex justify-center items-center space-x-2">
+                      {!product.hidden && (
+                        <button
+                          onClick={() => handleHideProduct && handleHideProduct(product.id)}
+                          className="px-2.5 py-1.5 rounded bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold flex items-center space-x-1"
+                          title="Hide product"
+                        >
+                          <EyeOff className="w-3 h-3" />
+                          <span>Hide</span>
+                        </button>
+                      )}
+                      {product.hidden && (
+                        <button
+                          onClick={() => handleHideProduct && handleHideProduct(product.id)}
+                          className="px-2.5 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center space-x-1"
+                          title="Show product"
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span>Show</span>
+                        </button>
+                      )}
+                      {!product.expired && (
+                        <button
+                          onClick={() => handleExpireProduct && handleExpireProduct(product.id)}
+                          className="px-2.5 py-1.5 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center space-x-1"
+                          title="Expire product"
+                        >
+                          <XIcon className="w-3 h-3" />
+                          <span>Expire</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteProduct && handleDeleteProduct(product.id)}
+                        className="px-2.5 py-1.5 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center space-x-1"
+                        title="Delete product"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
                     </td>
                   </tr>
                 ))}

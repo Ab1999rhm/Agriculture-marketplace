@@ -48,8 +48,11 @@ export default function BuyerDashboard({
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-2">
               Buyer Dashboard
             </h2>
-            <p className="text-amber-100 text-sm">
+            <p className="text-amber-100 text-sm mb-1">
               Track your orders, manage payments, and view purchase history.
+            </p>
+            <p className="text-white/80 text-xs italic">
+              "Connecting farmers to markets, building sustainable futures."
             </p>
           </div>
         </div>

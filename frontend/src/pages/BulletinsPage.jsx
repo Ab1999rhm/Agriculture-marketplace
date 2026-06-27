@@ -15,10 +15,13 @@ export default function BulletinsPage({ bulletins, cropsBg, t }) {
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-2">
               Bulletins & Notices
             </h2>
-            <p className="text-teal-100 text-sm">
+            <p className="text-teal-100 text-sm mb-1">
               Official information bulletins including meteorological weather
               predictions, local market coffee rates, and fertilizer
               distribution announcements.
+            </p>
+            <p className="text-white/80 text-xs italic">
+              "Stay informed, stay ahead in agriculture."
             </p>
           </div>
         </div>

@@ -187,7 +187,8 @@ export default function FarmerDashboardModals({
               <input
                 name="cropType"
                 required
-                defaultValue={editingCropPlan?.cropType || ""}
+                value={editingCropPlan?.cropType || ""}
+                onChange={(e) => setEditingCropPlan({...editingCropPlan, cropType: e.target.value})}
                 className={inp}
                 placeholder="e.g. Coffee"
               />
@@ -199,7 +200,8 @@ export default function FarmerDashboardModals({
                   name="plantingDate"
                   type="date"
                   required
-                  defaultValue={editingCropPlan?.plantingDate || ""}
+                  value={editingCropPlan?.plantingDate || ""}
+                  onChange={(e) => setEditingCropPlan({...editingCropPlan, plantingDate: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -209,7 +211,8 @@ export default function FarmerDashboardModals({
                   name="harvestDate"
                   type="date"
                   required
-                  defaultValue={editingCropPlan?.harvestDate || ""}
+                  value={editingCropPlan?.harvestDate || ""}
+                  onChange={(e) => setEditingCropPlan({...editingCropPlan, harvestDate: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -223,9 +226,10 @@ export default function FarmerDashboardModals({
                   required
                   min="0"
                   step="0.1"
-                  defaultValue={
+                  value={
                     editingCropPlan?.fieldSize || editingCropPlan?.area || ""
                   }
+                  onChange={(e) => setEditingCropPlan({...editingCropPlan, fieldSize: e.target.value})}
                   className={inp}
                   placeholder="e.g. 5"
                 />
@@ -234,7 +238,8 @@ export default function FarmerDashboardModals({
                 <label className={lbl}>Unit</label>
                 <select
                   name="fieldUnit"
-                  defaultValue={editingCropPlan?.fieldUnit || "ha"}
+                  value={editingCropPlan?.fieldUnit || "ha"}
+                  onChange={(e) => setEditingCropPlan({...editingCropPlan, fieldUnit: e.target.value})}
                   className={inp}
                 >
                   <option value="ha">ha</option>
@@ -248,7 +253,8 @@ export default function FarmerDashboardModals({
                 <input
                   name="seedVariety"
                   required
-                  defaultValue={editingCropPlan?.seedVariety || ""}
+                  value={editingCropPlan?.seedVariety || ""}
+                  onChange={(e) => setEditingCropPlan({...editingCropPlan, seedVariety: e.target.value})}
                   className={inp}
                   placeholder="e.g. 74110"
                 />
@@ -257,7 +263,8 @@ export default function FarmerDashboardModals({
                 <label className={lbl}>Irrigation</label>
                 <select
                   name="irrigation"
-                  defaultValue={editingCropPlan?.irrigation || "Rain-fed"}
+                  value={editingCropPlan?.irrigation || "Rain-fed"}
+                  onChange={(e) => setEditingCropPlan({...editingCropPlan, irrigation: e.target.value})}
                   className={inp}
                 >
                   <option>Rain-fed</option>
@@ -300,7 +307,8 @@ export default function FarmerDashboardModals({
               <textarea
                 name="notes"
                 rows="3"
-                defaultValue={editingCropPlan?.notes || ""}
+                value={editingCropPlan?.notes || ""}
+                onChange={(e) => setEditingCropPlan({...editingCropPlan, notes: e.target.value})}
                 className={inp}
               ></textarea>
             </div>
@@ -1516,7 +1524,7 @@ export default function FarmerDashboardModals({
               const f = e.currentTarget;
               await submit(
                 {
-                  product: f.product.value,
+                  productId: f.productId.value,
                   startingPrice: f.startingPrice.value,
                   duration: f.duration.value,
                   minBid: f.minBid.value,
@@ -1532,20 +1540,21 @@ export default function FarmerDashboardModals({
           >
             <div>
               <label className={lbl}>Product</label>
-              <input
-                name="product"
+              <select
+                name="productId"
                 required
-                list="farmer-products"
-                defaultValue={editingAuction?.product || ""}
+                value={editingAuction?.productId || ""}
+                onChange={(e) => setEditingAuction({...editingAuction, productId: e.target.value})}
                 className={inp}
-                placeholder="Choose or type product name"
-              />
+              >
+                <option value="">Select a product</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} - {p.price} ETB/{p.unit}
+                  </option>
+                ))}
+              </select>
             </div>
-            <datalist id="farmer-products">
-              {products.map((p) => (
-                <option key={p.id} value={p.name} />
-              ))}
-            </datalist>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={lbl}>Starting Price</label>
@@ -1555,7 +1564,8 @@ export default function FarmerDashboardModals({
                   min="0"
                   step="0.01"
                   required
-                  defaultValue={editingAuction?.startingPrice || ""}
+                  value={editingAuction?.startingPrice || ""}
+                  onChange={(e) => setEditingAuction({...editingAuction, startingPrice: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1567,7 +1577,8 @@ export default function FarmerDashboardModals({
                   min="0"
                   step="0.01"
                   required
-                  defaultValue={editingAuction?.minBid || ""}
+                  value={editingAuction?.minBid || ""}
+                  onChange={(e) => setEditingAuction({...editingAuction, minBid: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1576,7 +1587,8 @@ export default function FarmerDashboardModals({
               <label className={lbl}>Duration</label>
               <select
                 name="duration"
-                defaultValue={editingAuction?.duration || "7 days"}
+                value={editingAuction?.duration || "7 days"}
+                onChange={(e) => setEditingAuction({...editingAuction, duration: e.target.value})}
                 className={inp}
               >
                 <option>24 hours</option>
@@ -1617,7 +1629,7 @@ export default function FarmerDashboardModals({
               await submit(
                 {
                   buyer: f.buyer.value,
-                  product: f.product.value,
+                  productId: f.productId.value,
                   quantity: f.quantity.value,
                   agreedPrice: f.agreedPrice.value,
                   deliveryDate: f.deliveryDate.value,
@@ -1636,20 +1648,28 @@ export default function FarmerDashboardModals({
               <input
                 name="buyer"
                 required
-                defaultValue={editingContract?.buyer || ""}
+                value={editingContract?.buyer || ""}
+                onChange={(e) => setEditingContract({...editingContract, buyer: e.target.value})}
                 className={inp}
                 placeholder="Buyer or cooperative name"
               />
             </div>
             <div>
               <label className={lbl}>Product</label>
-              <input
-                name="product"
+              <select
+                name="productId"
                 required
-                list="farmer-products"
-                defaultValue={editingContract?.product || ""}
+                value={editingContract?.productId || ""}
+                onChange={(e) => setEditingContract({...editingContract, productId: e.target.value})}
                 className={inp}
-              />
+              >
+                <option value="">Select a product</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} - {p.price} ETB/{p.unit}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -1660,7 +1680,8 @@ export default function FarmerDashboardModals({
                   min="0"
                   step="0.1"
                   required
-                  defaultValue={editingContract?.quantity || ""}
+                  value={editingContract?.quantity || ""}
+                  onChange={(e) => setEditingContract({...editingContract, quantity: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1672,7 +1693,8 @@ export default function FarmerDashboardModals({
                   min="0"
                   step="0.01"
                   required
-                  defaultValue={editingContract?.agreedPrice || ""}
+                  value={editingContract?.agreedPrice || ""}
+                  onChange={(e) => setEditingContract({...editingContract, agreedPrice: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1683,7 +1705,8 @@ export default function FarmerDashboardModals({
                 name="deliveryDate"
                 type="date"
                 required
-                defaultValue={editingContract?.deliveryDate || ""}
+                value={editingContract?.deliveryDate || ""}
+                onChange={(e) => setEditingContract({...editingContract, deliveryDate: e.target.value})}
                 className={inp}
               />
             </div>
@@ -1720,7 +1743,7 @@ export default function FarmerDashboardModals({
               const f = e.currentTarget;
               await submit(
                 {
-                  product: f.product.value,
+                  productId: f.productId.value,
                   minQuantity: f.minQuantity.value,
                   discountPercent: f.discountPercent.value,
                 },
@@ -1735,13 +1758,20 @@ export default function FarmerDashboardModals({
           >
             <div>
               <label className={lbl}>Product</label>
-              <input
-                name="product"
+              <select
+                name="productId"
                 required
-                list="farmer-products"
-                defaultValue={editingBulkDiscount?.product || ""}
+                value={editingBulkDiscount?.productId || ""}
+                onChange={(e) => setEditingBulkDiscount({...editingBulkDiscount, productId: e.target.value})}
                 className={inp}
-              />
+              >
+                <option value="">Select a product</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} - {p.price} ETB/{p.unit}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -1752,7 +1782,8 @@ export default function FarmerDashboardModals({
                   min="1"
                   step="1"
                   required
-                  defaultValue={editingBulkDiscount?.minQuantity || ""}
+                  value={editingBulkDiscount?.minQuantity || ""}
+                  onChange={(e) => setEditingBulkDiscount({...editingBulkDiscount, minQuantity: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1765,7 +1796,8 @@ export default function FarmerDashboardModals({
                   max="100"
                   step="0.1"
                   required
-                  defaultValue={editingBulkDiscount?.discountPercent || ""}
+                  value={editingBulkDiscount?.discountPercent || ""}
+                  onChange={(e) => setEditingBulkDiscount({...editingBulkDiscount, discountPercent: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1826,7 +1858,8 @@ export default function FarmerDashboardModals({
               <input
                 name="crop"
                 required
-                defaultValue={editingPreHarvest?.crop || ""}
+                value={editingPreHarvest?.crop || ""}
+                onChange={(e) => setEditingPreHarvest({...editingPreHarvest, crop: e.target.value})}
                 className={inp}
                 placeholder="e.g. Coffee"
               />
@@ -1838,7 +1871,8 @@ export default function FarmerDashboardModals({
                   name="harvestDate"
                   type="date"
                   required
-                  defaultValue={editingPreHarvest?.harvestDate || ""}
+                  value={editingPreHarvest?.harvestDate || ""}
+                  onChange={(e) => setEditingPreHarvest({...editingPreHarvest, harvestDate: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1850,7 +1884,8 @@ export default function FarmerDashboardModals({
                   min="0"
                   step="0.1"
                   required
-                  defaultValue={editingPreHarvest?.quantity || ""}
+                  value={editingPreHarvest?.quantity || ""}
+                  onChange={(e) => setEditingPreHarvest({...editingPreHarvest, quantity: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1864,7 +1899,8 @@ export default function FarmerDashboardModals({
                   min="0"
                   step="0.01"
                   required
-                  defaultValue={editingPreHarvest?.price || ""}
+                  value={editingPreHarvest?.price || ""}
+                  onChange={(e) => setEditingPreHarvest({...editingPreHarvest, price: e.target.value})}
                   className={inp}
                 />
               </div>
@@ -1877,7 +1913,8 @@ export default function FarmerDashboardModals({
                   max="100"
                   step="0.1"
                   required
-                  defaultValue={editingPreHarvest?.depositPercent || ""}
+                  value={editingPreHarvest?.depositPercent || ""}
+                  onChange={(e) => setEditingPreHarvest({...editingPreHarvest, depositPercent: e.target.value})}
                   className={inp}
                 />
               </div>

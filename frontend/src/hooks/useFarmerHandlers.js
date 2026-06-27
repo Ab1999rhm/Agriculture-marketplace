@@ -365,12 +365,42 @@ export function useFarmerHandlers({
   // ── Auctions ─────────────────────────────────────────────────
   const handleAddAuction = async (data) => {
     try {
+      // Find the product to get its details
+      const product = products.find(p => p.id === data.productId);
+      const productName = product ? product.name : data.product;
+      
       const res = await fetch('/api/auctions', {
         method: 'POST', headers: authHeaders(),
-        body: JSON.stringify({ ...data, farmerId: user.id, status: 'active', bids: [] }),
+        body: JSON.stringify({ 
+          ...data, 
+          farmerId: user.id, 
+          status: 'active', 
+          bids: [],
+          product: productName,
+          auctionStatus: 'live'
+        }),
       });
-      const item = res.ok ? await res.json() : { ...data, id: Date.now().toString(), farmerId: user.id, status: 'active', bids: [], createdAt: new Date().toISOString() };
+      const item = res.ok ? await res.json() : { 
+        ...data, 
+        id: Date.now().toString(), 
+        farmerId: user.id, 
+        status: 'active', 
+        bids: [], 
+        auctionStatus: 'live',
+        product: productName,
+        createdAt: new Date().toISOString() 
+      };
       setAuctionBids((prev) => [...prev, item]);
+      
+      // Update the linked product to show it's in auction mode
+      if (product) {
+        setProducts(products.map(p => 
+          p.id === data.productId 
+            ? { ...p, sellingMode: 'auction', auctionStatus: 'live', startingPrice: data.startingPrice, currentBid: data.startingPrice }
+            : p
+        ));
+      }
+      
       confetti({ particleCount: 50, spread: 60 });
     } catch (err) { console.error(err); }
   };
@@ -392,12 +422,38 @@ export function useFarmerHandlers({
   // ── Contracts ────────────────────────────────────────────────
   const handleAddContract = async (data) => {
     try {
+      // Find the product to get its details
+      const product = products.find(p => p.id === data.productId);
+      const productName = product ? product.name : data.product;
+      
       const res = await fetch('/api/contracts', {
         method: 'POST', headers: authHeaders(),
-        body: JSON.stringify({ ...data, farmerId: user.id, status: 'pending' }),
+        body: JSON.stringify({ 
+          ...data, 
+          farmerId: user.id, 
+          status: 'pending',
+          product: productName
+        }),
       });
-      const item = res.ok ? await res.json() : { ...data, id: Date.now().toString(), farmerId: user.id, status: 'pending', createdAt: new Date().toISOString() };
+      const item = res.ok ? await res.json() : { 
+        ...data, 
+        id: Date.now().toString(), 
+        farmerId: user.id, 
+        status: 'pending',
+        product: productName,
+        createdAt: new Date().toISOString() 
+      };
       setContractFarming((prev) => [...prev, item]);
+      
+      // Update the linked product to show it's in contract mode
+      if (product) {
+        setProducts(products.map(p => 
+          p.id === data.productId 
+            ? { ...p, sellingMode: 'contract', agreedPrice: data.agreedPrice, contractQuantity: data.quantity }
+            : p
+        ));
+      }
+      
       confetti({ particleCount: 50, spread: 60 });
     } catch (err) { console.error(err); }
   };
@@ -419,12 +475,48 @@ export function useFarmerHandlers({
   // ── Bulk Discounts ───────────────────────────────────────────
   const handleAddBulkDiscount = async (data) => {
     try {
+      // Find the product to get its details
+      const product = products.find(p => p.id === data.productId);
+      const productName = product ? product.name : data.product;
+      const originalPrice = product ? product.price : data.originalPrice;
+      
       const res = await fetch('/api/bulk-discounts', {
         method: 'POST', headers: authHeaders(),
-        body: JSON.stringify({ ...data, farmerId: user.id, active: true }),
+        body: JSON.stringify({ 
+          ...data, 
+          farmerId: user.id, 
+          active: true,
+          product: productName,
+          originalPrice
+        }),
       });
-      const item = res.ok ? await res.json() : { ...data, id: Date.now().toString(), farmerId: user.id, active: true };
+      const item = res.ok ? await res.json() : { 
+        ...data, 
+        id: Date.now().toString(), 
+        farmerId: user.id, 
+        active: true,
+        product: productName,
+        originalPrice
+      };
       setBulkDiscounts((prev) => [...prev, item]);
+      
+      // Update the linked product to show it has bulk discount
+      // Keep original price unchanged, only add discount info
+      if (product) {
+        setProducts(products.map(p => 
+          p.id === data.productId 
+            ? { 
+                ...p, 
+                bulkDiscount: {
+                  active: true,
+                  discountPercent: data.discountPercent,
+                  minQuantity: data.minQuantity
+                }
+              }
+            : p
+        ));
+      }
+      
       confetti({ particleCount: 30, spread: 40 });
     } catch (err) { console.error(err); }
   };

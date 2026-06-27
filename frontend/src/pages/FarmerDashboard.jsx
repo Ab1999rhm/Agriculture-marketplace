@@ -198,9 +198,12 @@ export default function FarmerDashboard({
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-2">
               Farmer Dashboard
             </h2>
-            <p className="text-teal-100 text-sm">
+            <p className="text-teal-100 text-sm mb-1">
               Manage your products, track orders, and monitor your sales
               performance.
+            </p>
+            <p className="text-white/80 text-xs italic">
+              "Growing success, one harvest at a time."
             </p>
           </div>
         </div>

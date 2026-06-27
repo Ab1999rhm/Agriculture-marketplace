@@ -124,6 +124,13 @@ export default function App() {
   const [authRole, setAuthRole] = useState("buyer");
   const [authPhone, setAuthPhone] = useState("");
   const [authLocation, setAuthLocation] = useState("");
+  const [authFarmName, setAuthFarmName] = useState("");
+  const [authFarmSize, setAuthFarmSize] = useState("");
+  const [authCrops, setAuthCrops] = useState("");
+  const [authBusinessName, setAuthBusinessName] = useState("");
+  const [authBusinessType, setAuthBusinessType] = useState("retailer");
+  const [authConfirmPassword, setAuthConfirmPassword] = useState("");
+  const [authLicenseFile, setAuthLicenseFile] = useState(null);
   const [authError, setAuthError] = useState("");
 
   // ── Navigation
@@ -358,24 +365,44 @@ export default function App() {
     setAuthError("");
     const endpoint =
       authMode === "login" ? "/api/auth/login" : "/api/auth/register";
-    const payload =
-      authMode === "login"
-        ? { email: authEmail, password: authPassword }
-        : {
-            email: authEmail,
-            password: authPassword,
-            name: authName,
-            role: authRole,
-            phone: authPhone,
-            location: authLocation,
-          };
+    
     try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
+      let res, data;
+      
+      if (authMode === "login") {
+        const payload = { email: authEmail, password: authPassword };
+        res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        data = await res.json();
+      } else {
+        // Registration with potential file upload
+        const formData = new FormData();
+        formData.append("email", authEmail);
+        formData.append("password", authPassword);
+        formData.append("name", authName);
+        formData.append("role", authRole);
+        formData.append("phone", authPhone);
+        formData.append("location", authLocation);
+        formData.append("farmName", authFarmName || "");
+        formData.append("farmSize", authFarmSize || "");
+        formData.append("crops", authCrops || "");
+        formData.append("businessName", authBusinessName || "");
+        formData.append("businessType", authBusinessType || "retailer");
+        
+        if (authLicenseFile) {
+          formData.append("license", authLicenseFile);
+        }
+        
+        res = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        });
+        data = await res.json();
+      }
+      
       if (res.ok) {
         setToken(data.token);
         setUser(data.user);
@@ -604,6 +631,8 @@ export default function App() {
     disputes,
     setDisputes,
     fetchData,
+    products,
+    setProducts,
   });
 
   // ── Chart helpers
@@ -1035,6 +1064,10 @@ export default function App() {
             onOpenAudit={() => setAuditModalOpen(true)}
             handleDeleteQualityAudit={adminHandlers.handleDeleteQualityAudit}
             handleResolveDispute={adminHandlers.handleResolveDispute}
+            allProducts={products}
+            handleHideProduct={adminHandlers.handleHideProduct}
+            handleExpireProduct={adminHandlers.handleExpireProduct}
+            handleDeleteProduct={adminHandlers.handleDeleteProduct}
           />
         )}
 
@@ -1159,8 +1192,7 @@ export default function App() {
       <footer className="mt-auto border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950/50 py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">
-            © 2026 Hararghe Agricultural Marketplace Hub. Powered by Node.js
-            &amp; React.
+            © 2026 Hararghe Agricultural Marketplace Hub. All rights reserved.
           </p>
         </div>
       </footer>
@@ -1183,6 +1215,20 @@ export default function App() {
           setAuthPhone={setAuthPhone}
           authLocation={authLocation}
           setAuthLocation={setAuthLocation}
+          authFarmName={authFarmName}
+          setAuthFarmName={setAuthFarmName}
+          authFarmSize={authFarmSize}
+          setAuthFarmSize={setAuthFarmSize}
+          authCrops={authCrops}
+          setAuthCrops={setAuthCrops}
+          authBusinessName={authBusinessName}
+          setAuthBusinessName={setAuthBusinessName}
+          authBusinessType={authBusinessType}
+          setAuthBusinessType={setAuthBusinessType}
+          authConfirmPassword={authConfirmPassword}
+          setAuthConfirmPassword={setAuthConfirmPassword}
+          authLicenseFile={authLicenseFile}
+          setAuthLicenseFile={setAuthLicenseFile}
           authError={authError}
           handleAuthSubmit={handleAuthSubmit}
         />

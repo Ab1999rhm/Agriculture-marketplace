@@ -6,8 +6,17 @@ const adminController = require('../controllers/adminController');
 // User management
 router.get('/users', adminController.getAllUsers);
 router.put('/users/:id/approve', adminController.approveUser);
+router.put('/users/:id/reject', adminController.rejectUser);
 router.put('/users/:id/suspend', adminController.suspendUser);
+router.put('/users/:id/activate', adminController.activateUser);
 router.delete('/users/:id', adminController.deleteUser);
+
+// Product management
+router.get('/products', adminController.getAllProducts);
+router.put('/products/:id/hide', adminController.hideProduct);
+router.put('/products/:id/show', adminController.showProduct);
+router.put('/products/:id/expire', adminController.expireProduct);
+router.delete('/products/:id', adminController.deleteProduct);
 
 // Marketplace monitoring
 router.get('/analytics', adminController.getAnalytics);

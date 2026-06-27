@@ -1,13 +1,59 @@
 // backend/src/controllers/authController.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { admin, db, isMock } = require('../services/firebase');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'local_secret';
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../../uploads/licenses');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'license-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|pdf/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images (JPEG, PNG) and PDF files are allowed'));
+    }
+  }
+});
+
 exports.register = async (req, res, next) => {
   try {
-    const { email, password, name, role, phone, location } = req.body;
+    const { 
+      email, 
+      password, 
+      name, 
+      role, 
+      phone, 
+      location,
+      farmName,
+      farmSize,
+      crops,
+      businessName,
+      businessType
+    } = req.body;
 
     // Validate role
     const validRoles = ['farmer', 'buyer', 'admin'];
@@ -52,6 +98,20 @@ exports.register = async (req, res, next) => {
       createdAt: new Date().toISOString()
     };
 
+    // Add role-specific fields to user profile
+    if (role === 'farmer') {
+      userProfile.farmName = farmName || '';
+      userProfile.farmSize = farmSize || '';
+      userProfile.crops = crops || '';
+    } else if (role === 'buyer') {
+      userProfile.businessName = businessName || '';
+      userProfile.businessType = businessType || 'retailer';
+      // Handle license file
+      if (req.file) {
+        userProfile.licenseFile = `/uploads/licenses/${req.file.filename}`;
+      }
+    }
+
     // Store profile in Firestore 'users' collection
     await db.collection('users').doc(userId).set({
       ...userProfile,
@@ -65,9 +125,25 @@ exports.register = async (req, res, next) => {
         name,
         phone,
         location,
+        farmName: farmName || '',
+        farmSize: farmSize || '',
+        crops: crops ? crops.split(',').map(c => c.trim()) : [],
         coordinates: '',
-        crops: [],
         bio: '',
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    // If buyer, create buyer profile entry
+    if (role === 'buyer') {
+      await db.collection('buyers').doc(userId).set({
+        id: userId,
+        name,
+        phone,
+        location,
+        businessName: businessName || '',
+        businessType: businessType || 'retailer',
+        licenseFile: req.file ? `/uploads/licenses/${req.file.filename}` : '',
         createdAt: new Date().toISOString()
       });
     }
@@ -88,6 +164,9 @@ exports.register = async (req, res, next) => {
     next(error);
   }
 };
+
+// Export upload middleware for use in routes
+exports.uploadLicense = upload.single('license');
 
 exports.login = async (req, res, next) => {
   try {

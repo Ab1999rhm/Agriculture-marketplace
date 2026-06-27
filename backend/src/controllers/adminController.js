@@ -41,6 +41,33 @@ exports.suspendUser = async (req, res, next) => {
   }
 };
 
+exports.rejectUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.collection('users').doc(id).update({
+      approved: false,
+      rejected: true,
+      rejectedAt: new Date().toISOString()
+    });
+    res.status(200).json({ message: 'User rejected successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.activateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.collection('users').doc(id).update({
+      suspended: false,
+      activatedAt: new Date().toISOString()
+    });
+    res.status(200).json({ message: 'User activated successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -195,6 +222,65 @@ exports.createBackup = async (req, res, next) => {
       backupId: 'backup_' + Date.now(),
       timestamp: new Date().toISOString()
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllProducts = async (req, res, next) => {
+  try {
+    const productsSnapshot = await db.collection('products').get();
+    const products = productsSnapshot.docs.map(doc => doc.data());
+    res.status(200).json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.hideProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.collection('products').doc(id).update({
+      hidden: true,
+      hiddenAt: new Date().toISOString()
+    });
+    res.status(200).json({ message: 'Product hidden successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.showProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.collection('products').doc(id).update({
+      hidden: false,
+      shownAt: new Date().toISOString()
+    });
+    res.status(200).json({ message: 'Product shown successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.expireProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.collection('products').doc(id).update({
+      expired: true,
+      expiredAt: new Date().toISOString()
+    });
+    res.status(200).json({ message: 'Product expired successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.collection('products').doc(id).delete();
+    res.status(200).json({ message: 'Product deleted successfully' });
   } catch (error) {
     next(error);
   }
