@@ -31,9 +31,34 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { farmerId, crop, harvestDate, quantity, price, depositPercent, status } = req.body;
+    const { farmerId, productId, crop, harvestDate, quantity, price, depositPercent, status } = req.body;
+    
+    // Validation: required fields
+    if (!farmerId) {
+      return res.status(400).json({ error: 'farmerId is required' });
+    }
+    if (!productId) {
+      return res.status(400).json({ error: 'productId is required' });
+    }
+    if (!crop) {
+      return res.status(400).json({ error: 'crop name is required' });
+    }
+    if (!harvestDate) {
+      return res.status(400).json({ error: 'harvestDate is required' });
+    }
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ error: 'quantity must be greater than 0' });
+    }
+    if (!price || price <= 0) {
+      return res.status(400).json({ error: 'price must be greater than 0' });
+    }
+    if (!depositPercent || depositPercent <= 0 || depositPercent > 100) {
+      return res.status(400).json({ error: 'depositPercent must be between 1 and 100' });
+    }
+    
     const docRef = await db.collection('preHarvestSales').add({
       farmerId,
+      productId,
       crop,
       harvestDate,
       quantity,

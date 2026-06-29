@@ -4,12 +4,7 @@ const featureFlags = require('../services/featureFlags');
 
 exports.processPayment = async (req, res, next) => {
   try {
-    const { orderId, phoneNumber, amount } = req.body;
-
-    // Check if CBE Birr is enabled
-    if (!featureFlags.ENABLE_CBE_BIRR) {
-      return res.status(403).json({ error: 'CBE Birr payment module is currently disabled by system administrator.' });
-    }
+    const { orderId, phoneNumber, amount, paymentMethod, paymentDetails } = req.body;
 
     // 1. Fetch order
     const orderDoc = await db.collection('orders').doc(orderId).get();
@@ -22,33 +17,38 @@ exports.processPayment = async (req, res, next) => {
       return res.status(403).json({ error: 'Forbidden: You can only pay for your own orders' });
     }
 
-    // 2. Simulate external API call to CBE Birr
-    console.log(`[CBE Birr API] Sending payment request of ${amount} ETB to phone ${phoneNumber} for Order ${orderId}...`);
+    // 2. Simulate external API call
+    const actualMethod = paymentMethod || order.paymentMethod || 'CBE_BIRR';
+    let transactionId = '';
     
-    // Check phone format
-    if (!phoneNumber || !phoneNumber.match(/^(09|\+2519)\d{8}$/)) {
-      return res.status(400).json({ error: 'Invalid CBE Birr registered phone number' });
+    if (actualMethod === 'TELEBIRR') {
+      console.log(`[Telebirr API] Sending payment request of ${amount} ETB to phone ${phoneNumber} for Order ${orderId}...`);
+      transactionId = 'TXN-TELE-' + Math.random().toString(36).substring(2, 11).toUpperCase();
+    } else if (actualMethod === 'AWASH') {
+      console.log(`[Awash Birr API] Sending payment request of ${amount} ETB to phone ${phoneNumber} for Order ${orderId}...`);
+      transactionId = 'TXN-AWASH-' + Math.random().toString(36).substring(2, 11).toUpperCase();
+    } else {
+      console.log(`[CBE Birr API] Sending payment request of ${amount} ETB to phone ${phoneNumber} for Order ${orderId}...`);
+      transactionId = 'TXN-CBE-' + Math.random().toString(36).substring(2, 11).toUpperCase();
     }
 
-    // Simulate success
-    const transactionId = 'TXN-CBE-' + Math.random().toString(36).substring(2, 11).toUpperCase();
-    
-    // 3. Update order payment status and logistics
+    // 3. Update order payment status, method, and payment details (pending farmer confirmation)
     await db.collection('orders').doc(orderId).update({
-      paymentStatus: 'paid',
+      paymentStatus: 'awaiting_confirmation',
       transactionId,
-      status: 'confirmed',
-      'logistics.status': 'ready_for_pickup',
+      status: 'pending',
+      paymentMethod: actualMethod,
+      paymentDetails: paymentDetails || {},
       updatedAt: new Date().toISOString()
     });
 
     res.status(200).json({
       success: true,
-      message: 'CBE Birr payment simulated successfully',
+      message: `${actualMethod === 'TELEBIRR' ? 'Telebirr' : actualMethod === 'AWASH' ? 'Awash Birr' : 'CBE Birr'} payment simulated successfully`,
       transactionId,
       orderId,
       amount,
-      status: 'paid'
+      status: 'pending'
     });
   } catch (error) {
     next(error);
@@ -69,10 +69,9 @@ exports.cbeWebhook = async (req, res, next) => {
       const orderDoc = await db.collection('orders').doc(OrderId).get();
       if (orderDoc.exists) {
         await db.collection('orders').doc(OrderId).update({
-          paymentStatus: 'paid',
+          paymentStatus: 'awaiting_confirmation',
           transactionId: TransactionId,
-          status: 'confirmed',
-          'logistics.status': 'ready_for_pickup',
+          status: 'pending',
           updatedAt: new Date().toISOString()
         });
         return res.status(200).json({ status: 'success', message: 'Order payment processed' });
@@ -90,7 +89,8 @@ exports.cbeWebhook = async (req, res, next) => {
 exports.getPaymentConfig = async (req, res, next) => {
   res.status(200).json({
     cbeBirrEnabled: featureFlags.ENABLE_CBE_BIRR,
-    telebirrEnabled: featureFlags.ENABLE_TELEBIRR,
+    telebirrEnabled: true, // Force enabled for simulation testing
     codEnabled: true
   });
 };
+

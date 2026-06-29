@@ -4,6 +4,7 @@ export function useBuyerHandlers({
   token, user,
   wishlist, setWishlist,
   supplierReviews, setSupplierReviews,
+  allReviews, setAllReviews,
 }) {
   const handleAddToWishlist = async (product) => {
     try {
@@ -46,11 +47,20 @@ export function useBuyerHandlers({
       const res = await fetch('/api/supplier-reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ ...reviewData, buyerId: user.id }),
+        body: JSON.stringify({ 
+          ...reviewData, 
+          buyerId: user.id,
+          buyerName: user.name,
+          supplierId: reviewData.farmerId,
+          supplierName: reviewData.farmerName
+        }),
       });
       if (res.ok) {
         const newReview = await res.json();
         setSupplierReviews((prev) => [...prev, newReview]);
+        if (setAllReviews) {
+          setAllReviews((prev) => [...prev, newReview]);
+        }
         confetti({ particleCount: 20, spread: 30 });
       }
     } catch (err) {
@@ -67,6 +77,9 @@ export function useBuyerHandlers({
       });
       if (res.ok) {
         setSupplierReviews(supplierReviews.map((r) => (r.id === id ? { ...r, ...reviewData } : r)));
+        if (setAllReviews) {
+          setAllReviews(allReviews.map((r) => (r.id === id ? { ...r, ...reviewData } : r)));
+        }
       }
     } catch (err) {
       console.error(err);
@@ -79,7 +92,12 @@ export function useBuyerHandlers({
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) setSupplierReviews(supplierReviews.filter((r) => r.id !== id));
+      if (res.ok) {
+        setSupplierReviews(supplierReviews.filter((r) => r.id !== id));
+        if (setAllReviews) {
+          setAllReviews(allReviews.filter((r) => r.id !== id));
+        }
+      }
     } catch (err) {
       console.error(err);
     }

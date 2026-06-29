@@ -158,6 +158,19 @@ export default function AdminDashboard({
                     >
                       {order.paymentStatus.toUpperCase()}
                     </p>
+                    <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                      {order.paymentMethod?.replace("_", " ")}
+                    </p>
+                    {order.paymentDetails?.ftCode && (
+                      <p className="text-[9px] font-mono text-pink-600 dark:text-pink-400 font-bold">
+                        Ref: {order.paymentDetails.ftCode}
+                      </p>
+                    )}
+                    {order.paymentDetails?.cbeAccount && (
+                      <p className="text-[9px] font-mono text-slate-400">
+                        Acct: {order.paymentDetails.cbeAccount}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

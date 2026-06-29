@@ -1543,12 +1543,12 @@ export default function FarmerDashboardModals({
               <select
                 name="productId"
                 required
-                value={editingAuction?.productId || ""}
+                value={editingAuction?.productId || (editingAuction?.product ? products.find(p => p.name === editingAuction.product)?.id : "") || ""}
                 onChange={(e) => setEditingAuction({...editingAuction, productId: e.target.value})}
                 className={inp}
               >
                 <option value="">Select a product</option>
-                {products.map((p) => (
+                {products.filter(p => p.name).map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} - {p.price} ETB/{p.unit}
                   </option>
@@ -1664,7 +1664,7 @@ export default function FarmerDashboardModals({
                 className={inp}
               >
                 <option value="">Select a product</option>
-                {products.map((p) => (
+                {products.filter(p => p.name).map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} - {p.price} ETB/{p.unit}
                   </option>
@@ -1746,6 +1746,7 @@ export default function FarmerDashboardModals({
                   productId: f.productId.value,
                   minQuantity: f.minQuantity.value,
                   discountPercent: f.discountPercent.value,
+                  active: f.active.checked,
                 },
                 editingBulkDiscount,
                 handleAddBulkDiscount,
@@ -1766,11 +1767,16 @@ export default function FarmerDashboardModals({
                 className={inp}
               >
                 <option value="">Select a product</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} - {p.price} ETB/{p.unit}
-                  </option>
-                ))}
+                {(() => {
+                  console.log('Discount modal - all products:', products);
+                  const filtered = products.filter(p => p.name);
+                  console.log('Discount modal - filtered products (with name):', filtered);
+                  return filtered.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} - {p.price} ETB/{p.unit}
+                    </option>
+                  ));
+                })()}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -1801,6 +1807,19 @@ export default function FarmerDashboardModals({
                   className={inp}
                 />
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                name="active"
+                type="checkbox"
+                id="active"
+                checked={editingBulkDiscount?.active !== undefined ? editingBulkDiscount.active : true}
+                onChange={(e) => setEditingBulkDiscount({...editingBulkDiscount, active: e.target.checked})}
+                className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+              />
+              <label htmlFor="active" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Active (show on marketplace)
+              </label>
             </div>
             <div className="flex justify-end pt-4 space-x-2">
               <button
@@ -1838,6 +1857,7 @@ export default function FarmerDashboardModals({
               const f = e.currentTarget;
               await submit(
                 {
+                  productId: f.productId.value,
                   crop: f.crop.value,
                   harvestDate: f.harvestDate.value,
                   quantity: f.quantity.value,
@@ -1853,6 +1873,23 @@ export default function FarmerDashboardModals({
             }}
             className="space-y-4"
           >
+            <div>
+              <label className={lbl}>Product</label>
+              <select
+                name="productId"
+                required
+                value={editingPreHarvest?.productId || ""}
+                onChange={(e) => setEditingPreHarvest({...editingPreHarvest, productId: e.target.value})}
+                className={inp}
+              >
+                <option value="">Select a product</option>
+                {products.filter(p => p.name).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} - {p.price} ETB/{p.unit}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className={lbl}>Crop</label>
               <input

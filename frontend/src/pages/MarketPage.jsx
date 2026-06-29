@@ -2,7 +2,7 @@ import { Search, Tag, MapPin, AlertTriangle } from 'lucide-react';
 import ProductCard from '../components/marketplace/ProductCard';
 
 export default function MarketPage({
-  products, wishlist, user, marketQualityGrades,
+  products, allReviews, wishlist, user, marketQualityGrades,
   coffeeImg, getLivestockImage,
   search, setSearch, category, setCategory,
   locationFilter, setLocationFilter,
@@ -83,6 +83,8 @@ export default function MarketPage({
             prod={prod}
             user={user}
             wishlist={wishlist}
+            allProducts={products}
+            allReviews={allReviews || []}
             onDelete={onDeleteProduct}
             getLivestockImage={getLivestockImage}
             coffeeImg={coffeeImg}

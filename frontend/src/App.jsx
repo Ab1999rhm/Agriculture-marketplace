@@ -139,6 +139,8 @@ export default function App() {
   const [buyerDashboardSubTab, setBuyerDashboardSubTab] = useState("overview");
   const [adminDashboardSubTab, setAdminDashboardSubTab] = useState("overview");
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -188,6 +190,7 @@ export default function App() {
   // ── Buyer
   const [wishlist, setWishlist] = useState([]);
   const [supplierReviews, setSupplierReviews] = useState([]);
+  const [allReviews, setAllReviews] = useState([]);
   const [buyerBudgets, setBuyerBudgets] = useState([]);
 
   // ── Profile
@@ -198,6 +201,15 @@ export default function App() {
   const [profileCrops, setProfileCrops] = useState("");
   const [profileCoords, setProfileCoords] = useState("");
   const [profileSaved, setProfileSaved] = useState(false);
+  const [profileCbeEnabled, setProfileCbeEnabled] = useState(false);
+  const [profileCbeAccount, setProfileCbeAccount] = useState("");
+  const [profileCbePhone, setProfileCbePhone] = useState("");
+  const [profileTelebirrEnabled, setProfileTelebirrEnabled] = useState(false);
+  const [profileTelebirrMerchant, setProfileTelebirrMerchant] = useState("");
+  const [profileTelebirrPhone, setProfileTelebirrPhone] = useState("");
+  const [profileAwashEnabled, setProfileAwashEnabled] = useState(false);
+  const [profileAwashAccount, setProfileAwashAccount] = useState("");
+  const [profileAwashPhone, setProfileAwashPhone] = useState("");
 
   // ── Checkout
   const [checkoutProduct, setCheckoutProduct] = useState(null);
@@ -206,6 +218,14 @@ export default function App() {
     useState("CBE_BIRR");
   const [checkoutPhone, setCheckoutPhone] = useState("");
   const [checkoutAddress, setCheckoutAddress] = useState("");
+  const [checkoutWalletType, setCheckoutWalletType] = useState("wallet");
+  const [checkoutCbeAccount, setCheckoutCbeAccount] = useState("");
+  const [checkoutSecurityPin, setCheckoutSecurityPin] = useState("");
+  const [checkoutTelebirrFlow, setCheckoutTelebirrFlow] = useState("app");
+  const [checkoutFtCode, setCheckoutFtCode] = useState("");
+  const [checkoutAwashPhone, setCheckoutAwashPhone] = useState("");
+  const [checkoutAwashPin, setCheckoutAwashPin] = useState("");
+  const [checkoutFarmerPayments, setCheckoutFarmerPayments] = useState({});
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [paymentError, setPaymentError] = useState("");
@@ -283,14 +303,16 @@ export default function App() {
       if (maxPrice) q.append("maxPrice", maxPrice);
       if (search) q.append("search", search);
 
-      const [prodRes, bulRes, payConfRes] = await Promise.all([
+      const [prodRes, bulRes, payConfRes, reviewsRes] = await Promise.all([
         fetch(`/api/products?${q.toString()}`),
         fetch("/api/bulletins"),
         fetch("/api/payments/config"),
+        fetch("/api/supplier-reviews"),
       ]);
       if (prodRes.ok) setProducts(await prodRes.json());
       if (bulRes.ok) setBulletins(await bulRes.json());
       if (payConfRes.ok) setPaymentConfig(await payConfRes.json());
+      if (reviewsRes.ok) setAllReviews(await reviewsRes.json());
 
       const qgRes = await fetch(
         "/api/quality-grades",
@@ -331,6 +353,7 @@ export default function App() {
             opt(`/api/contracts?farmerId=${fid}`, setContractFarming),
             opt(`/api/bulk-discounts?farmerId=${fid}`, setBulkDiscounts),
             opt(`/api/pre-harvest?farmerId=${fid}`, setAdvanceBookings),
+            opt(`/api/products?farmerId=${fid}`, setProducts),
           ]);
         }
 
@@ -358,6 +381,85 @@ export default function App() {
   useEffect(() => {
     fetchData();
   }, [token, user, search, category, locationFilter, minPrice, maxPrice]);
+
+  // ── Notification polling (every 30s while logged in)
+  const fetchNotifications = async () => {
+    if (!token || !user) return;
+    try {
+      const res = await fetch('/api/notifications', { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setNotifications(await res.json());
+    } catch (e) { /* silent */ }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [token, user]);
+
+  const markNotifRead = async (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    try {
+      await fetch(`/api/notifications/${id}/read`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+    } catch (e) { /* silent */ }
+  };
+
+  const markAllNotifsRead = async () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    try {
+      await fetch('/api/notifications/read-all', { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+    } catch (e) { /* silent */ }
+  };
+
+
+  useEffect(() => {
+    const loadProfileData = async () => {
+      if (!token || !user) return;
+      try {
+        if (user.role === 'farmer') {
+          const res = await fetch(`/api/farmers/${user.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setProfileName(data.name || user.name || "");
+            setProfilePhone(data.phone || user.phone || "");
+            setProfileLocation(data.location || user.location || "");
+            setProfileBio(data.bio || "");
+            setProfileCoords(data.coordinates || "");
+            setProfileCrops(data.crops ? data.crops.join(", ") : "");
+            
+            const pm = data.paymentMethods || {};
+            setProfileCbeEnabled(!!pm.cbe?.enabled);
+            setProfileCbeAccount(pm.cbe?.accountNumber || "");
+            setProfileCbePhone(pm.cbe?.walletPhone || "");
+            setProfileTelebirrEnabled(!!pm.telebirr?.enabled);
+            setProfileTelebirrMerchant(pm.telebirr?.merchantCode || "");
+            setProfileTelebirrPhone(pm.telebirr?.walletPhone || "");
+            setProfileAwashEnabled(!!pm.awash?.enabled);
+            setProfileAwashAccount(pm.awash?.accountNumber || "");
+            setProfileAwashPhone(pm.awash?.walletPhone || "");
+          }
+        } else if (user.role === 'buyer') {
+          const res = await fetch(`/api/buyers/${user.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setProfileName(data.name || user.name || "");
+            setProfilePhone(data.phone || user.phone || "");
+            setProfileLocation(data.location || user.location || "");
+          }
+        }
+      } catch (err) {
+        console.error("Error loading profile details:", err);
+      }
+    };
+
+    if (currentTab === 'profile') {
+      loadProfileData();
+    }
+  }, [currentTab, user, token]);
 
   // ── Auth
   const handleAuthSubmit = async (e) => {
@@ -445,6 +547,23 @@ export default function App() {
             coordinates: profileCoords,
             crops: profileCrops.split(",").map((c) => c.trim()),
             bio: profileBio,
+            paymentMethods: {
+              cbe: {
+                enabled: profileCbeEnabled,
+                accountNumber: profileCbeAccount,
+                walletPhone: profileCbePhone,
+              },
+              telebirr: {
+                enabled: profileTelebirrEnabled,
+                merchantCode: profileTelebirrMerchant,
+                walletPhone: profileTelebirrPhone,
+              },
+              awash: {
+                enabled: profileAwashEnabled,
+                accountNumber: profileAwashAccount,
+                walletPhone: profileAwashPhone,
+              }
+            }
           }
         : { name: profileName, phone: profilePhone, location: profileLocation };
     try {
@@ -479,7 +598,11 @@ export default function App() {
   const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
     setPaymentError("");
-    if (checkoutPaymentMethod === "CBE_BIRR") {
+    if (
+      checkoutPaymentMethod === "CBE_BIRR" ||
+      (checkoutPaymentMethod === "TELEBIRR" && checkoutTelebirrFlow === "app") ||
+      checkoutPaymentMethod === "AWASH"
+    ) {
       setOtpModalOpen(true);
       return;
     }
@@ -504,8 +627,13 @@ export default function App() {
       });
       const orderData = await res.json();
       if (res.ok) {
-        if (checkoutPaymentMethod === "CBE_BIRR") {
-          await fetch("/api/payments/initiate", {
+        if (
+          checkoutPaymentMethod === "CBE_BIRR" ||
+          checkoutPaymentMethod === "TELEBIRR" ||
+          checkoutPaymentMethod === "AWASH"
+        ) {
+          const buyerPhone = checkoutPaymentMethod === "AWASH" ? checkoutAwashPhone : checkoutPhone;
+          await fetch("/api/payments/pay", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -513,15 +641,33 @@ export default function App() {
             },
             body: JSON.stringify({
               orderId: orderData.id,
-              phoneNumber: checkoutPhone,
+              phoneNumber: buyerPhone,
               amount: checkoutProduct.price * checkoutQuantity,
+              paymentMethod: checkoutPaymentMethod,
+              paymentDetails: {
+                walletType: checkoutWalletType,
+                cbeAccount: checkoutCbeAccount,
+                telebirrFlow: checkoutTelebirrFlow,
+                ftCode: checkoutFtCode,
+                awashPhone: checkoutAwashPhone,
+                awashPin: checkoutAwashPin,
+              }
             }),
           });
         }
-        setOrders((prev) => [...prev, orderData]);
+        
+        // Reset states
         setCheckoutProduct(null);
         setOtpModalOpen(false);
         setOtpCode("");
+        setCheckoutCbeAccount("");
+        setCheckoutSecurityPin("");
+        setCheckoutFtCode("");
+        setCheckoutAwashPhone("");
+        setCheckoutAwashPin("");
+        
+        // Fetch updated orders and products list
+        await fetchData();
         confetti({ particleCount: 30, spread: 40 });
       } else {
         setPaymentError(orderData.error || "Order failed");
@@ -537,6 +683,8 @@ export default function App() {
   const farmerHandlers = useFarmerHandlers({
     token,
     user,
+    products,
+    setProducts,
     cropPlans,
     setCropPlans,
     inventoryItems,
@@ -622,6 +770,8 @@ export default function App() {
     setWishlist,
     supplierReviews,
     setSupplierReviews,
+    allReviews,
+    setAllReviews,
   });
   const adminHandlers = useAdminHandlers({
     token,
@@ -779,43 +929,113 @@ export default function App() {
               )}
             </button>
             {user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="action-icon-btn border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
-                >
-                  <User className="w-4.5 h-4.5" />
-                </button>
-                {profileDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50">
-                    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                        {user.name}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
-                        {user.role}
-                      </p>
+              <>
+                {/* ── Notification Bell */}
+                <div className="relative">
+                  <button
+                    id="notif-bell-btn"
+                    onClick={() => { setNotifOpen(!notifOpen); setProfileDropdownOpen(false); }}
+                    className="action-icon-btn border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 relative"
+                    aria-label="Notifications"
+                  >
+                    <Bell className="w-4.5 h-4.5" />
+                    {notifications.filter(n => !n.read).length > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-0.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold ring-2 ring-white dark:ring-slate-950 animate-bounce">
+                        {notifications.filter(n => !n.read).length > 9 ? '9+' : notifications.filter(n => !n.read).length}
+                      </span>
+                    )}
+                  </button>
+                  {notifOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-teal-50 to-amber-50 dark:from-teal-950/40 dark:to-amber-950/20">
+                        <span className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                          <Bell className="w-4 h-4 text-teal-600" /> Notifications
+                          {notifications.filter(n => !n.read).length > 0 && (
+                            <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                              {notifications.filter(n => !n.read).length}
+                            </span>
+                          )}
+                        </span>
+                        {notifications.some(n => !n.read) && (
+                          <button onClick={markAllNotifsRead} className="text-xs text-teal-600 hover:text-teal-700 dark:text-teal-400 font-medium">
+                            Mark all read
+                          </button>
+                        )}
+                      </div>
+                      <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
+                            <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                            <p className="text-sm">No notifications yet</p>
+                          </div>
+                        ) : (
+                          notifications.map(n => (
+                            <button
+                              key={n.id}
+                              onClick={() => { markNotifRead(n.id); if (n.orderId) { setCurrentTab('dashboard'); setNotifOpen(false); } }}
+                              className={`w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${ !n.read ? 'bg-teal-50/50 dark:bg-teal-950/20' : '' }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="text-lg mt-0.5 shrink-0">
+                                  {n.type === 'new_order' ? '📦' : n.type === 'payment_confirmed' ? '✅' : n.type === 'order_shipped' ? '🚚' : '🔔'}
+                                </span>
+                                <div className="min-w-0">
+                                  <p className={`text-xs font-semibold truncate ${ !n.read ? 'text-teal-700 dark:text-teal-400' : 'text-slate-800 dark:text-slate-200' }`}>
+                                    {n.title}
+                                  </p>
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
+                                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                                    {new Date(n.createdAt).toLocaleString()}
+                                  </p>
+                                </div>
+                                {!n.read && <span className="w-2 h-2 rounded-full bg-teal-500 shrink-0 mt-1.5" />}
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        setCurrentTab("profile");
-                        setProfileDropdownOpen(false);
-                      }}
-                      className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center space-x-2"
-                    >
-                      <User className="w-4 h-4" />
-                      <span>{t("navProfile")}</span>
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-b-xl flex items-center space-x-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>{t("navLogout")}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+                {/* ── Profile Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => { setProfileDropdownOpen(!profileDropdownOpen); setNotifOpen(false); }}
+                    className="action-icon-btn border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+                  >
+                    <User className="w-4.5 h-4.5" />
+                  </button>
+                  {profileDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50">
+                      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+                          {user.role}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setCurrentTab("profile");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center space-x-2"
+                      >
+                        <User className="w-4 h-4" />
+                        <span>{t("navProfile")}</span>
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-b-xl flex items-center space-x-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>{t("navLogout")}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <button
                 onClick={() => {
@@ -1009,6 +1229,7 @@ export default function App() {
         {currentTab === "market" && (
           <MarketPage
             products={products}
+            allReviews={allReviews}
             wishlist={wishlist}
             user={user}
             marketQualityGrades={marketQualityGrades}
@@ -1025,9 +1246,27 @@ export default function App() {
             setMinPrice={setMinPrice}
             maxPrice={maxPrice}
             setMaxPrice={setMaxPrice}
-            onBuy={(product) => {
+            onBuy={async (product) => {
               setCheckoutProduct(product);
               setCheckoutQuantity(1);
+              setCheckoutFarmerPayments({});
+              if (user) {
+                setCheckoutPhone(user.phone || "");
+                setCheckoutAddress(user.location || "");
+              }
+              if (token) {
+                try {
+                  const res = await fetch(`/api/farmers/${product.farmerId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    setCheckoutFarmerPayments(data.paymentMethods || {});
+                  }
+                } catch (e) {
+                  console.error("Error fetching farmer payment details:", e);
+                }
+              }
             }}
             onToggleWishlist={(arg, action) =>
               action === "remove"
@@ -1185,6 +1424,24 @@ export default function App() {
             setProfileCoords={setProfileCoords}
             profileSaved={profileSaved}
             handleProfileSave={handleProfileSave}
+            profileCbeEnabled={profileCbeEnabled}
+            setProfileCbeEnabled={setProfileCbeEnabled}
+            profileCbeAccount={profileCbeAccount}
+            setProfileCbeAccount={setProfileCbeAccount}
+            profileCbePhone={profileCbePhone}
+            setProfileCbePhone={setProfileCbePhone}
+            profileTelebirrEnabled={profileTelebirrEnabled}
+            setProfileTelebirrEnabled={setProfileTelebirrEnabled}
+            profileTelebirrMerchant={profileTelebirrMerchant}
+            setProfileTelebirrMerchant={setProfileTelebirrMerchant}
+            profileTelebirrPhone={profileTelebirrPhone}
+            setProfileTelebirrPhone={setProfileTelebirrPhone}
+            profileAwashEnabled={profileAwashEnabled}
+            setProfileAwashEnabled={setProfileAwashEnabled}
+            profileAwashAccount={profileAwashAccount}
+            setProfileAwashAccount={setProfileAwashAccount}
+            profileAwashPhone={profileAwashPhone}
+            setProfileAwashPhone={setProfileAwashPhone}
           />
         )}
       </main>
@@ -1235,6 +1492,7 @@ export default function App() {
       )}
       {checkoutProduct && (
         <CheckoutModal
+          user={user}
           checkoutProduct={checkoutProduct}
           setCheckoutProduct={setCheckoutProduct}
           checkoutQuantity={checkoutQuantity}
@@ -1249,6 +1507,21 @@ export default function App() {
           paymentError={paymentError}
           t={t}
           handleCheckoutSubmit={handleCheckoutSubmit}
+          checkoutWalletType={checkoutWalletType}
+          setCheckoutWalletType={setCheckoutWalletType}
+          checkoutCbeAccount={checkoutCbeAccount}
+          setCheckoutCbeAccount={setCheckoutCbeAccount}
+          checkoutSecurityPin={checkoutSecurityPin}
+          setCheckoutSecurityPin={setCheckoutSecurityPin}
+          checkoutTelebirrFlow={checkoutTelebirrFlow}
+          setCheckoutTelebirrFlow={setCheckoutTelebirrFlow}
+          checkoutFtCode={checkoutFtCode}
+          setCheckoutFtCode={setCheckoutFtCode}
+          checkoutAwashPhone={checkoutAwashPhone}
+          setCheckoutAwashPhone={setCheckoutAwashPhone}
+          checkoutAwashPin={checkoutAwashPin}
+          setCheckoutAwashPin={setCheckoutAwashPin}
+          checkoutFarmerPayments={checkoutFarmerPayments}
         />
       )}
       {otpModalOpen && (
@@ -1261,6 +1534,15 @@ export default function App() {
           setPaymentError={setPaymentError}
           processingPayment={processingPayment}
           submitOrder={submitOrder}
+          checkoutPaymentMethod={checkoutPaymentMethod}
+          checkoutWalletType={checkoutWalletType}
+          checkoutCbeAccount={checkoutCbeAccount}
+          checkoutTelebirrFlow={checkoutTelebirrFlow}
+          checkoutProduct={checkoutProduct}
+          checkoutQuantity={checkoutQuantity}
+          checkoutAwashPhone={checkoutAwashPhone}
+          checkoutAwashPin={checkoutAwashPin}
+          checkoutFarmerPayments={checkoutFarmerPayments}
         />
       )}
       {trackingOrder && (

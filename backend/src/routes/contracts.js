@@ -31,9 +31,34 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { farmerId, buyer, product, quantity, agreedPrice, deliveryDate, status } = req.body;
+    const { farmerId, productId, buyer, product, quantity, agreedPrice, deliveryDate, status } = req.body;
+    
+    // Validation: required fields
+    if (!farmerId) {
+      return res.status(400).json({ error: 'farmerId is required' });
+    }
+    if (!productId) {
+      return res.status(400).json({ error: 'productId is required' });
+    }
+    if (!buyer) {
+      return res.status(400).json({ error: 'buyer name is required' });
+    }
+    if (!product) {
+      return res.status(400).json({ error: 'product name is required' });
+    }
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ error: 'quantity must be greater than 0' });
+    }
+    if (!agreedPrice || agreedPrice <= 0) {
+      return res.status(400).json({ error: 'agreedPrice must be greater than 0' });
+    }
+    if (!deliveryDate) {
+      return res.status(400).json({ error: 'deliveryDate is required' });
+    }
+    
     const docRef = await db.collection('contracts').add({
       farmerId,
+      productId,
       buyer,
       product,
       quantity,

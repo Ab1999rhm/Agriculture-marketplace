@@ -294,7 +294,7 @@ if (isMock) {
       const docId = Math.random().toString(36).substring(2, 15);
       const docRef = this.doc(docId);
       await docRef.set(value);
-      return { id: docId, ...value };
+      return docRef;
     }
   }
 

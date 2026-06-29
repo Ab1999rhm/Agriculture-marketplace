@@ -16,6 +16,24 @@ export default function ProfilePage({
   setProfileCoords,
   profileSaved,
   handleProfileSave,
+  profileCbeEnabled,
+  setProfileCbeEnabled,
+  profileCbeAccount,
+  setProfileCbeAccount,
+  profileCbePhone,
+  setProfileCbePhone,
+  profileTelebirrEnabled,
+  setProfileTelebirrEnabled,
+  profileTelebirrMerchant,
+  setProfileTelebirrMerchant,
+  profileTelebirrPhone,
+  setProfileTelebirrPhone,
+  profileAwashEnabled,
+  setProfileAwashEnabled,
+  profileAwashAccount,
+  setProfileAwashAccount,
+  profileAwashPhone,
+  setProfileAwashPhone,
 }) {
   return (
     <div className="max-w-2xl mx-auto">
@@ -116,6 +134,134 @@ export default function ProfilePage({
                 placeholder="Share a short bio about your farm..."
                 className="glass-input min-h-[120px]"
               ></textarea>
+            </div>
+
+            {/* Farmer Payment Configuration Section */}
+            <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/50 pt-6">
+              <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">Payment Setup</h3>
+              <p className="text-xs text-slate-400 mb-4">Set up the accounts you accept payments to. Buyers will send funds directly to these accounts when purchasing your products.</p>
+
+              <div className="space-y-4">
+                {/* CBE Birr Setup */}
+                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="flex items-center space-x-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={profileCbeEnabled}
+                        onChange={(e) => setProfileCbeEnabled(e.target.checked)}
+                        className="accent-purple-600 rounded"
+                      />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Enable CBE Birr Channel</span>
+                    </label>
+                    <span className="text-[9px] font-extrabold uppercase text-purple-600 px-2 py-0.5 rounded bg-purple-500/10">Commercial Bank</span>
+                  </div>
+                  {profileCbeEnabled && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">CBE Account Number</label>
+                        <input
+                          type="text"
+                          value={profileCbeAccount}
+                          onChange={(e) => setProfileCbeAccount(e.target.value.replace(/\D/g, ''))}
+                          placeholder="e.g. 1000123456789"
+                          className="glass-input w-full text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">CBE Wallet Phone</label>
+                        <input
+                          type="text"
+                          value={profileCbePhone}
+                          onChange={(e) => setProfileCbePhone(e.target.value)}
+                          placeholder="e.g. 0912345678"
+                          className="glass-input w-full text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Telebirr Setup */}
+                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="flex items-center space-x-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={profileTelebirrEnabled}
+                        onChange={(e) => setProfileTelebirrEnabled(e.target.checked)}
+                        className="accent-pink-600 rounded"
+                      />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Enable telebirr Channel</span>
+                    </label>
+                    <span className="text-[9px] font-extrabold uppercase text-pink-600 px-2 py-0.5 rounded bg-pink-500/10">Ethio Telecom</span>
+                  </div>
+                  {profileTelebirrEnabled && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Merchant Code</label>
+                        <input
+                          type="text"
+                          value={profileTelebirrMerchant}
+                          onChange={(e) => setProfileTelebirrMerchant(e.target.value)}
+                          placeholder="e.g. 889988"
+                          className="glass-input w-full text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">telebirr Wallet Phone</label>
+                        <input
+                          type="text"
+                          value={profileTelebirrPhone}
+                          onChange={(e) => setProfileTelebirrPhone(e.target.value)}
+                          placeholder="e.g. 0912345678"
+                          className="glass-input w-full text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Awash E-Birr Setup */}
+                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="flex items-center space-x-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={profileAwashEnabled}
+                        onChange={(e) => setProfileAwashEnabled(e.target.checked)}
+                        className="accent-teal-600 rounded"
+                      />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Enable Awash Birr / E-Birr Channel</span>
+                    </label>
+                    <span className="text-[9px] font-extrabold uppercase text-teal-600 px-2 py-0.5 rounded bg-teal-500/10">Awash Bank</span>
+                  </div>
+                  {profileAwashEnabled && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Awash Account Number</label>
+                        <input
+                          type="text"
+                          value={profileAwashAccount}
+                          onChange={(e) => setProfileAwashAccount(e.target.value)}
+                          placeholder="e.g. 01304111222300"
+                          className="glass-input w-full text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Awash Wallet Phone</label>
+                        <input
+                          type="text"
+                          value={profileAwashPhone}
+                          onChange={(e) => setProfileAwashPhone(e.target.value)}
+                          placeholder="e.g. 0912345678"
+                          className="glass-input w-full text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </>
         )}

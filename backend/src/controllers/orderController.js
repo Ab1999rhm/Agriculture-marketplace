@@ -1,5 +1,6 @@
 // backend/src/controllers/orderController.js
 const { db } = require('../services/firebase');
+const { createNotification } = require('./notificationController');
 
 exports.createOrder = async (req, res, next) => {
   try {
@@ -21,6 +22,15 @@ exports.createOrder = async (req, res, next) => {
     const totalPrice = product.price * quantity;
     const orderId = 'ord_' + Math.random().toString(36).substring(2, 11);
 
+    const buyerDoc = await db.collection('users').doc(buyerId).get();
+    let buyerPhone = '';
+    let buyerEmail = req.user.email || '';
+    if (buyerDoc.exists) {
+      const buyerData = buyerDoc.data();
+      buyerPhone = buyerData.phone || '';
+      buyerEmail = buyerData.email || buyerEmail;
+    }
+
     const newOrder = {
       id: orderId,
       productId,
@@ -30,6 +40,8 @@ exports.createOrder = async (req, res, next) => {
       farmerName: product.farmerName,
       buyerId,
       buyerName,
+      buyerPhone,
+      buyerEmail,
       quantity,
       totalPrice,
       paymentMethod,
@@ -54,6 +66,15 @@ exports.createOrder = async (req, res, next) => {
 
     // 3. Save order
     await db.collection('orders').doc(orderId).set(newOrder);
+
+    // 4. Notify the farmer about the new order
+    await createNotification({
+      userId: product.farmerId,
+      type: 'new_order',
+      title: '📦 New Order Received',
+      message: `${buyerName} ordered ${quantity} ${product.unit || 'unit(s)'} of ${product.name}.`,
+      orderId
+    });
 
     res.status(201).json(newOrder);
   } catch (error) {
@@ -134,11 +155,13 @@ exports.updateOrderStatus = async (req, res, next) => {
     // Update logistics status accordingly
     if (status === 'confirmed') {
       updateData['logistics.status'] = 'ready_for_pickup';
+      updateData.paymentStatus = 'paid'; // Farmer confirmation = payment verified
     } else if (status === 'shipped') {
       updateData['logistics.status'] = 'in_transit';
+      updateData.paymentStatus = 'paid';
     } else if (status === 'delivered') {
       updateData['logistics.status'] = 'delivered';
-      updateData.paymentStatus = 'paid'; // COD orders get paid on delivery
+      updateData.paymentStatus = 'paid';
     } else if (status === 'cancelled') {
       updateData['logistics.status'] = 'cancelled';
       // Return stock back to product
@@ -151,6 +174,25 @@ exports.updateOrderStatus = async (req, res, next) => {
     }
 
     await db.collection('orders').doc(id).update(updateData);
+
+    // Notify buyer based on status transition
+    if (status === 'confirmed') {
+      await createNotification({
+        userId: order.buyerId,
+        type: 'payment_confirmed',
+        title: '✅ Payment Confirmed',
+        message: `Your payment for "${order.productName}" (Order #${id.slice(-6).toUpperCase()}) has been confirmed by the farmer.`,
+        orderId: id
+      });
+    } else if (status === 'shipped') {
+      await createNotification({
+        userId: order.buyerId,
+        type: 'order_shipped',
+        title: '🚚 Order Shipped',
+        message: `Your order of "${order.productName}" (Order #${id.slice(-6).toUpperCase()}) is now in transit and on its way to you!`,
+        orderId: id
+      });
+    }
 
     // Fetch updated order to return
     const updatedDoc = await db.collection('orders').doc(id).get();

@@ -31,14 +31,37 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { farmerId, product, startingPrice, duration, minBid, status, bids } = req.body;
+    const { farmerId, productId, product, startingPrice, duration, minBid, status, bids, auctionStatus } = req.body;
+    
+    // Validation: required fields
+    if (!farmerId) {
+      return res.status(400).json({ error: 'farmerId is required' });
+    }
+    if (!productId) {
+      return res.status(400).json({ error: 'productId is required' });
+    }
+    if (!product) {
+      return res.status(400).json({ error: 'product name is required' });
+    }
+    if (!startingPrice || startingPrice <= 0) {
+      return res.status(400).json({ error: 'startingPrice must be greater than 0' });
+    }
+    if (!duration || duration <= 0) {
+      return res.status(400).json({ error: 'duration must be greater than 0' });
+    }
+    if (!minBid || minBid <= 0) {
+      return res.status(400).json({ error: 'minBid must be greater than 0' });
+    }
+    
     const docRef = await db.collection('auctions').add({
       farmerId,
+      productId,
       product,
       startingPrice,
       duration,
       minBid,
       status: status || 'active',
+      auctionStatus: auctionStatus || 'live',
       bids: bids || [],
       createdAt: new Date().toISOString(),
     });
@@ -51,8 +74,8 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { product, startingPrice, duration, minBid, status, bids } = req.body;
-    await db.collection('auctions').doc(req.params.id).update({
+    const { productId, product, startingPrice, duration, minBid, status, bids, auctionStatus } = req.body;
+    const updateData = {
       product,
       startingPrice,
       duration,
@@ -60,7 +83,11 @@ router.put('/:id', async (req, res) => {
       status,
       bids,
       updatedAt: new Date().toISOString(),
-    });
+    };
+    if (productId !== undefined) updateData.productId = productId;
+    if (auctionStatus !== undefined) updateData.auctionStatus = auctionStatus;
+    
+    await db.collection('auctions').doc(req.params.id).update(updateData);
     const doc = await db.collection('auctions').doc(req.params.id).get();
     res.json({ id: doc.id, ...doc.data() });
   } catch (error) {

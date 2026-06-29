@@ -505,6 +505,7 @@ export default function FarmerDashboard({
                   <tr className="text-[10px] text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
                     <th className="py-3 px-4">Order</th>
                     <th className="py-3 px-4 hidden sm:table-cell">Buyer</th>
+                    <th className="py-3 px-4 hidden md:table-cell">Contact</th>
                     <th className="py-3 px-4">Total</th>
                     <th className="py-3 px-4">Payment</th>
                     <th className="py-3 px-4">Status</th>
@@ -515,7 +516,7 @@ export default function FarmerDashboard({
                   {orders.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="7"
                         className="py-12 text-center text-slate-400 text-sm"
                       >
                         No orders yet.
@@ -536,19 +537,59 @@ export default function FarmerDashboard({
                           </p>
                         </td>
                         <td className="py-3 px-4 hidden sm:table-cell text-slate-600 dark:text-slate-300">
-                          {ord.buyerName}
+                          <p className="font-semibold text-xs">{ord.buyerName}</p>
+                        </td>
+                        <td className="py-3 px-4 hidden md:table-cell">
+                          <div className="space-y-0.5">
+                            {ord.buyerPhone && (
+                              <p className="text-[10px] font-bold text-teal-700 dark:text-teal-400 flex items-center gap-1">
+                                📞 {ord.buyerPhone}
+                              </p>
+                            )}
+                            {ord.buyerEmail && (
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate max-w-[140px]">
+                                ✉ {ord.buyerEmail}
+                              </p>
+                            )}
+                            {!ord.buyerPhone && !ord.buyerEmail && (
+                              <span className="text-[10px] text-slate-400 italic">No contact</span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-3 px-4 font-bold text-slate-800 dark:text-slate-200">
                           {ord.totalPrice?.toLocaleString()} ETB
                         </td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${ord.paymentStatus === "paid" ? "bg-teal-500/10 text-teal-700 dark:text-teal-400" : "bg-red-500/10 text-red-600 dark:text-red-400"}`}
-                          >
-                            {ord.paymentStatus === "paid"
-                              ? "✓ Paid"
-                              : "✗ Unpaid"}
-                          </span>
+                        <td className="py-3 px-4 text-xs font-semibold">
+                          <div>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${ord.paymentStatus === "paid" ? "bg-teal-500/10 text-teal-700 dark:text-teal-400" : "bg-red-500/10 text-red-600 dark:text-red-400"}`}
+                            >
+                              {ord.paymentStatus === "paid"
+                                ? "✓ Paid"
+                                : "✗ Unpaid"}
+                            </span>
+                            <span className="text-[10px] text-slate-500 block font-semibold mt-1">
+                              {ord.paymentMethod?.replace("_", " ")}
+                            </span>
+                            {ord.paymentDetails && (
+                              <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 space-y-0.5">
+                                {ord.paymentDetails.walletType && (
+                                  <p>Mode: {ord.paymentDetails.walletType === 'savings' ? 'Savings' : 'Wallet'}</p>
+                                )}
+                                {ord.paymentDetails.cbeAccount && (
+                                  <p className="truncate max-w-[120px]" title={ord.paymentDetails.cbeAccount}>Acct: {ord.paymentDetails.cbeAccount}</p>
+                                )}
+                                {ord.paymentDetails.ftCode && (
+                                  <p className="text-pink-600 dark:text-pink-400 font-bold truncate max-w-[120px]" title={ord.paymentDetails.ftCode}>Ref: {ord.paymentDetails.ftCode}</p>
+                                )}
+                              </div>
+                            )}
+                            {ord.transactionId && !ord.paymentDetails?.ftCode && (
+                              <span className="text-[9px] font-mono text-slate-400 block truncate max-w-[120px]" title={ord.transactionId}>
+                                Txn: {ord.transactionId.substring(0, 12)}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-3 px-4">
                           <span

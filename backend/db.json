@@ -31,10 +31,30 @@
       "name": "Abraham Fikadu",
       "phone": "0929570426",
       "location": "Alemaya",
-      "coordinates": "",
-      "crops": [],
-      "bio": "",
-      "createdAt": "2026-06-24T19:49:27.164Z"
+      "coordinates": "9.9300,42,200",
+      "crops": [
+        "Chat"
+      ],
+      "bio": "I am the popular farmer in Alamya Village. who produce Khat",
+      "createdAt": "2026-06-24T19:49:27.164Z",
+      "paymentMethods": {
+        "cbe": {
+          "enabled": true,
+          "accountNumber": "1000453856032",
+          "walletPhone": "0934586543"
+        },
+        "telebirr": {
+          "enabled": true,
+          "merchantCode": "675567",
+          "walletPhone": "0934586543"
+        },
+        "awash": {
+          "enabled": true,
+          "accountNumber": "015119894700",
+          "walletPhone": "0934586543"
+        }
+      },
+      "updatedAt": "2026-06-28T19:52:45.733Z"
     },
     {
       "id": "user_kwy36mg5g",
@@ -101,17 +121,6 @@
       "description": "Fat, well-fed local breed bull, ready for market."
     },
     {
-      "id": "prod_7b4zg0nai",
-      "farmerId": "user_a3a4pewsk",
-      "farmerName": "Abraham Fikadu",
-      "price": null,
-      "quantity": null,
-      "description": "",
-      "createdAt": "2026-06-25T07:15:12.102Z",
-      "updatedAt": "2026-06-27T20:03:44.342Z",
-      "hidden": false
-    },
-    {
       "id": "prod_a428b43js",
       "farmerId": "user_k4u0l5vc1",
       "farmerName": "Auto Test Farmer",
@@ -128,21 +137,68 @@
       "imageUrl": "/uploads/product-1782413866669-462851437.jpg"
     },
     {
-      "id": "prod_a1nw37nxy",
+      "id": "prod_tvbinxvc6",
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
-      "name": "Alaaya",
+      "name": "Shumbura",
+      "category": "Crops",
+      "type": "Shumbura",
+      "price": 430,
+      "quantity": 396,
+      "unit": "kg",
+      "harvestDate": "2026-06-21",
+      "location": "Alamaya",
+      "description": "This is for check up discount",
+      "hidden": false,
+      "createdAt": "2026-06-28T08:32:33.839Z",
+      "imageUrl": "/uploads/product-1782635553816-407674163.jpg"
+    },
+    {
+      "id": "prod_erdmh2b50",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "name": "TestProduct",
+      "category": "Livestock",
+      "type": "Coffee",
+      "price": 440,
+      "quantity": 5000,
+      "unit": "kg",
+      "harvestDate": "2026-06-21",
+      "location": "Alemaya",
+      "description": "this is for test purpose",
+      "hidden": false,
+      "createdAt": "2026-06-28T10:22:41.246Z",
+      "imageUrl": "/uploads/product-1782642161233-900946409.jpg"
+    },
+    {
+      "id": "prod_9ghucmncs",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "name": "Test Teff",
+      "category": "grain",
+      "price": 250,
+      "quantity": 100,
+      "unit": "kg",
+      "description": "",
+      "hidden": false,
+      "createdAt": "2026-06-28T10:25:32.193Z"
+    },
+    {
+      "id": "prod_c9prpyrcr",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "name": "2ndtest",
       "category": "Crops",
       "type": "Coffee",
-      "price": 44,
-      "quantity": 400,
+      "price": 500,
+      "quantity": 2999,
       "unit": "kg",
-      "harvestDate": "2026-06-30",
-      "location": "Alemaya",
-      "description": "rrrrrr",
+      "harvestDate": "2026-06-21",
+      "location": "UUU",
+      "description": "yyyyy",
       "hidden": false,
-      "createdAt": "2026-06-27T20:32:50.095Z",
-      "imageUrl": "/uploads/product-1782592370073-643607225.jpg"
+      "createdAt": "2026-06-28T10:38:38.835Z",
+      "imageUrl": "/uploads/product-1782643118824-673193395.jpg"
     }
   ],
   "orders": [
@@ -201,13 +257,116 @@
       "transactionId": "TXN-CBE-JVQYGWA37",
       "logistics.status": "delivered",
       "updatedAt": "2026-06-25T07:30:30.217Z"
+    },
+    {
+      "id": "ord_xbuhpbxtb",
+      "productId": "prod_tvbinxvc6",
+      "productName": "Shumbura",
+      "productUnit": "kg",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "buyerId": "user_so6cga6k6",
+      "buyerName": "Abraham ",
+      "quantity": 1,
+      "totalPrice": 430,
+      "paymentMethod": "COD",
+      "paymentStatus": "paid",
+      "shippingAddress": "Addis Zemen",
+      "pickupPointId": "central_hub_01",
+      "status": "delivered",
+      "logistics": {
+        "carrier": "Hararghe Cooperative Logistics",
+        "trackingNumber": "TRK-567101",
+        "status": "order_placed",
+        "pickupPoint": "Alem Maya Central Hub",
+        "estimatedDelivery": "2026-07-01"
+      },
+      "createdAt": "2026-06-28T12:01:33.450Z",
+      "updatedAt": "2026-06-28T12:05:53.513Z",
+      "logistics.status": "delivered"
+    },
+    {
+      "id": "ord_varj9pq3v",
+      "productId": "prod_tvbinxvc6",
+      "productName": "Shumbura",
+      "productUnit": "kg",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "buyerId": "user_so6cga6k6",
+      "buyerName": "Abraham ",
+      "buyerPhone": "0929570426",
+      "buyerEmail": "fikaduabraham93@gmail.com",
+      "quantity": 3,
+      "totalPrice": 1290,
+      "paymentMethod": "CBE_BIRR",
+      "paymentStatus": "paid",
+      "shippingAddress": "Alemaya",
+      "pickupPointId": "central_hub_01",
+      "status": "delivered",
+      "logistics": {
+        "carrier": "Hararghe Cooperative Logistics",
+        "trackingNumber": "TRK-510460",
+        "status": "order_placed",
+        "pickupPoint": "Alem Maya Central Hub",
+        "estimatedDelivery": "2026-07-01"
+      },
+      "createdAt": "2026-06-28T19:55:10.359Z",
+      "transactionId": "TXN-CBE-NUFJEAAPY",
+      "paymentDetails": {
+        "walletType": "wallet",
+        "cbeAccount": "",
+        "telebirrFlow": "app",
+        "ftCode": "",
+        "awashPhone": "",
+        "awashPin": ""
+      },
+      "logistics.status": "delivered",
+      "updatedAt": "2026-06-28T20:00:05.778Z"
+    },
+    {
+      "id": "ord_du6iy0vca",
+      "productId": "prod_c9prpyrcr",
+      "productName": "2ndtest",
+      "productUnit": "kg",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "buyerId": "user_so6cga6k6",
+      "buyerName": "Abraham ",
+      "buyerPhone": "0929570426",
+      "buyerEmail": "fikaduabraham93@gmail.com",
+      "quantity": 1,
+      "totalPrice": 500,
+      "paymentMethod": "TELEBIRR",
+      "paymentStatus": "paid",
+      "shippingAddress": "Alemaya",
+      "pickupPointId": "central_hub_01",
+      "status": "delivered",
+      "logistics": {
+        "carrier": "Hararghe Cooperative Logistics",
+        "trackingNumber": "TRK-441409",
+        "status": "order_placed",
+        "pickupPoint": "Alem Maya Central Hub",
+        "estimatedDelivery": "2026-07-01"
+      },
+      "createdAt": "2026-06-28T20:16:52.214Z",
+      "transactionId": "TXN-TELE-3G9G9SHYX",
+      "paymentDetails": {
+        "walletType": "wallet",
+        "cbeAccount": "",
+        "telebirrFlow": "app",
+        "ftCode": "",
+        "awashPhone": "",
+        "awashPin": ""
+      },
+      "updatedAt": "2026-06-28T20:27:30.979Z",
+      "logistics.status": "delivered"
     }
   ],
   "users": [
     {
       "id": "user1",
       "email": "farmer@hararghe.com",
-      "passwordHash": "$2a$10$X7m6ZskFz8t5sC9B6E0M.O81g4v9mD.2r5g4v9mD.2r5g4v9mD.",
+      "passwordHash": "$2a$10$BSpFfncTydm0VLIya1e4NOdLvqX.8bVydmOfTE/7msw7A0.Xpwx6q",
       "name": "Kenenisa Jila",
       "role": "farmer",
       "phone": "0911223344",
@@ -216,7 +375,7 @@
     {
       "id": "user2",
       "email": "buyer@hararghe.com",
-      "passwordHash": "$2a$10$X7m6ZskFz8t5sC9B6E0M.O81g4v9mD.2r5g4v9mD.2r5g4v9mD.",
+      "passwordHash": "$2a$10$BSpFfncTydm0VLIya1e4NOdLvqX.8bVydmOfTE/7msw7A0.Xpwx6q",
       "name": "Abdi Yusuf",
       "role": "buyer",
       "phone": "0922334455",
@@ -449,6 +608,39 @@
       "orderId": "ord_80aspqfus",
       "date": "2026-06-26T15:31:19.575Z",
       "createdAt": "2026-06-26T15:31:19.579Z"
+    },
+    {
+      "id": "b8opnq8qqvh",
+      "buyerId": "user_so6cga6k6",
+      "rating": 4,
+      "comment": "thanks",
+      "orderId": "ord_xbuhpbxtb",
+      "date": "2026-06-28T12:08:11.138Z",
+      "createdAt": "2026-06-28T12:08:11.138Z"
+    },
+    {
+      "id": "3adfbe6f0xu",
+      "buyerId": "user_so6cga6k6",
+      "buyerName": "Abraham ",
+      "supplierId": "user_a3a4pewsk",
+      "supplierName": "Abraham Fikadu",
+      "rating": 5,
+      "comment": "Thank you for your trust and quality of products",
+      "orderId": "ord_varj9pq3v",
+      "date": "2026-06-28",
+      "createdAt": "2026-06-28T20:01:22.057Z"
+    },
+    {
+      "id": "d72yvzw5ur",
+      "buyerId": "user_so6cga6k6",
+      "buyerName": "Abraham ",
+      "supplierId": "user_a3a4pewsk",
+      "supplierName": "Abraham Fikadu",
+      "rating": 4,
+      "comment": "been on time",
+      "orderId": "ord_du6iy0vca",
+      "date": "2026-06-28",
+      "createdAt": "2026-06-28T20:28:20.854Z"
     }
   ],
   "wishlist": [
@@ -574,12 +766,47 @@
   ],
   "bulkDiscounts": [
     {
-      "id": "9o3jfc264d",
+      "id": "b7xbtromfo",
+      "productId": "prod1",
+      "minQuantity": 10,
+      "discountPercent": 15,
+      "active": true,
+      "createdAt": "2026-06-28T09:00:55.053Z"
+    },
+    {
+      "id": "qc5gdzlktj9",
+      "farmerId": "user1",
+      "productId": "prod1",
+      "product": "Harar Organic Coffee",
+      "minQuantity": 50,
+      "discountPercent": 20,
+      "originalPrice": 350,
+      "active": true,
+      "createdAt": "2026-06-28T09:04:17.435Z"
+    },
+    {
+      "id": "dpxe1c1k9ks",
       "farmerId": "user_a3a4pewsk",
-      "minQuantity": "400",
-      "discountPercent": "50",
-      "createdAt": "2026-06-27T19:46:57.707Z",
-      "updatedAt": "2026-06-27T20:40:09.320Z"
+      "productId": "prod_tvbinxvc6",
+      "product": "Shumbura",
+      "minQuantity": "5",
+      "discountPercent": "12",
+      "originalPrice": 430,
+      "active": true,
+      "createdAt": "2026-06-28T10:18:56.579Z",
+      "updatedAt": "2026-06-28T11:19:39.856Z"
+    },
+    {
+      "id": "9hqmfzz91lo",
+      "farmerId": "user_a3a4pewsk",
+      "productId": "prod_9ghucmncs",
+      "product": "Test Teff",
+      "minQuantity": "10",
+      "discountPercent": "16",
+      "originalPrice": 250,
+      "active": true,
+      "createdAt": "2026-06-28T10:25:32.201Z",
+      "updatedAt": "2026-06-28T11:19:59.923Z"
     }
   ],
   "contracts": [],
@@ -594,6 +821,38 @@
       "depositPercent": "50",
       "createdAt": "2026-06-27T19:48:02.890Z",
       "updatedAt": "2026-06-27T20:36:49.550Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_bn30ummrym9",
+      "userId": "user_a3a4pewsk",
+      "type": "new_order",
+      "title": "📦 New Order Received",
+      "message": "Abraham  ordered 1 kg of 2ndtest.",
+      "orderId": "ord_du6iy0vca",
+      "read": true,
+      "createdAt": "2026-06-28T20:16:52.243Z"
+    },
+    {
+      "id": "notif_z6zv7cz9q9",
+      "userId": "user_so6cga6k6",
+      "type": "payment_confirmed",
+      "title": "✅ Payment Confirmed",
+      "message": "Your payment for \"2ndtest\" (Order #IY0VCA) has been confirmed by the farmer.",
+      "orderId": "ord_du6iy0vca",
+      "read": true,
+      "createdAt": "2026-06-28T20:26:05.423Z"
+    },
+    {
+      "id": "notif_688io0eaajr",
+      "userId": "user_so6cga6k6",
+      "type": "order_shipped",
+      "title": "🚚 Order Shipped",
+      "message": "Your order of \"2ndtest\" (Order #IY0VCA) is now in transit and on its way to you!",
+      "orderId": "ord_du6iy0vca",
+      "read": true,
+      "createdAt": "2026-06-28T20:26:42.753Z"
     }
   ]
 }

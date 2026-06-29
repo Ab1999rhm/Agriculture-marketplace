@@ -27,7 +27,7 @@ exports.getFarmerById = async (req, res, next) => {
 exports.createFarmer = async (req, res, next) => {
   try {
     // Usually created automatically during registration, but we support manual creation/update
-    const { name, phone, location, coordinates, crops, bio } = req.body;
+    const { name, phone, location, coordinates, crops, bio, paymentMethods } = req.body;
     const farmerId = req.user.id; // Tied to authenticated user
 
     const newFarmer = {
@@ -38,6 +38,7 @@ exports.createFarmer = async (req, res, next) => {
       coordinates: coordinates || '',
       crops: crops || [],
       bio: bio || '',
+      paymentMethods: paymentMethods || {},
       updatedAt: new Date().toISOString()
     };
 
@@ -57,7 +58,7 @@ exports.updateFarmer = async (req, res, next) => {
       return res.status(403).json({ error: 'Forbidden: You can only update your own profile' });
     }
 
-    const { name, phone, location, coordinates, crops, bio } = req.body;
+    const { name, phone, location, coordinates, crops, bio, paymentMethods } = req.body;
     const updateData = {
       name,
       phone,
@@ -65,6 +66,7 @@ exports.updateFarmer = async (req, res, next) => {
       coordinates: coordinates || '',
       crops: crops || [],
       bio: bio || '',
+      paymentMethods: paymentMethods || {},
       updatedAt: new Date().toISOString()
     };
 

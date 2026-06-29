@@ -22,13 +22,96 @@ exports.getProducts = async (req, res, next) => {
     }
 
     const snapshot = await query.get();
-    let products = snapshot.docs.map(doc => doc.data());
+    let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log('Fetched products:', products.length, 'products for farmerId:', farmerId);
 
     // Filter out hidden products for public marketplace
     // Only show hidden products if farmerId filter is present (farmer viewing their own products)
     if (!farmerId) {
+      const beforeFilter = products.length;
       products = products.filter(p => !p.hidden);
+      console.log('Filtered out hidden products:', beforeFilter, '->', products.length);
     }
+
+    // Fetch all bulk discounts and merge with products
+    const bulkDiscountsSnapshot = await db.collection('bulkDiscounts').get();
+    
+    const bulkDiscounts = bulkDiscountsSnapshot.docs.map(doc => doc.data());
+    console.log('Fetched bulk discounts:', bulkDiscounts.length, 'discounts');
+    
+    // Fetch active auctions and merge with products
+    const auctionsSnapshot = await db.collection('auctions')
+      .where('auctionStatus', '==', 'live')
+      .get();
+    
+    const auctions = auctionsSnapshot.docs.map(doc => doc.data());
+    
+    // Fetch active contracts and merge with products
+    const contractsSnapshot = await db.collection('contracts')
+      .where('status', '==', 'pending')
+      .get();
+    
+    const contracts = contractsSnapshot.docs.map(doc => doc.data());
+    
+    // Fetch active pre-harvest sales and merge with products
+    const preHarvestSnapshot = await db.collection('preHarvestSales')
+      .where('status', '==', 'open')
+      .get();
+    
+    const preHarvestSales = preHarvestSnapshot.docs.map(doc => doc.data());
+    
+    // Merge selling mode info into products
+    products = products.map(product => {
+      let updatedProduct = { ...product };
+      
+      // Check for bulk discount (must match both productId AND farmerId)
+      const discount = bulkDiscounts.find(d => d.productId === product.id && d.farmerId === product.farmerId);
+      if (discount) {
+        console.log(`Merging discount for product ${product.id}:`, discount);
+        updatedProduct.bulkDiscount = {
+          active: discount.active !== undefined ? discount.active : true,
+          discountPercent: discount.discountPercent,
+          minQuantity: discount.minQuantity
+        };
+      }
+      
+      // Check for auction (must match both productId AND farmerId)
+      const auction = auctions.find(a => a.productId === product.id && a.farmerId === product.farmerId);
+      if (auction) {
+        updatedProduct.sellingMode = 'auction';
+        updatedProduct.auctionStatus = auction.auctionStatus || 'live';
+        updatedProduct.startingPrice = auction.startingPrice;
+        updatedProduct.currentBid = auction.currentBid || auction.startingPrice;
+        updatedProduct.auctionEndsAt = auction.auctionEndsAt;
+      }
+      
+      // Check for contract (must match both productId AND farmerId)
+      const contract = contracts.find(c => c.productId === product.id && c.farmerId === product.farmerId);
+      if (contract) {
+        updatedProduct.sellingMode = 'contract';
+        updatedProduct.agreedPrice = contract.agreedPrice;
+        updatedProduct.contractQuantity = contract.quantity;
+      }
+      
+      // Check for pre-harvest sale (must match both productId AND farmerId)
+      const preHarvest = preHarvestSales.find(p => p.productId === product.id && p.farmerId === product.farmerId);
+      if (preHarvest) {
+        updatedProduct.sellingMode = 'pre-harvest';
+        updatedProduct.depositPercent = preHarvest.depositPercent;
+        updatedProduct.preHarvestPrice = preHarvest.price;
+        updatedProduct.preHarvestQuantity = preHarvest.quantity;
+      }
+      
+      return updatedProduct;
+    });
+    
+    // Log discounts that couldn't find matching products
+    const productIds = new Set(products.map(p => p.id));
+    bulkDiscounts.forEach(discount => {
+      if (!productIds.has(discount.productId)) {
+        console.log(`Discount for productId ${discount.productId} (${discount.product}) has no matching product in database`);
+      }
+    });
 
     // In-memory filters for range and text search (to avoid Firestore index restrictions)
     if (minPrice) {

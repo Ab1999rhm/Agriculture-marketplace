@@ -415,12 +415,34 @@ export default function BuyerDashboard({
                         </span>
                       </td>
                       <td className="py-4 px-4">
-                        <span
-                          className={`text-[10px] font-bold ${ord.paymentStatus === "paid" ? "text-teal-600 dark:text-teal-400" : "text-slate-400"}`}
-                        >
-                          {ord.paymentStatus === "paid" ? "Paid" : "Unpaid"} (
-                          {ord.paymentMethod?.replace("_", " ")})
-                        </span>
+                        <div>
+                          <span
+                            className={`text-[10px] font-extrabold uppercase ${ord.paymentStatus === "paid" ? "text-teal-600 dark:text-teal-400" : "text-slate-400"}`}
+                          >
+                            {ord.paymentStatus === "paid" ? "Paid" : "Unpaid"}
+                          </span>
+                          <span className="text-[10px] text-slate-500 block font-semibold">
+                            {ord.paymentMethod?.replace("_", " ")}
+                          </span>
+                          {ord.paymentDetails && (
+                            <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 space-y-0.5">
+                              {ord.paymentDetails.walletType && (
+                                <p>Mode: {ord.paymentDetails.walletType === 'savings' ? 'Savings' : 'Wallet'}</p>
+                              )}
+                              {ord.paymentDetails.cbeAccount && (
+                                <p className="truncate max-w-[100px]" title={ord.paymentDetails.cbeAccount}>Acct: {ord.paymentDetails.cbeAccount}</p>
+                              )}
+                              {ord.paymentDetails.ftCode && (
+                                <p className="text-pink-600 dark:text-pink-400 font-bold truncate max-w-[100px]" title={ord.paymentDetails.ftCode}>Ref: {ord.paymentDetails.ftCode}</p>
+                              )}
+                            </div>
+                          )}
+                          {ord.transactionId && !ord.paymentDetails?.ftCode && (
+                            <span className="text-[9px] font-mono text-slate-400 block truncate max-w-[100px]" title={ord.transactionId}>
+                              Txn: {ord.transactionId.substring(0, 12)}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-4 flex justify-center items-center space-x-2">
                         <button

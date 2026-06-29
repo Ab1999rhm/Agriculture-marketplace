@@ -38,6 +38,7 @@ const wishlistRoutes = require("./routes/wishlist");
 const supplierReviewRoutes = require("./routes/supplierReviews");
 const qualityAuditRoutes = require("./routes/qualityAudits");
 const disputeRoutes = require("./routes/disputes");
+const notificationRoutes = require("./routes/notifications");
 
 const app = express();
 
@@ -91,6 +92,7 @@ app.use(
 );
 app.use("/api/quality-audits", authMiddleware.verifyToken, qualityAuditRoutes);
 app.use("/api/disputes", authMiddleware.verifyToken, disputeRoutes);
+app.use("/api/notifications", authMiddleware.verifyToken, notificationRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

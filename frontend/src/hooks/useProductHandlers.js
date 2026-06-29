@@ -45,7 +45,12 @@ export function useProductHandlers({
       });
       const data = await res.json();
       if (res.ok) {
-        setProducts((prev) => [...prev, data]);
+        // Re-fetch products to get merged data from backend (only farmer's products)
+        const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
+        if (prodRes.ok) {
+          const updatedProducts = await prodRes.json();
+          setProducts(updatedProducts);
+        }
         setAddProductOpen(false);
         confetti({ particleCount: 30, spread: 40 });
       } else {
@@ -99,7 +104,12 @@ export function useProductHandlers({
       });
       const data = await res.json();
       if (res.ok) {
-        setProducts(products.map((p) => (p.id === editingProduct.id ? data : p)));
+        // Re-fetch products to get merged data from backend (only farmer's products)
+        const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
+        if (prodRes.ok) {
+          const updatedProducts = await prodRes.json();
+          setProducts(updatedProducts);
+        }
         setEditProductOpen(false);
       } else {
         setEditProdFormError(data.error || 'Failed to update product.');
