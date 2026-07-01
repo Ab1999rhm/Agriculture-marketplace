@@ -16,20 +16,28 @@ export default function OTPModal({
   checkoutAwashPhone = '',
   checkoutAwashPin = '',
   checkoutFarmerPayments = {},
+  checkoutBankAccount = '',
+  checkoutBankPin = '',
+  banks = [],
 }) {
   const isCbe = checkoutPaymentMethod === 'CBE_BIRR';
   const isTele = checkoutPaymentMethod === 'TELEBIRR';
   const isAwash = checkoutPaymentMethod === 'AWASH';
+  const isBank = checkoutPaymentMethod.startsWith('BANK_');
+  const bankId = isBank ? checkoutPaymentMethod.replace('BANK_', '') : '';
+  const bankName = isBank && banks ? (banks.find(b => b.id === bankId)?.name || 'Bank') : 'Bank';
 
   const basePrice = (checkoutProduct?.price || 0) * checkoutQuantity;
   
   // Calculate dynamic fees
   let fee = 0;
   if (isCbe) {
-    fee = checkoutWalletType === 'savings' ? 2.50 : 1.20;
+    fee = 1.50;
   } else if (isTele) {
     fee = checkoutTelebirrFlow === 'app' ? 1.00 : 0.00;
   } else if (isAwash) {
+    fee = 1.50;
+  } else if (isBank) {
     fee = 1.50;
   }
   const grandTotal = basePrice + fee;
@@ -55,10 +63,15 @@ export default function OTPModal({
     ringColor = 'focus:ring-teal-500';
     headerTitle = 'Awash E-Birr Authorization';
     brandingColor = 'text-teal-600';
+  } else if (isBank) {
+    primaryBg = 'bg-teal-600 hover:bg-teal-700';
+    ringColor = 'focus:ring-teal-500';
+    headerTitle = `${bankName} Transaction Authorization`;
+    brandingColor = 'text-teal-600';
   }
 
   // Display details depending on method
-  const buyerPhone = isAwash ? checkoutAwashPhone : checkoutPhone;
+  const buyerPhone = isAwash ? checkoutAwashPhone : (isBank ? checkoutBankAccount : checkoutPhone);
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
@@ -69,7 +82,7 @@ export default function OTPModal({
         <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           {isCbe && <Landmark className="w-6 h-6 text-purple-600" />}
           {isTele && <Smartphone className="w-6 h-6 text-pink-600" />}
-          {isAwash && <Landmark className="w-6 h-6 text-teal-600" />}
+          {(isAwash || isBank) && <Landmark className="w-6 h-6 text-teal-600" />}
         </div>
 
         <h3 className="text-lg font-black mb-1 text-slate-900 dark:text-white">{headerTitle}</h3>
@@ -87,10 +100,11 @@ export default function OTPModal({
               {isCbe && checkoutWalletType === 'wallet' && `CBE Wallet: ${cbeConfig.walletPhone || 'N/A'}`}
               {isTele && `telebirr: ${teleConfig.walletPhone || 'N/A'}`}
               {isAwash && `Awash Acct: ${awashConfig.accountNumber || 'N/A'}`}
+              {isBank && `${bankName}: ${checkoutFarmerPayments?.bankAccountDetails?.[bankId]?.accountNumber || 'N/A'}`}
             </span>
           </div>
           <div className="flex justify-between text-[10px] font-bold text-slate-500">
-            <span>Debited Phone:</span>
+            <span>{isBank ? 'Debited Account:' : 'Debited Phone:'}</span>
             <span className="text-slate-800 dark:text-slate-200 font-mono">{buyerPhone}</span>
           </div>
           <div className="flex justify-between text-xs font-black border-t border-dashed border-slate-200 dark:border-slate-850 pt-1.5 text-slate-900 dark:text-white">
@@ -100,7 +114,7 @@ export default function OTPModal({
         </div>
 
         <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-          A secure OTP authorization SMS was dispatched to your registered phone <b>{buyerPhone}</b>. Enter <b>123456</b> to authorize the simulated payment transaction.
+          A secure OTP authorization SMS was dispatched to your registered phone or account <b>{buyerPhone}</b>. Enter <b>123456</b> to authorize the simulated payment transaction.
         </p>
 
         {paymentError && (

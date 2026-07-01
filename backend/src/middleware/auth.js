@@ -1,6 +1,6 @@
 // backend/src/middleware/auth.js
 const jwt = require('jsonwebtoken');
-const { admin, isMock } = require('../services/firebase');
+const { admin, isMock, db } = require('../services/firebase');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'local_secret';
 
@@ -20,7 +20,28 @@ module.exports.verifyToken = async (req, res, next) => {
   // 1. Try local mock JWT first (or if isMock is true)
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    
+    // Fetch current user data from database to get latest approval status
+    if (isMock && decoded.id) {
+      try {
+        const userDoc = await db.collection('users').doc(decoded.id).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          req.user = {
+            ...decoded,
+            approved: userData.approved || false,
+            suspended: userData.suspended || false
+          };
+        } else {
+          req.user = decoded;
+        }
+      } catch (dbErr) {
+        console.error('Error fetching user data:', dbErr.message);
+        req.user = decoded;
+      }
+    } else {
+      req.user = decoded;
+    }
     return next();
   } catch (err) {
     // If it failed and we are not in mock mode, try verifying with Firebase Admin

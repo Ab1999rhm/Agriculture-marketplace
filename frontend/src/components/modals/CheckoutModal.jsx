@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, AlertTriangle, Wallet, Landmark, Phone, Smartphone, ClipboardCheck, Info, MapPin } from 'lucide-react';
+import { X, AlertTriangle, Wallet, Landmark, Phone, Smartphone, ClipboardCheck, Info, MapPin, Building2 } from 'lucide-react';
 
 export default function CheckoutModal({
   user,
@@ -19,6 +19,10 @@ export default function CheckoutModal({
   checkoutAwashPhone, setCheckoutAwashPhone,
   checkoutAwashPin, setCheckoutAwashPin,
   checkoutFarmerPayments = {},
+  farmerBankAccounts = [],
+  checkoutBankAccount, setCheckoutBankAccount,
+  checkoutBankPin, setCheckoutBankPin,
+  banks = [],
 }) {
   const [localError, setLocalError] = useState('');
 
@@ -27,10 +31,12 @@ export default function CheckoutModal({
   // Calculate dynamic fees
   let fee = 0;
   if (checkoutPaymentMethod === 'CBE_BIRR') {
-    fee = checkoutWalletType === 'savings' ? 2.50 : 1.20;
+    fee = 1.50;
   } else if (checkoutPaymentMethod === 'TELEBIRR') {
     fee = checkoutTelebirrFlow === 'app' ? 1.00 : 0.00;
   } else if (checkoutPaymentMethod === 'AWASH') {
+    fee = 1.50;
+  } else if (checkoutPaymentMethod.startsWith('BANK_')) {
     fee = 1.50;
   }
   const grandTotal = basePrice + fee;
@@ -40,6 +46,22 @@ export default function CheckoutModal({
   const teleConfig = checkoutFarmerPayments?.telebirr || { enabled: false };
   const awashConfig = checkoutFarmerPayments?.awash || { enabled: false };
   const hasMobilePayments = cbeConfig.enabled || teleConfig.enabled || awashConfig.enabled;
+
+  // Extract bank account details for display
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState('');
+  const bankAccountDetails = checkoutFarmerPayments?.bankAccountDetails || {};
+  
+  useEffect(() => {
+    if (farmerBankAccounts && farmerBankAccounts.length > 0) {
+      setSelectedBankAccountId(farmerBankAccounts[0]);
+    }
+  }, [farmerBankAccounts]);
+
+  // Get bank name from bank ID
+  const getBankName = (bankId) => {
+    const bank = banks.find(b => b.id === bankId);
+    return bank ? bank.name : 'Bank Account';
+  };
 
   // Set default payment method if the current selection is not available for this farmer
   useEffect(() => {
@@ -138,6 +160,15 @@ export default function CheckoutModal({
         setLocalError('Please enter your 4-digit Awash Birr transaction PIN');
         return;
       }
+    } else if (checkoutPaymentMethod.startsWith('BANK_')) {
+      if (!checkoutBankAccount || !checkoutBankAccount.match(/^\d{10,18}$/)) {
+        setLocalError('Please enter a valid Bank Account Number (10 to 18 digits)');
+        return;
+      }
+      if (!checkoutBankPin || checkoutBankPin.length !== 4) {
+        setLocalError('Please enter your 4-digit bank security PIN');
+        return;
+      }
     }
 
     if (!checkoutAddress.trim()) {
@@ -193,7 +224,7 @@ export default function CheckoutModal({
                 </div>
               )}
 
-              <div className="grid grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {cbeConfig.enabled && (
                   <button
                     type="button"
@@ -227,6 +258,25 @@ export default function CheckoutModal({
                   </button>
                 )}
 
+                {farmerBankAccounts && farmerBankAccounts.length > 0 && farmerBankAccounts.map((bankAccountId) => {
+                  const isSelected = checkoutPaymentMethod === `BANK_${bankAccountId}`;
+                  return (
+                    <button
+                      key={bankAccountId}
+                      type="button"
+                      onClick={() => { 
+                        setCheckoutPaymentMethod(`BANK_${bankAccountId}`); 
+                        setSelectedBankAccountId(bankAccountId);
+                        setLocalError(''); 
+                      }}
+                      className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 transition-all ${isSelected ? 'border-teal-500 bg-teal-500/5 text-teal-700 dark:text-teal-300' : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'}`}
+                    >
+                      <Building2 className="w-4 h-4" />
+                      <span className="text-[9px] font-extrabold truncate max-w-[60px]">{getBankName(bankAccountId)}</span>
+                    </button>
+                  );
+                })}
+
                 <button
                   type="button"
                   onClick={() => { setCheckoutPaymentMethod('COD'); setLocalError(''); }}
@@ -237,6 +287,56 @@ export default function CheckoutModal({
                 </button>
               </div>
             </div>
+
+            {/* Bank Account Details - Shown when bank account is selected */}
+            {checkoutPaymentMethod.startsWith('BANK_') && selectedBankAccountId && bankAccountDetails?.[selectedBankAccountId] && (
+              <div className="space-y-3.5 p-4 rounded-2xl bg-teal-500/5 border border-teal-500/10">
+                <div className="flex justify-between items-center border-b border-teal-500/10 pb-2.5">
+                  <span className="text-[10px] font-extrabold uppercase text-teal-700 dark:text-teal-400">Bank Account Details</span>
+                  <span className="text-[9px] font-extrabold uppercase text-teal-600 px-2 py-0.5 rounded bg-teal-500/10">{getBankName(selectedBankAccountId)}</span>
+                </div>
+                
+                {/* Read-only Farmer Target Account */}
+                <div className="p-2.5 rounded-lg bg-teal-500/10 text-[10px] text-teal-950 dark:text-teal-300 space-y-1">
+                  <p className="font-bold">Target Account Details (Read-only):</p>
+                  <p>• Account Number: <span className="font-mono font-bold">{bankAccountDetails[selectedBankAccountId].accountNumber}</span></p>
+                  {bankAccountDetails[selectedBankAccountId].phone && (
+                    <p>• Phone: <span className="font-mono font-bold">{bankAccountDetails[selectedBankAccountId].phone}</span></p>
+                  )}
+                  {bankAccountDetails[selectedBankAccountId].email && (
+                    <p>• Email: <span className="font-mono font-bold">{bankAccountDetails[selectedBankAccountId].email}</span></p>
+                  )}
+                  <p className="text-[9px] text-teal-600 dark:text-teal-400 font-semibold italic">*Buyer cannot edit farmer destination accounts.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-extrabold uppercase text-teal-700 dark:text-teal-400 mb-1">Your Bank Account Number</label>
+                    <input
+                      type="text"
+                      required
+                      value={checkoutBankAccount}
+                      onChange={(e) => setCheckoutBankAccount(e.target.value.replace(/\D/g, ''))}
+                      placeholder="e.g. 1000123456789"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 dark:text-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[9px] font-extrabold uppercase text-teal-700 dark:text-teal-400 mb-1">Your Bank Security PIN</label>
+                    <input
+                      type="password"
+                      maxLength="4"
+                      required
+                      value={checkoutBankPin}
+                      onChange={(e) => setCheckoutBankPin(e.target.value.replace(/\D/g, ''))}
+                      placeholder="••••"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 dark:text-slate-200"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* CBE Birr Settings */}
             {checkoutPaymentMethod === 'CBE_BIRR' && cbeConfig.enabled && (

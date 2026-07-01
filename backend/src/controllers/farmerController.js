@@ -58,7 +58,7 @@ exports.updateFarmer = async (req, res, next) => {
       return res.status(403).json({ error: 'Forbidden: You can only update your own profile' });
     }
 
-    const { name, phone, location, coordinates, crops, bio, paymentMethods } = req.body;
+    const { name, phone, location, coordinates, crops, bio, paymentMethods, bankAccounts, bankAccountDetails } = req.body;
     const updateData = {
       name,
       phone,
@@ -67,6 +67,8 @@ exports.updateFarmer = async (req, res, next) => {
       crops: crops || [],
       bio: bio || '',
       paymentMethods: paymentMethods || {},
+      bankAccounts: bankAccounts || [],
+      bankAccountDetails: bankAccountDetails || {},
       updatedAt: new Date().toISOString()
     };
 

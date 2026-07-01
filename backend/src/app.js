@@ -8,7 +8,7 @@ const fs = require("fs");
 const authMiddleware = require("./middleware/auth");
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, "../../uploads");
+const uploadsDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 const farmerRoutes = require("./routes/farmers");
 const buyerRoutes = require("./routes/buyers");
@@ -47,52 +47,60 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(morgan("combined"));
 app.use(express.json());
 
-// Serve uploaded product images
-app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
+// Serve uploaded files (must be before auth middleware for public access)
+const uploadsPath = path.resolve(__dirname, "../uploads");
+app.use("/uploads", express.static(uploadsPath));
 
-// Apply token verification middleware globally
-app.use(authMiddleware.verifyToken);
+// Apply token verification middleware globally (but not for /uploads)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/uploads')) {
+    return next();
+  }
+  return authMiddleware.verifyToken(req, res, next);
+});
 
 // Public routes (no auth required)
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/bulletins", bulletinRoutes);
+app.get("/api/banks", async (req, res) => {
+  try {
+    const { db } = require('./services/firebase');
+    const banksSnapshot = await db.collection('banks').get();
+    const banks = banksSnapshot.docs.map(doc => doc.data());
+    res.status(200).json(banks);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch banks' });
+  }
+});
 
 // Protected routes (auth required)
-app.use("/api/farmers", authMiddleware.verifyToken, farmerRoutes);
-app.use("/api/buyers", authMiddleware.verifyToken, buyerRoutes);
-app.use("/api/orders", authMiddleware.verifyToken, orderRoutes);
-app.use("/api/payments", authMiddleware.verifyToken, paymentRoutes);
+app.use("/api/farmers", farmerRoutes);
+app.use("/api/buyers", buyerRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", authMiddleware.requireAdmin, adminRoutes);
-app.use("/api/crop-plans", authMiddleware.verifyToken, cropPlanRoutes);
-app.use("/api/inventory", authMiddleware.verifyToken, inventoryRoutes);
-app.use("/api/equipment", authMiddleware.verifyToken, equipmentRoutes);
-app.use("/api/storage", authMiddleware.verifyToken, storageRoutes);
-app.use("/api/batch-lots", authMiddleware.verifyToken, batchLotRoutes);
-app.use("/api/quality-grades", authMiddleware.verifyToken, qualityGradeRoutes);
-app.use("/api/certifications", authMiddleware.verifyToken, certificationRoutes);
-app.use("/api/loans", authMiddleware.verifyToken, loanRoutes);
-app.use("/api/lab-tests", authMiddleware.verifyToken, labTestRoutes);
-app.use(
-  "/api/production-costs",
-  authMiddleware.verifyToken,
-  productionCostRoutes,
-);
-app.use("/api/insurance", authMiddleware.verifyToken, insuranceRoutes);
-app.use("/api/subsidies", authMiddleware.verifyToken, subsidyRoutes);
-app.use("/api/auctions", authMiddleware.verifyToken, auctionRoutes);
-app.use("/api/contracts", authMiddleware.verifyToken, contractRoutes);
-app.use("/api/bulk-discounts", authMiddleware.verifyToken, bulkDiscountRoutes);
-app.use("/api/pre-harvest", authMiddleware.verifyToken, preHarvestRoutes);
-app.use("/api/wishlist", authMiddleware.verifyToken, wishlistRoutes);
-app.use(
-  "/api/supplier-reviews",
-  authMiddleware.verifyToken,
-  supplierReviewRoutes,
-);
-app.use("/api/quality-audits", authMiddleware.verifyToken, qualityAuditRoutes);
-app.use("/api/disputes", authMiddleware.verifyToken, disputeRoutes);
-app.use("/api/notifications", authMiddleware.verifyToken, notificationRoutes);
+app.use("/api/crop-plans", cropPlanRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/equipment", equipmentRoutes);
+app.use("/api/storage", storageRoutes);
+app.use("/api/batch-lots", batchLotRoutes);
+app.use("/api/quality-grades", qualityGradeRoutes);
+app.use("/api/certifications", certificationRoutes);
+app.use("/api/loans", loanRoutes);
+app.use("/api/lab-tests", labTestRoutes);
+app.use("/api/production-costs", productionCostRoutes);
+app.use("/api/insurance", insuranceRoutes);
+app.use("/api/subsidies", subsidyRoutes);
+app.use("/api/auctions", auctionRoutes);
+app.use("/api/contracts", contractRoutes);
+app.use("/api/bulk-discounts", bulkDiscountRoutes);
+app.use("/api/pre-harvest", preHarvestRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/supplier-reviews", supplierReviewRoutes);
+app.use("/api/quality-audits", qualityAuditRoutes);
+app.use("/api/disputes", disputeRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

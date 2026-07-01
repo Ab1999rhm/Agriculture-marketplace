@@ -131,6 +131,7 @@ export default function App() {
   const [authBusinessType, setAuthBusinessType] = useState("retailer");
   const [authConfirmPassword, setAuthConfirmPassword] = useState("");
   const [authLicenseFile, setAuthLicenseFile] = useState(null);
+  const [authNationalIdFile, setAuthNationalIdFile] = useState(null);
   const [authError, setAuthError] = useState("");
 
   // ── Navigation
@@ -210,6 +211,8 @@ export default function App() {
   const [profileAwashEnabled, setProfileAwashEnabled] = useState(false);
   const [profileAwashAccount, setProfileAwashAccount] = useState("");
   const [profileAwashPhone, setProfileAwashPhone] = useState("");
+  const [profileSelectedBanks, setProfileSelectedBanks] = useState([]);
+  const [profileBankAccountDetails, setProfileBankAccountDetails] = useState({});
 
   // ── Checkout
   const [checkoutProduct, setCheckoutProduct] = useState(null);
@@ -226,6 +229,10 @@ export default function App() {
   const [checkoutAwashPhone, setCheckoutAwashPhone] = useState("");
   const [checkoutAwashPin, setCheckoutAwashPin] = useState("");
   const [checkoutFarmerPayments, setCheckoutFarmerPayments] = useState({});
+  const [checkoutFarmerBankAccounts, setCheckoutFarmerBankAccounts] = useState([]);
+  const [checkoutBankAccount, setCheckoutBankAccount] = useState("");
+  const [checkoutBankPin, setCheckoutBankPin] = useState("");
+  const [banks, setBanks] = useState([]);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [paymentError, setPaymentError] = useState("");
@@ -303,16 +310,21 @@ export default function App() {
       if (maxPrice) q.append("maxPrice", maxPrice);
       if (search) q.append("search", search);
 
-      const [prodRes, bulRes, payConfRes, reviewsRes] = await Promise.all([
+      const [prodRes, bulRes, payConfRes, reviewsRes, banksRes] = await Promise.all([
         fetch(`/api/products?${q.toString()}`),
         fetch("/api/bulletins"),
         fetch("/api/payments/config"),
         fetch("/api/supplier-reviews"),
+        fetch("/api/banks"),
       ]);
       if (prodRes.ok) setProducts(await prodRes.json());
       if (bulRes.ok) setBulletins(await bulRes.json());
       if (payConfRes.ok) setPaymentConfig(await payConfRes.json());
       if (reviewsRes.ok) setAllReviews(await reviewsRes.json());
+      if (banksRes.ok) {
+        const banksData = await banksRes.json();
+        setBanks(banksData.filter(b => b.active));
+      }
 
       const qgRes = await fetch(
         "/api/quality-grades",
@@ -439,6 +451,14 @@ export default function App() {
             setProfileAwashEnabled(!!pm.awash?.enabled);
             setProfileAwashAccount(pm.awash?.accountNumber || "");
             setProfileAwashPhone(pm.awash?.walletPhone || "");
+            
+            // Load selected bank accounts and their details
+            if (data.bankAccounts && Array.isArray(data.bankAccounts)) {
+              setProfileSelectedBanks(data.bankAccounts);
+            }
+            if (data.bankAccountDetails && typeof data.bankAccountDetails === 'object') {
+              setProfileBankAccountDetails(data.bankAccountDetails);
+            }
           }
         } else if (user.role === 'buyer') {
           const res = await fetch(`/api/buyers/${user.id}`, {
@@ -491,11 +511,9 @@ export default function App() {
         formData.append("farmName", authFarmName || "");
         formData.append("farmSize", authFarmSize || "");
         formData.append("crops", authCrops || "");
-        formData.append("businessName", authBusinessName || "");
-        formData.append("businessType", authBusinessType || "retailer");
         
-        if (authLicenseFile) {
-          formData.append("license", authLicenseFile);
+        if (authNationalIdFile) {
+          formData.append("nationalId", authNationalIdFile);
         }
         
         res = await fetch(endpoint, {
@@ -532,7 +550,7 @@ export default function App() {
   };
 
   // ── Profile
-  const handleProfileSave = async (e) => {
+  const handleProfileSave = async (e, selectedBanks, bankAccountDetails) => {
     e.preventDefault();
     const url =
       user.role === "farmer"
@@ -563,9 +581,16 @@ export default function App() {
                 accountNumber: profileAwashAccount,
                 walletPhone: profileAwashPhone,
               }
-            }
+            },
+            bankAccounts: selectedBanks || [],
+            bankAccountDetails: bankAccountDetails || {}
           }
         : { name: profileName, phone: profilePhone, location: profileLocation };
+    
+    console.log('Saving profile with payload:', payload);
+    console.log('Selected banks:', selectedBanks);
+    console.log('Bank account details:', bankAccountDetails);
+    
     try {
       const res = await fetch(url, {
         method: "PUT",
@@ -577,6 +602,7 @@ export default function App() {
       });
       if (res.ok) {
         const data = await res.json();
+        console.log('Profile save response:', data);
         const updatedUser = {
           ...user,
           name: data.name,
@@ -585,9 +611,19 @@ export default function App() {
         };
         setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
+        
+        // Update bank account state if farmer
+        if (user.role === 'farmer') {
+          setProfileSelectedBanks(data.bankAccounts || []);
+          setProfileBankAccountDetails(data.bankAccountDetails || {});
+        }
+        
         setProfileSaved(true);
         setTimeout(() => setProfileSaved(false), 3000);
         confetti({ particleCount: 30, spread: 40 });
+      } else {
+        const errorData = await res.json();
+        console.error('Profile save error:', errorData);
       }
     } catch (err) {
       console.error(err);
@@ -601,7 +637,8 @@ export default function App() {
     if (
       checkoutPaymentMethod === "CBE_BIRR" ||
       (checkoutPaymentMethod === "TELEBIRR" && checkoutTelebirrFlow === "app") ||
-      checkoutPaymentMethod === "AWASH"
+      checkoutPaymentMethod === "AWASH" ||
+      checkoutPaymentMethod.startsWith("BANK_")
     ) {
       setOtpModalOpen(true);
       return;
@@ -630,9 +667,10 @@ export default function App() {
         if (
           checkoutPaymentMethod === "CBE_BIRR" ||
           checkoutPaymentMethod === "TELEBIRR" ||
-          checkoutPaymentMethod === "AWASH"
+          checkoutPaymentMethod === "AWASH" ||
+          checkoutPaymentMethod.startsWith("BANK_")
         ) {
-          const buyerPhone = checkoutPaymentMethod === "AWASH" ? checkoutAwashPhone : checkoutPhone;
+          const buyerPhone = checkoutPaymentMethod === "AWASH" ? checkoutAwashPhone : (checkoutPaymentMethod.startsWith("BANK_") ? checkoutBankAccount : checkoutPhone);
           await fetch("/api/payments/pay", {
             method: "POST",
             headers: {
@@ -651,6 +689,8 @@ export default function App() {
                 ftCode: checkoutFtCode,
                 awashPhone: checkoutAwashPhone,
                 awashPin: checkoutAwashPin,
+                bankAccount: checkoutBankAccount,
+                bankPin: checkoutBankPin,
               }
             }),
           });
@@ -665,6 +705,8 @@ export default function App() {
         setCheckoutFtCode("");
         setCheckoutAwashPhone("");
         setCheckoutAwashPin("");
+        setCheckoutBankAccount("");
+        setCheckoutBankPin("");
         
         // Fetch updated orders and products list
         await fetchData();
@@ -1098,6 +1140,25 @@ export default function App() {
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mt-1">
                   {user.role}
                 </p>
+                <div className="mt-3 space-y-2">
+                  <button
+                    onClick={() => {
+                      setCurrentTab("profile");
+                      setMobileNavOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg flex items-center space-x-2"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>{t("navProfile")}</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg flex items-center space-x-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>{t("navLogout")}</span>
+                  </button>
+                </div>
               </div>
             )}
 
@@ -1250,6 +1311,7 @@ export default function App() {
               setCheckoutProduct(product);
               setCheckoutQuantity(1);
               setCheckoutFarmerPayments({});
+              setCheckoutFarmerBankAccounts([]);
               if (user) {
                 setCheckoutPhone(user.phone || "");
                 setCheckoutAddress(user.location || "");
@@ -1261,7 +1323,14 @@ export default function App() {
                   });
                   if (res.ok) {
                     const data = await res.json();
-                    setCheckoutFarmerPayments(data.paymentMethods || {});
+                    console.log('Farmer data for checkout:', data);
+                    setCheckoutFarmerPayments({
+                      ...data.paymentMethods,
+                      bankAccountDetails: data.bankAccountDetails || {}
+                    });
+                    setCheckoutFarmerBankAccounts(data.bankAccounts || []);
+                    console.log('Checkout farmer bank accounts:', data.bankAccounts);
+                    console.log('Checkout bank account details:', data.bankAccountDetails);
                   }
                 } catch (e) {
                   console.error("Error fetching farmer payment details:", e);
@@ -1427,6 +1496,9 @@ export default function App() {
             profileCbeEnabled={profileCbeEnabled}
             setProfileCbeEnabled={setProfileCbeEnabled}
             profileCbeAccount={profileCbeAccount}
+            initialSelectedBanks={profileSelectedBanks}
+            initialBankAccountDetails={profileBankAccountDetails}
+            token={token}
             setProfileCbeAccount={setProfileCbeAccount}
             profileCbePhone={profileCbePhone}
             setProfileCbePhone={setProfileCbePhone}
@@ -1486,6 +1558,8 @@ export default function App() {
           setAuthConfirmPassword={setAuthConfirmPassword}
           authLicenseFile={authLicenseFile}
           setAuthLicenseFile={setAuthLicenseFile}
+          authNationalIdFile={authNationalIdFile}
+          setAuthNationalIdFile={setAuthNationalIdFile}
           authError={authError}
           handleAuthSubmit={handleAuthSubmit}
         />
@@ -1522,6 +1596,12 @@ export default function App() {
           checkoutAwashPin={checkoutAwashPin}
           setCheckoutAwashPin={setCheckoutAwashPin}
           checkoutFarmerPayments={checkoutFarmerPayments}
+          farmerBankAccounts={checkoutFarmerBankAccounts}
+          checkoutBankAccount={checkoutBankAccount}
+          setCheckoutBankAccount={setCheckoutBankAccount}
+          checkoutBankPin={checkoutBankPin}
+          setCheckoutBankPin={setCheckoutBankPin}
+          banks={banks}
         />
       )}
       {otpModalOpen && (
@@ -1543,6 +1623,9 @@ export default function App() {
           checkoutAwashPhone={checkoutAwashPhone}
           checkoutAwashPin={checkoutAwashPin}
           checkoutFarmerPayments={checkoutFarmerPayments}
+          checkoutBankAccount={checkoutBankAccount}
+          checkoutBankPin={checkoutBankPin}
+          banks={banks}
         />
       )}
       {trackingOrder && (

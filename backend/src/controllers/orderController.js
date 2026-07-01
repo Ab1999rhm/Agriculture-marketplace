@@ -31,6 +31,26 @@ exports.createOrder = async (req, res, next) => {
       buyerEmail = buyerData.email || buyerEmail;
     }
 
+    // Fetch farmer's bank accounts
+    const farmerDoc = await db.collection('farmers').doc(product.farmerId).get();
+    let farmerBankAccounts = [];
+    let bankNames = [];
+    if (farmerDoc.exists) {
+      const farmerData = farmerDoc.data();
+      farmerBankAccounts = farmerData.bankAccounts || [];
+      
+      // Fetch bank details for each bank account
+      if (farmerBankAccounts.length > 0) {
+        const bankPromises = farmerBankAccounts.map(bankId => 
+          db.collection('banks').doc(bankId).get()
+        );
+        const bankDocs = await Promise.all(bankPromises);
+        bankNames = bankDocs
+          .filter(doc => doc.exists)
+          .map(doc => doc.data().name);
+      }
+    }
+
     const newOrder = {
       id: orderId,
       productId,
@@ -49,6 +69,8 @@ exports.createOrder = async (req, res, next) => {
       shippingAddress,
       pickupPointId: pickupPointId || 'central_hub_01', // default pickup hub
       status: 'pending',
+      bankAccounts: farmerBankAccounts,
+      bankNames: bankNames,
       logistics: {
         carrier: 'Hararghe Cooperative Logistics',
         trackingNumber: 'TRK-' + Math.floor(100000 + Math.random() * 900000),
@@ -67,7 +89,26 @@ exports.createOrder = async (req, res, next) => {
     // 3. Save order
     await db.collection('orders').doc(orderId).set(newOrder);
 
-    // 4. Notify the farmer about the new order
+    // 4. Log transaction for admin dashboard
+    const transactionId = 'txn_' + Date.now();
+    await db.collection('transactions').doc(transactionId).set({
+      id: transactionId,
+      orderId,
+      productId,
+      productName: product.name,
+      farmerId: product.farmerId,
+      farmerName: product.farmerName,
+      buyerId,
+      buyerName,
+      amount: totalPrice,
+      paymentMethod,
+      bankNames: bankNames.join(', ') || 'N/A',
+      bankAccounts: farmerBankAccounts,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    });
+
+    // 5. Notify the farmer about the new order
     await createNotification({
       userId: product.farmerId,
       type: 'new_order',
@@ -156,6 +197,16 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (status === 'confirmed') {
       updateData['logistics.status'] = 'ready_for_pickup';
       updateData.paymentStatus = 'paid'; // Farmer confirmation = payment verified
+      
+      // Update transaction status to completed
+      const transactionSnapshot = await db.collection('transactions').where('orderId', '==', id).get();
+      if (!transactionSnapshot.empty) {
+        const transactionDoc = transactionSnapshot.docs[0];
+        await db.collection('transactions').doc(transactionDoc.id).update({
+          status: 'completed',
+          completedAt: new Date().toISOString()
+        });
+      }
     } else if (status === 'shipped') {
       updateData['logistics.status'] = 'in_transit';
       updateData.paymentStatus = 'paid';

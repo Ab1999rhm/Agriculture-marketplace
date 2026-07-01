@@ -1,5 +1,6 @@
 // backend/src/controllers/adminController.js
 const { db, isMock } = require('../services/firebase');
+const { createNotification } = require('./notificationController');
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -44,11 +45,28 @@ exports.suspendUser = async (req, res, next) => {
 exports.rejectUser = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Get user details for notification
+    const userDoc = await db.collection('users').doc(id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const user = userDoc.data();
+    
     await db.collection('users').doc(id).update({
       approved: false,
       rejected: true,
       rejectedAt: new Date().toISOString()
     });
+    
+    // Send notification to the rejected user
+    await createNotification({
+      userId: id,
+      type: 'account_rejected',
+      title: 'Account Rejected',
+      message: 'Your account registration has been rejected by the administrator. Please contact support for more information.',
+    });
+    
     res.status(200).json({ message: 'User rejected successfully' });
   } catch (error) {
     next(error);
@@ -281,6 +299,98 @@ exports.deleteProduct = async (req, res, next) => {
     const { id } = req.params;
     await db.collection('products').doc(id).delete();
     res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Bank/Agent management
+exports.getBanks = async (req, res, next) => {
+  try {
+    const banksSnapshot = await db.collection('banks').get();
+    const banks = banksSnapshot.docs.map(doc => doc.data());
+    res.status(200).json(banks);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createBank = async (req, res, next) => {
+  try {
+    const { name, type } = req.body;
+    const bankId = 'bank_' + Date.now();
+    await db.collection('banks').doc(bankId).set({
+      id: bankId,
+      name,
+      type: type || 'bank',
+      active: true,
+      createdAt: new Date().toISOString()
+    });
+    res.status(201).json({ message: 'Bank/Agent created successfully', id: bankId });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateBank = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, type, active } = req.body;
+    await db.collection('banks').doc(id).update({
+      name,
+      type,
+      active,
+      updatedAt: new Date().toISOString()
+    });
+    res.status(200).json({ message: 'Bank/Agent updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteBank = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.collection('banks').doc(id).delete();
+    res.status(200).json({ message: 'Bank/Agent deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Transaction logs
+exports.getTransactions = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 8, search = '' } = req.query;
+    const transactionsSnapshot = await db.collection('transactions').get();
+    let transactions = transactionsSnapshot.docs.map(doc => doc.data());
+    
+    // Filter by search if provided
+    if (search) {
+      const searchLower = search.toLowerCase();
+      transactions = transactions.filter(t => 
+        t.orderId?.toLowerCase().includes(searchLower) ||
+        t.farmerName?.toLowerCase().includes(searchLower) ||
+        t.buyerName?.toLowerCase().includes(searchLower) ||
+        t.bankNames?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Sort by date descending
+    transactions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedTransactions = transactions.slice(startIndex, endIndex);
+    
+    res.status(200).json({
+      transactions: paginatedTransactions,
+      total: transactions.length,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(transactions.length / limit)
+    });
   } catch (error) {
     next(error);
   }

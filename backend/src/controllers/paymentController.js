@@ -27,6 +27,9 @@ exports.processPayment = async (req, res, next) => {
     } else if (actualMethod === 'AWASH') {
       console.log(`[Awash Birr API] Sending payment request of ${amount} ETB to phone ${phoneNumber} for Order ${orderId}...`);
       transactionId = 'TXN-AWASH-' + Math.random().toString(36).substring(2, 11).toUpperCase();
+    } else if (actualMethod.startsWith('BANK_')) {
+      console.log(`[Bank API] Sending payment request of ${amount} ETB to account ${phoneNumber} for Order ${orderId}...`);
+      transactionId = 'TXN-BANK-' + Math.random().toString(36).substring(2, 11).toUpperCase();
     } else {
       console.log(`[CBE Birr API] Sending payment request of ${amount} ETB to phone ${phoneNumber} for Order ${orderId}...`);
       transactionId = 'TXN-CBE-' + Math.random().toString(36).substring(2, 11).toUpperCase();
@@ -42,9 +45,14 @@ exports.processPayment = async (req, res, next) => {
       updatedAt: new Date().toISOString()
     });
 
+    let displayMethodName = 'CBE Birr';
+    if (actualMethod === 'TELEBIRR') displayMethodName = 'Telebirr';
+    else if (actualMethod === 'AWASH') displayMethodName = 'Awash Birr';
+    else if (actualMethod.startsWith('BANK_')) displayMethodName = 'Bank Transfer';
+
     res.status(200).json({
       success: true,
-      message: `${actualMethod === 'TELEBIRR' ? 'Telebirr' : actualMethod === 'AWASH' ? 'Awash Birr' : 'CBE Birr'} payment simulated successfully`,
+      message: `${displayMethodName} payment simulated successfully`,
       transactionId,
       orderId,
       amount,

@@ -1,4 +1,46 @@
 import { X, AlertTriangle, Upload } from 'lucide-react';
+import { useState } from 'react';
+
+// Validation functions
+const validateEmail = (email) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+};
+
+const validatePhone = (phone) => {
+  // Ethiopian phone: 10 digits starting with 09 or +251 followed by 9 digits
+  const cleaned = phone.replace(/\s/g, '');
+  const ethiopianPhone = /^(?:\+251|0)?9\d{8}$/;
+  return ethiopianPhone.test(cleaned);
+};
+
+const getPasswordStrength = (password) => {
+  if (!password) return { strength: 'none', score: 0 };
+  
+  let score = 0;
+  let hasLower = /[a-z]/.test(password);
+  let hasUpper = /[A-Z]/.test(password);
+  let hasNumber = /[0-9]/.test(password);
+  let hasSpecial = /[^a-zA-Z0-9]/.test(password);
+  
+  // Length scoring
+  if (password.length >= 8) score += 1;
+  if (password.length >= 12) score += 1;
+  if (password.length >= 16) score += 1;
+  
+  // Character variety scoring
+  if (hasLower) score += 1;
+  if (hasUpper) score += 1;
+  if (hasNumber) score += 1;
+  if (hasSpecial) score += 1;
+  
+  // Bonus for variety
+  if (hasLower && hasUpper && hasNumber && hasSpecial) score += 1;
+  
+  if (score <= 3) return { strength: 'weak', score, color: 'red' };
+  if (score <= 5) return { strength: 'medium', score, color: 'yellow' };
+  return { strength: 'strong', score, color: 'green' };
+};
 
 export default function AuthModal({
   authMode, setAuthMode,
@@ -16,9 +58,34 @@ export default function AuthModal({
   authBusinessType, setAuthBusinessType,
   authConfirmPassword, setAuthConfirmPassword,
   authLicenseFile, setAuthLicenseFile,
+  authNationalIdFile, setAuthNationalIdFile,
   authError,
   handleAuthSubmit,
 }) {
+  const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const passwordStrength = getPasswordStrength(authPassword);
+
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setAuthEmail(email);
+    if (email && !validateEmail(email)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const phone = e.target.value;
+    setAuthPhone(phone);
+    if (phone && !validatePhone(phone)) {
+      setPhoneError('Phone must be 10 digits starting with 09 or +251');
+    } else {
+      setPhoneError('');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-md">
       <div className="w-full max-w-md overflow-y-auto max-h-[90vh] relative animate-in fade-in zoom-in-95 duration-200 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 rounded-3xl shadow-2xl">
@@ -44,7 +111,18 @@ export default function AuthModal({
             {authMode === 'register' && (
               <>
                 <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Full Name</label><input type="text" required value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="e.g. Kenenisa Jila" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
-                <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Phone Number</label><input type="text" required value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} placeholder="e.g. 0911223344" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Phone Number</label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={authPhone} 
+                    onChange={handlePhoneChange} 
+                    placeholder="e.g. 0911223344 or +251911223344" 
+                    className={`w-full bg-white dark:bg-slate-900 border rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700 focus:ring-teal-500'}`}
+                  />
+                  {phoneError && <p className="text-[9px] text-red-600 mt-1">{phoneError}</p>}
+                </div>
                 <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Location/Region</label><input type="text" required value={authLocation} onChange={(e) => setAuthLocation(e.target.value)} placeholder="e.g. Hararghe, Alem Maya" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
                 {authRole === 'farmer' && (
                   <>
@@ -53,29 +131,67 @@ export default function AuthModal({
                     <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Primary Crops</label><input type="text" value={authCrops || ''} onChange={(e) => setAuthCrops && setAuthCrops(e.target.value)} placeholder="e.g. Coffee, Chat, Vegetables" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
                   </>
                 )}
-                {authRole === 'buyer' && (
-                  <>
-                    <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Business Name (Optional)</label><input type="text" value={authBusinessName || ''} onChange={(e) => setAuthBusinessName && setAuthBusinessName(e.target.value)} placeholder="e.g. Hararghe Trading Co." className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
-                    <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Business Type</label><select value={authBusinessType || 'retailer'} onChange={(e) => setAuthBusinessType && setAuthBusinessType(e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500">
-                      <option value="retailer">Retailer</option>
-                      <option value="wholesaler">Wholesaler</option>
-                      <option value="processor">Processor</option>
-                      <option value="exporter">Exporter</option>
-                      <option value="individual">Individual Buyer</option>
-                    </select></div>
-                    <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Business License (Optional)</label><div className="relative">
-                      <input type="file" accept="image/*,.pdf" onChange={(e) => setAuthLicenseFile && setAuthLicenseFile(e.target.files[0])} className="hidden" id="license-upload" />
-                      <label htmlFor="license-upload" className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl px-4 py-4 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:border-teal-500 dark:hover:border-teal-400 transition-colors flex flex-col items-center justify-center space-y-2">
-                        <Upload className="w-6 h-6 text-slate-400" />
-                        <span className="text-center">{authLicenseFile ? authLicenseFile.name : 'Click to upload license (PDF/Image)'}</span>
-                      </label>
-                    </div></div>
-                  </>
-                )}
               </>
             )}
-            <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Email Address</label><input type="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="name@domain.com" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
-            <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Password</label><input type="password" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder="••••••••" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
+            {authMode === 'register' && (
+              <div>
+                <label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">National ID (Required)</label>
+                <div className="relative">
+                  <input type="file" accept="image/*,.pdf" onChange={(e) => setAuthNationalIdFile && setAuthNationalIdFile(e.target.files[0])} className="hidden" id="national-id-upload" />
+                  <label htmlFor="national-id-upload" className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl px-4 py-4 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:border-teal-500 dark:hover:border-teal-400 transition-colors flex flex-col items-center justify-center space-y-2">
+                    <Upload className="w-6 h-6 text-slate-400" />
+                    <span className="text-center">{authNationalIdFile ? authNationalIdFile.name : 'Click to upload national ID (PDF/Image)'}</span>
+                  </label>
+                </div>
+              </div>
+            )}
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Email Address</label>
+              <input 
+                type="email" 
+                required 
+                value={authEmail} 
+                onChange={handleEmailChange} 
+                placeholder="name@domain.com" 
+                className={`w-full bg-white dark:bg-slate-900 border rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 ${emailError ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700 focus:ring-teal-500'}`}
+              />
+              {emailError && <p className="text-[9px] text-red-600 mt-1">{emailError}</p>}
+            </div>
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Password</label>
+              <input 
+                type="password" 
+                required 
+                value={authPassword} 
+                onChange={(e) => setAuthPassword(e.target.value)} 
+                placeholder="••••••••" 
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              {authMode === 'register' && authPassword && (
+                <div className="mt-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-300 ${
+                          passwordStrength.strength === 'weak' ? 'bg-red-500' :
+                          passwordStrength.strength === 'medium' ? 'bg-yellow-500' :
+                          passwordStrength.strength === 'strong' ? 'bg-green-500' : ''
+                        }`}
+                        style={{ width: `${(passwordStrength.score / 6) * 100}%` }}
+                      />
+                    </div>
+                    <span className={`text-[9px] font-bold uppercase ${
+                      passwordStrength.strength === 'weak' ? 'text-red-600' :
+                      passwordStrength.strength === 'medium' ? 'text-yellow-600' :
+                      passwordStrength.strength === 'strong' ? 'text-green-600' : 'text-slate-400'
+                    }`}>
+                      {passwordStrength.strength}
+                    </span>
+                  </div>
+                  <p className="text-[8px] text-slate-400 mt-1">Use 8+ chars with mix of letters, numbers & symbols</p>
+                </div>
+              )}
+            </div>
             {authMode === 'register' && (
               <div><label className="block text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400 mb-1">Confirm Password</label><input type="password" required value={authConfirmPassword || ''} onChange={(e) => setAuthConfirmPassword && setAuthConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500" /></div>
             )}

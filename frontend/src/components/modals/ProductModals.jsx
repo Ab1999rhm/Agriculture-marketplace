@@ -102,7 +102,11 @@ export function EditProductModal({
               <input type="file" accept="image/*" onChange={(e) => setEditProdImage(e.target.files[0])} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none" />
               {editingProduct?.imageUrl && !editProdImage && (
                 <div className="mt-2 flex items-center gap-2">
-                  <img src={editingProduct.imageUrl} alt="current" className="w-12 h-12 rounded-lg object-cover border border-slate-200" />
+                  <img 
+                    src={editingProduct.imageUrl.startsWith('/uploads/') ? `http://localhost:8080${editingProduct.imageUrl}` : editingProduct.imageUrl} 
+                    alt="current" 
+                    className="w-12 h-12 rounded-lg object-cover border border-slate-200" 
+                  />
                   <p className="text-[10px] text-slate-400">Current image — upload a new one to replace</p>
                 </div>
               )}

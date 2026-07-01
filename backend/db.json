@@ -54,7 +54,23 @@
           "walletPhone": "0934586543"
         }
       },
-      "updatedAt": "2026-06-28T19:52:45.733Z"
+      "updatedAt": "2026-07-01T20:15:16.766Z",
+      "bankAccounts": [
+        "bank_1782815286302",
+        "bank_1782818160917"
+      ],
+      "bankAccountDetails": {
+        "bank_1782815286302": {
+          "accountNumber": "7578538454",
+          "phone": "0998776766",
+          "email": "turur@gmail.com"
+        },
+        "bank_1782818160917": {
+          "accountNumber": "664544",
+          "phone": "0987677567",
+          "email": "t@gmail.com"
+        }
+      }
     },
     {
       "id": "user_kwy36mg5g",
@@ -75,67 +91,55 @@
       "crops": [],
       "bio": "",
       "createdAt": "2026-06-25T18:57:46.001Z"
+    },
+    {
+      "id": "user_g757w87wu",
+      "name": "Anan Chali",
+      "phone": "0947270811",
+      "location": "Awaday",
+      "farmName": "Red Valley",
+      "farmSize": "445",
+      "crops": [
+        "Khat"
+      ],
+      "coordinates": "9.4500, 3.4500",
+      "bio": "this is for checking pagination",
+      "createdAt": "2026-06-30T11:04:50.532Z",
+      "paymentMethods": {
+        "cbe": {
+          "enabled": false,
+          "accountNumber": "",
+          "walletPhone": ""
+        },
+        "telebirr": {
+          "enabled": false,
+          "merchantCode": "",
+          "walletPhone": ""
+        },
+        "awash": {
+          "enabled": false,
+          "accountNumber": "",
+          "walletPhone": ""
+        }
+      },
+      "updatedAt": "2026-06-30T11:33:18.216Z"
+    },
+    {
+      "id": "user_bhcqjlngb",
+      "name": "Abraham Fikadu",
+      "phone": "+251929570426",
+      "location": "GUANGUL",
+      "farmName": "VALLEY",
+      "farmSize": "34",
+      "crops": [
+        "COFFEE"
+      ],
+      "coordinates": "",
+      "bio": "",
+      "createdAt": "2026-07-01T09:24:17.402Z"
     }
   ],
   "products": [
-    {
-      "id": "prod1",
-      "farmerId": "farmer1",
-      "farmerName": "Kenenisa Jila",
-      "name": "Harar Organic Coffee",
-      "category": "Crops",
-      "type": "Coffee",
-      "price": 350,
-      "quantity": 498,
-      "unit": "kg",
-      "harvestDate": "2026-06-15",
-      "location": "Alem Maya",
-      "description": "Premium Harar Grade 1 green coffee beans, naturally sun-dried."
-    },
-    {
-      "id": "prod2",
-      "farmerId": "farmer2",
-      "farmerName": "Fadila Ahmed",
-      "name": "Babille Groundnuts",
-      "category": "Crops",
-      "type": "Groundnuts",
-      "price": 120,
-      "quantity": 1000,
-      "unit": "kg",
-      "harvestDate": "2026-06-10",
-      "location": "Babille",
-      "description": "Sweet, shelled red peanuts, high quality crop."
-    },
-    {
-      "id": "prod3",
-      "farmerId": "farmer1",
-      "farmerName": "Kenenisa Jila",
-      "name": "Hararghe Bull",
-      "category": "Livestock",
-      "type": "Bull",
-      "price": 45000,
-      "quantity": 2,
-      "unit": "head",
-      "harvestDate": "2026-06-20",
-      "location": "Alem Maya",
-      "description": "Fat, well-fed local breed bull, ready for market."
-    },
-    {
-      "id": "prod_a428b43js",
-      "farmerId": "user_k4u0l5vc1",
-      "farmerName": "Auto Test Farmer",
-      "name": "Alem Maya Sweet Onions",
-      "category": "Crops",
-      "type": "Onion",
-      "price": 60,
-      "quantity": 200,
-      "unit": "kg",
-      "harvestDate": "2026-06-25",
-      "location": "Alem Maya",
-      "description": "Fresh harvested red onions from Alem Maya",
-      "createdAt": "2026-06-25T18:57:46.680Z",
-      "imageUrl": "/uploads/product-1782413866669-462851437.jpg"
-    },
     {
       "id": "prod_tvbinxvc6",
       "farmerId": "user_a3a4pewsk",
@@ -151,7 +155,8 @@
       "description": "This is for check up discount",
       "hidden": false,
       "createdAt": "2026-06-28T08:32:33.839Z",
-      "imageUrl": "/uploads/product-1782635553816-407674163.jpg"
+      "updatedAt": "2026-07-01T12:36:01.898Z",
+      "imageUrl": "/uploads/products/product-1782909361867-644293308.jpg"
     },
     {
       "id": "prod_erdmh2b50",
@@ -167,38 +172,25 @@
       "location": "Alemaya",
       "description": "this is for test purpose",
       "hidden": false,
-      "createdAt": "2026-06-28T10:22:41.246Z",
-      "imageUrl": "/uploads/product-1782642161233-900946409.jpg"
+      "createdAt": "2026-06-28T10:22:41.246Z"
     },
     {
-      "id": "prod_9ghucmncs",
+      "id": "prod_lqru59mfi",
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
-      "name": "Test Teff",
-      "category": "grain",
-      "price": 250,
-      "quantity": 100,
-      "unit": "kg",
-      "description": "",
-      "hidden": false,
-      "createdAt": "2026-06-28T10:25:32.193Z"
-    },
-    {
-      "id": "prod_c9prpyrcr",
-      "farmerId": "user_a3a4pewsk",
-      "farmerName": "Abraham Fikadu",
-      "name": "2ndtest",
-      "category": "Crops",
-      "type": "Coffee",
-      "price": 500,
+      "price": 345,
       "quantity": 2999,
-      "unit": "kg",
-      "harvestDate": "2026-06-21",
-      "location": "UUU",
-      "description": "yyyyy",
+      "description": "Maaliif badee",
       "hidden": false,
-      "createdAt": "2026-06-28T10:38:38.835Z",
-      "imageUrl": "/uploads/product-1782643118824-673193395.jpg"
+      "createdAt": "2026-07-01T17:45:04.849Z",
+      "imageUrl": "/uploads/products/product-1782927904826-869670394.jpg",
+      "updatedAt": "2026-07-01T17:49:54.926Z",
+      "name": "Bean",
+      "category": "Crops",
+      "type": "Bean",
+      "unit": "kg",
+      "harvestDate": "2026-07-29",
+      "location": "Harar"
     }
   ],
   "orders": [
@@ -360,27 +352,57 @@
       },
       "updatedAt": "2026-06-28T20:27:30.979Z",
       "logistics.status": "delivered"
+    },
+    {
+      "id": "ord_l9t6s0fy9",
+      "productId": "prod_lqru59mfi",
+      "productName": "Bean",
+      "productUnit": "kg",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "buyerId": "user_z6n7aqsne",
+      "buyerName": "Abush Tamam",
+      "buyerPhone": "0956467567",
+      "buyerEmail": "fikaduabraham93@gmail.com",
+      "quantity": 1,
+      "totalPrice": 345,
+      "paymentMethod": "BANK_bank_1782818160917",
+      "paymentStatus": "paid",
+      "shippingAddress": "Hararghe",
+      "pickupPointId": "central_hub_01",
+      "status": "delivered",
+      "bankAccounts": [
+        "bank_1782815286302",
+        "bank_1782818160917"
+      ],
+      "bankNames": [
+        "CBO",
+        "Zemen "
+      ],
+      "logistics": {
+        "carrier": "Hararghe Cooperative Logistics",
+        "trackingNumber": "TRK-654709",
+        "status": "order_placed",
+        "pickupPoint": "Alem Maya Central Hub",
+        "estimatedDelivery": "2026-07-04"
+      },
+      "createdAt": "2026-07-01T20:30:55.658Z",
+      "transactionId": "TXN-BANK-3QRUNJOC1",
+      "paymentDetails": {
+        "walletType": "wallet",
+        "cbeAccount": "",
+        "telebirrFlow": "app",
+        "ftCode": "",
+        "awashPhone": "",
+        "awashPin": "",
+        "bankAccount": "1000582835048",
+        "bankPin": "3434"
+      },
+      "updatedAt": "2026-07-01T20:33:06.809Z",
+      "logistics.status": "delivered"
     }
   ],
   "users": [
-    {
-      "id": "user1",
-      "email": "farmer@hararghe.com",
-      "passwordHash": "$2a$10$BSpFfncTydm0VLIya1e4NOdLvqX.8bVydmOfTE/7msw7A0.Xpwx6q",
-      "name": "Kenenisa Jila",
-      "role": "farmer",
-      "phone": "0911223344",
-      "location": "Alem Maya"
-    },
-    {
-      "id": "user2",
-      "email": "buyer@hararghe.com",
-      "passwordHash": "$2a$10$BSpFfncTydm0VLIya1e4NOdLvqX.8bVydmOfTE/7msw7A0.Xpwx6q",
-      "name": "Abdi Yusuf",
-      "role": "buyer",
-      "phone": "0922334455",
-      "location": "Harar City"
-    },
     {
       "id": "user_a3a4pewsk",
       "email": "fikaduabraham093@gmail.com",
@@ -389,18 +411,12 @@
       "phone": "0929570426",
       "location": "Alemaya",
       "createdAt": "2026-06-24T19:49:20.771Z",
-      "passwordHash": "$2a$10$.7p3GchVREXrbPi.MpWxe.qjW6v/hSsaF89Oi8y1E20jjdAiDZNPa"
-    },
-    {
-      "id": "user_so6cga6k6",
-      "email": "fikaduabraham93@gmail.com",
-      "name": "Abraham ",
-      "role": "buyer",
-      "phone": "0929570426",
-      "location": "Alemaya",
-      "createdAt": "2026-06-24T19:51:05.490Z",
-      "passwordHash": "$2a$10$4pCdTCDA/Hx9b4wdU6cGa.I/HjOLqtTMnytrKouAT8wk/X0nIbmjO",
-      "updatedAt": "2026-06-25T07:18:14.770Z"
+      "passwordHash": "$2a$10$.7p3GchVREXrbPi.MpWxe.qjW6v/hSsaF89Oi8y1E20jjdAiDZNPa",
+      "approved": true,
+      "approvedAt": "2026-06-30T09:33:18.666Z",
+      "suspended": false,
+      "suspendedAt": "2026-07-01T17:38:20.159Z",
+      "activatedAt": "2026-07-01T17:38:24.594Z"
     },
     {
       "id": "admin_001",
@@ -419,17 +435,58 @@
       "phone": "0911223344",
       "location": "Alem Maya",
       "createdAt": "2026-06-25T18:56:58.170Z",
-      "passwordHash": "$2a$10$vVlx/3YJfF0fP0cY5PGda.4UC/Uf2BHRkrEa7Pmrl4eu1QUo/L.tS"
+      "passwordHash": "$2a$10$vVlx/3YJfF0fP0cY5PGda.4UC/Uf2BHRkrEa7Pmrl4eu1QUo/L.tS",
+      "approved": false,
+      "rejected": true,
+      "rejectedAt": "2026-06-30T10:11:08.012Z"
     },
     {
-      "id": "user_k4u0l5vc1",
-      "email": "farmer4008@hararghe.com",
-      "name": "Auto Test Farmer",
+      "id": "user_g757w87wu",
+      "email": "anan@gmail.com",
+      "name": "Anan Chali",
       "role": "farmer",
-      "phone": "0911223344",
-      "location": "Alem Maya",
-      "createdAt": "2026-06-25T18:57:45.996Z",
-      "passwordHash": "$2a$10$mOrFdoejSUYBZ8LEIqCa..qXwSFPAtP9zbgxD21LcymYqw3bP8/Fm"
+      "phone": "0947270811",
+      "location": "Awaday",
+      "approved": true,
+      "createdAt": "2026-06-30T11:04:50.523Z",
+      "farmName": "Red Valley",
+      "farmSize": "445",
+      "crops": "Khat",
+      "passwordHash": "$2a$10$pwA1FSMAODqBDsmaxVI1oerBqEGL4FnYRBa239bb9Zh5p08R4sZS2",
+      "approvedAt": "2026-06-30T11:37:26.736Z",
+      "suspended": true,
+      "suspendedAt": "2026-07-01T10:53:41.867Z",
+      "activatedAt": "2026-07-01T10:53:37.291Z"
+    },
+    {
+      "id": "user_bhcqjlngb",
+      "email": "fikadu@gmail.com",
+      "name": "Abraham Fikadu",
+      "role": "farmer",
+      "phone": "+251929570426",
+      "location": "GUANGUL",
+      "approved": true,
+      "createdAt": "2026-07-01T09:24:17.399Z",
+      "farmName": "VALLEY",
+      "farmSize": "34",
+      "crops": "COFFEE",
+      "nationalIdFile": "/uploads/national-ids/national-id-1782897857290-160537255.jpg",
+      "passwordHash": "$2a$10$mp.aUatzhNdc/kf8YN6myuaNquTSAiJv9Val5ZHxntqPbUFF9taEy",
+      "approvedAt": "2026-07-01T09:34:44.315Z"
+    },
+    {
+      "id": "user_z6n7aqsne",
+      "email": "fikaduabraham93@gmail.com",
+      "name": "Abush Tamam",
+      "role": "buyer",
+      "phone": "0956467567",
+      "location": "Hararghe",
+      "approved": true,
+      "createdAt": "2026-07-01T17:54:39.921Z",
+      "businessName": "",
+      "businessType": "retailer",
+      "nationalIdFile": "/uploads/national-ids/national-id-1782928479422-702642781.jpg",
+      "passwordHash": "$2a$10$25G99ATXCHDvSy5RCo8fJ.m4EkfYKJVQNOnq5gtmK573vNy.9ERUu"
     }
   ],
   "bulletins": [
@@ -526,14 +583,15 @@
       "plantingDate": "2026-06-28",
       "harvestDate": "2026-07-11",
       "expectedYield": "2999.8",
-      "fieldSize": "34",
-      "area": "34",
+      "fieldSize": "348",
+      "area": "348",
       "fieldUnit": "acre",
       "seedVariety": "2155",
       "yieldUnit": "kg",
       "irrigation": "Rain-fed",
       "notes": "Iexpect to get good quality of the product on my farm",
-      "createdAt": "2026-06-27T19:13:20.227Z"
+      "createdAt": "2026-06-27T19:13:20.227Z",
+      "updatedAt": "2026-07-01T17:47:02.893Z"
     }
   ],
   "qualityGrades": [
@@ -641,6 +699,18 @@
       "orderId": "ord_du6iy0vca",
       "date": "2026-06-28",
       "createdAt": "2026-06-28T20:28:20.854Z"
+    },
+    {
+      "id": "tdg4mum9x3m",
+      "buyerId": "user_z6n7aqsne",
+      "buyerName": "Abush Tamam",
+      "supplierId": "user_a3a4pewsk",
+      "supplierName": "Abraham Fikadu",
+      "rating": 5,
+      "comment": "uuuffeee",
+      "orderId": "ord_l9t6s0fy9",
+      "date": "2026-07-01",
+      "createdAt": "2026-07-01T20:34:26.550Z"
     }
   ],
   "wishlist": [
@@ -663,6 +733,16 @@
       "farmerId": "farmer1",
       "farmerName": "Kenenisa Jila",
       "createdAt": "2026-06-27T20:41:19.588Z"
+    },
+    {
+      "id": "lvjd6eld9p",
+      "buyerId": "user_z6n7aqsne",
+      "productId": "prod_tvbinxvc6",
+      "productName": "Shumbura",
+      "price": 430,
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "createdAt": "2026-07-01T17:54:47.439Z"
     }
   ],
   "storageFacilities": [
@@ -685,10 +765,11 @@
       "type": "Heavy matchinery",
       "location": "wollega",
       "totalCapacity": "5",
-      "usedCapacity": "5",
+      "usedCapacity": "1",
       "capacityUnit": "ton",
       "status": "Active",
-      "createdAt": "2026-06-27T19:20:14.284Z"
+      "createdAt": "2026-06-27T19:20:14.284Z",
+      "updatedAt": "2026-07-01T17:47:24.250Z"
     }
   ],
   "batchLots": [
@@ -714,6 +795,15 @@
       "auditor": "GAREE 3",
       "status": "scheduled",
       "createdAt": "2026-06-27T19:22:49.038Z"
+    },
+    {
+      "id": "v11v9pgner",
+      "target": "Batch LOT-2026-4",
+      "type": "safety",
+      "scheduledDate": "2026-07-02",
+      "auditor": "Abraham",
+      "status": "scheduled",
+      "createdAt": "2026-06-30T10:30:08.975Z"
     }
   ],
   "labTests": [
@@ -853,6 +943,125 @@
       "orderId": "ord_du6iy0vca",
       "read": true,
       "createdAt": "2026-06-28T20:26:42.753Z"
+    },
+    {
+      "id": "notif_1782817490538_admin_001",
+      "type": "new_farmer",
+      "title": "New Farmer Registration",
+      "message": "Anan Chali has registered as a farmer and is awaiting approval.",
+      "userId": "admin_001",
+      "userName": "Anan Chali",
+      "userEmail": "anan@gmail.com",
+      "role": "farmer",
+      "read": true,
+      "createdAt": "2026-06-30T11:04:50.539Z"
+    },
+    {
+      "id": "notif_1782897857406_admin_001",
+      "type": "new_farmer",
+      "title": "New Farmer Registration",
+      "message": "Abraham Fikadu has registered as a farmer and is awaiting approval.",
+      "userId": "admin_001",
+      "userName": "Abraham Fikadu",
+      "userEmail": "fikadu@gmail.com",
+      "role": "farmer",
+      "read": true,
+      "createdAt": "2026-07-01T09:24:17.406Z"
+    },
+    {
+      "id": "notif_rr5ngi7oc",
+      "userId": "user_a3a4pewsk",
+      "type": "new_order",
+      "title": "📦 New Order Received",
+      "message": "Abush Tamam ordered 1 kg of Bean.",
+      "orderId": "ord_l9t6s0fy9",
+      "read": true,
+      "createdAt": "2026-07-01T20:30:55.693Z"
+    },
+    {
+      "id": "notif_593v023nzyx",
+      "userId": "user_z6n7aqsne",
+      "type": "payment_confirmed",
+      "title": "✅ Payment Confirmed",
+      "message": "Your payment for \"Bean\" (Order #6S0FY9) has been confirmed by the farmer.",
+      "orderId": "ord_l9t6s0fy9",
+      "read": true,
+      "createdAt": "2026-07-01T20:31:58.138Z"
+    },
+    {
+      "id": "notif_8afm1aslnjy",
+      "userId": "user_z6n7aqsne",
+      "type": "order_shipped",
+      "title": "🚚 Order Shipped",
+      "message": "Your order of \"Bean\" (Order #6S0FY9) is now in transit and on its way to you!",
+      "orderId": "ord_l9t6s0fy9",
+      "read": true,
+      "createdAt": "2026-07-01T20:32:25.571Z"
+    }
+  ],
+  "banks": [
+    {
+      "id": "bank_1782815263913",
+      "name": "Awash",
+      "type": "bank",
+      "active": true,
+      "createdAt": "2026-06-30T10:27:43.914Z"
+    },
+    {
+      "id": "bank_1782815286302",
+      "name": "CBO",
+      "type": "bank",
+      "active": true,
+      "createdAt": "2026-06-30T10:28:06.302Z"
+    },
+    {
+      "id": "bank_1782815308736",
+      "name": "Dhaabbata waliinii Awaday",
+      "type": "agent",
+      "active": true,
+      "createdAt": "2026-06-30T10:28:28.736Z",
+      "updatedAt": "2026-07-01T17:39:20.876Z"
+    },
+    {
+      "id": "bank_1782818160917",
+      "name": "Zemen ",
+      "type": "bank",
+      "active": true,
+      "createdAt": "2026-06-30T11:16:00.917Z"
+    }
+  ],
+  "buyers": [
+    {
+      "id": "user_z6n7aqsne",
+      "name": "Abush Tamam",
+      "phone": "0956467567",
+      "location": "Hararghe",
+      "businessName": "",
+      "businessType": "retailer",
+      "licenseFile": "",
+      "createdAt": "2026-07-01T17:54:39.930Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "txn_1782937855685",
+      "orderId": "ord_l9t6s0fy9",
+      "productId": "prod_lqru59mfi",
+      "productName": "Bean",
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "buyerId": "user_z6n7aqsne",
+      "buyerName": "Abush Tamam",
+      "amount": 345,
+      "paymentMethod": "BANK_bank_1782818160917",
+      "bankNames": "CBO, Zemen ",
+      "bankAccounts": [
+        "bank_1782815286302",
+        "bank_1782818160917"
+      ],
+      "status": "completed",
+      "createdAt": "2026-07-01T20:30:55.685Z",
+      "completedAt": "2026-07-01T20:31:58.117Z"
     }
   ]
 }

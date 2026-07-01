@@ -1,4 +1,13 @@
-import { CheckCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { CheckCircle, Building2 } from "lucide-react";
+
+// Validation functions
+const validatePhone = (phone) => {
+  // Ethiopian phone: 10 digits starting with 09 or +251 followed by 9 digits
+  const cleaned = phone.replace(/\s/g, '');
+  const ethiopianPhone = /^(?:\+251|0)?9\d{8}$/;
+  return ethiopianPhone.test(cleaned);
+};
 
 export default function ProfilePage({
   user,
@@ -34,7 +43,77 @@ export default function ProfilePage({
   setProfileAwashAccount,
   profileAwashPhone,
   setProfileAwashPhone,
+  token,
+  initialSelectedBanks,
+  initialBankAccountDetails,
 }) {
+  const [banks, setBanks] = useState([]);
+  const [selectedBanks, setSelectedBanks] = useState(initialSelectedBanks || []);
+  const [bankAccountDetails, setBankAccountDetails] = useState(initialBankAccountDetails || {});
+  const [phoneErrors, setPhoneErrors] = useState({});
+
+  useEffect(() => {
+    fetchBanks();
+  }, []);
+
+  // Sync props to state when they change
+  useEffect(() => {
+    setSelectedBanks(initialSelectedBanks || []);
+    setBankAccountDetails(initialBankAccountDetails || {});
+  }, [initialSelectedBanks, initialBankAccountDetails]);
+
+  const fetchBanks = async () => {
+    try {
+      const res = await fetch('/api/banks');
+      if (res.ok) {
+        const data = await res.json();
+        setBanks(data.filter(b => b.active));
+      }
+    } catch (err) {
+      console.error('Error fetching banks:', err);
+    }
+  };
+
+  const toggleBankSelection = (bankId) => {
+    setSelectedBanks(prev => 
+      prev.includes(bankId) 
+        ? prev.filter(id => id !== bankId)
+        : [...prev, bankId]
+    );
+    // Initialize account details for newly selected bank
+    if (!selectedBanks.includes(bankId)) {
+      setBankAccountDetails(prev => ({
+        ...prev,
+        [bankId]: { accountNumber: '', phone: '', email: '' }
+      }));
+    }
+  };
+
+  const updateBankAccountDetail = (bankId, field, value) => {
+    setBankAccountDetails(prev => ({
+      ...prev,
+      [bankId]: {
+        ...prev[bankId],
+        [field]: value
+      }
+    }));
+
+    // Validate phone number
+    if (field === 'phone') {
+      if (value && !validatePhone(value)) {
+        setPhoneErrors(prev => ({
+          ...prev,
+          [bankId]: 'Phone must be 10 digits starting with 09 or +251'
+        }));
+      } else {
+        setPhoneErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[bankId];
+          return newErrors;
+        });
+      }
+    }
+  };
   return (
     <div className="max-w-2xl mx-auto">
       <div className="app-section-header">
@@ -47,7 +126,7 @@ export default function ProfilePage({
         </div>
       </div>
       <form
-        onSubmit={handleProfileSave}
+        onSubmit={(e) => handleProfileSave(e, selectedBanks, bankAccountDetails)}
         className="glass-card rounded-2xl p-6 space-y-6"
       >
         {profileSaved && (
@@ -141,123 +220,95 @@ export default function ProfilePage({
               <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">Payment Setup</h3>
               <p className="text-xs text-slate-400 mb-4">Set up the accounts you accept payments to. Buyers will send funds directly to these accounts when purchasing your products.</p>
 
-              <div className="space-y-4">
-                {/* CBE Birr Setup */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="flex items-center space-x-2.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profileCbeEnabled}
-                        onChange={(e) => setProfileCbeEnabled(e.target.checked)}
-                        className="accent-purple-600 rounded"
-                      />
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Enable CBE Birr Channel</span>
-                    </label>
-                    <span className="text-[9px] font-extrabold uppercase text-purple-600 px-2 py-0.5 rounded bg-purple-500/10">Commercial Bank</span>
+              {/* Bank/Agent Selection */}
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10 mb-4">
+                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  Your Payment Accounts
+                </h4>
+                <p className="text-[10px] text-slate-400 mb-3">Manage your bank/agent accounts where you receive payments from buyers.</p>
+                
+                {/* Currently configured banks */}
+                {selectedBanks.length > 0 && (
+                  <div className="space-y-3 mb-4">
+                    {selectedBanks.map((bankId) => {
+                      const bank = banks.find(b => b.id === bankId);
+                      if (!bank) return null;
+                      return (
+                        <div key={bankId} className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{bank.name}</span>
+                              <span className="text-[10px] text-slate-400 capitalize">({bank.type})</span>
+                            </div>
+                            <button
+                              onClick={() => toggleBankSelection(bankId)}
+                              className="text-xs text-red-600 hover:text-red-700 font-medium"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                          <div className="space-y-2 pl-0">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-[10px] text-slate-400 w-20">{bank.type === 'agent' ? 'Cash:' : 'Account:'}</span>
+                              <input
+                                type="text"
+                                value={bankAccountDetails[bankId]?.accountNumber || ''}
+                                onChange={(e) => updateBankAccountDetail(bankId, 'accountNumber', e.target.value)}
+                                className="glass-input flex-1 text-xs"
+                              />
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-[10px] text-slate-400 w-20">Phone:</span>
+                              <div className="flex-1">
+                                <input
+                                  type="text"
+                                  value={bankAccountDetails[bankId]?.phone || ''}
+                                  onChange={(e) => updateBankAccountDetail(bankId, 'phone', e.target.value)}
+                                  className={`glass-input w-full text-xs ${phoneErrors[bankId] ? 'border-red-500' : ''}`}
+                                />
+                                {phoneErrors[bankId] && <p className="text-[8px] text-red-600 mt-1">{phoneErrors[bankId]}</p>}
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-[10px] text-slate-400 w-20">Email:</span>
+                              <input
+                                type="email"
+                                value={bankAccountDetails[bankId]?.email || ''}
+                                onChange={(e) => updateBankAccountDetail(bankId, 'email', e.target.value)}
+                                className="glass-input flex-1 text-xs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  {profileCbeEnabled && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">CBE Account Number</label>
-                        <input
-                          type="text"
-                          value={profileCbeAccount}
-                          onChange={(e) => setProfileCbeAccount(e.target.value.replace(/\D/g, ''))}
-                          placeholder="e.g. 1000123456789"
-                          className="glass-input w-full text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">CBE Wallet Phone</label>
-                        <input
-                          type="text"
-                          value={profileCbePhone}
-                          onChange={(e) => setProfileCbePhone(e.target.value)}
-                          placeholder="e.g. 0912345678"
-                          className="glass-input w-full text-xs"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
 
-                {/* Telebirr Setup */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="flex items-center space-x-2.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profileTelebirrEnabled}
-                        onChange={(e) => setProfileTelebirrEnabled(e.target.checked)}
-                        className="accent-pink-600 rounded"
-                      />
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Enable telebirr Channel</span>
-                    </label>
-                    <span className="text-[9px] font-extrabold uppercase text-pink-600 px-2 py-0.5 rounded bg-pink-500/10">Ethio Telecom</span>
-                  </div>
-                  {profileTelebirrEnabled && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Merchant Code</label>
-                        <input
-                          type="text"
-                          value={profileTelebirrMerchant}
-                          onChange={(e) => setProfileTelebirrMerchant(e.target.value)}
-                          placeholder="e.g. 889988"
-                          className="glass-input w-full text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">telebirr Wallet Phone</label>
-                        <input
-                          type="text"
-                          value={profileTelebirrPhone}
-                          onChange={(e) => setProfileTelebirrPhone(e.target.value)}
-                          placeholder="e.g. 0912345678"
-                          className="glass-input w-full text-xs"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Awash E-Birr Setup */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="flex items-center space-x-2.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profileAwashEnabled}
-                        onChange={(e) => setProfileAwashEnabled(e.target.checked)}
-                        className="accent-teal-600 rounded"
-                      />
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Enable Awash Birr / E-Birr Channel</span>
-                    </label>
-                    <span className="text-[9px] font-extrabold uppercase text-teal-600 px-2 py-0.5 rounded bg-teal-500/10">Awash Bank</span>
-                  </div>
-                  {profileAwashEnabled && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Awash Account Number</label>
-                        <input
-                          type="text"
-                          value={profileAwashAccount}
-                          onChange={(e) => setProfileAwashAccount(e.target.value)}
-                          placeholder="e.g. 01304111222300"
-                          className="glass-input w-full text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Awash Wallet Phone</label>
-                        <input
-                          type="text"
-                          value={profileAwashPhone}
-                          onChange={(e) => setProfileAwashPhone(e.target.value)}
-                          placeholder="e.g. 0912345678"
-                          className="glass-input w-full text-xs"
-                        />
-                      </div>
+                {/* Add new bank */}
+                <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
+                  <h5 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-2">Add New Payment Account</h5>
+                  {banks.filter(b => !selectedBanks.includes(b.id)).length === 0 ? (
+                    <p className="text-xs text-slate-400 italic">No more banks/agents available to add.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                      {banks.filter(b => !selectedBanks.includes(b.id)).map((bank) => (
+                        <div key={bank.id} className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{bank.name}</span>
+                              <span className="text-[10px] text-slate-400 capitalize">({bank.type})</span>
+                            </div>
+                            <button
+                              onClick={() => toggleBankSelection(bank.id)}
+                              className="app-btn-primary px-3 py-1 text-xs"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -266,7 +317,10 @@ export default function ProfilePage({
           </>
         )}
         <div className="flex justify-end pt-4">
-          <button type="submit" className="app-btn-primary px-6 py-3">
+          <button 
+            type="submit" 
+            className="app-btn-primary px-6 py-3"
+          >
             Save Changes
           </button>
         </div>

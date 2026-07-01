@@ -176,7 +176,7 @@ exports.createProduct = async (req, res, next) => {
     };
 
     if (req.file) {
-      newProduct.imageUrl = `/uploads/${req.file.filename}`;
+      newProduct.imageUrl = `/uploads/products/${req.file.filename}`;
     }
 
     await db.collection('products').doc(productId).set(newProduct);
@@ -218,13 +218,20 @@ exports.updateProduct = async (req, res, next) => {
       updateData.hidden = hidden === 'true' || hidden === true;
     }
 
-
+    // Preserve existing imageUrl if no new file is uploaded
     if (req.file) {
-      updateData.imageUrl = `/uploads/${req.file.filename}`;
+      updateData.imageUrl = `/uploads/products/${req.file.filename}`;
+    } else if (product.imageUrl) {
+      updateData.imageUrl = product.imageUrl;
     }
 
     await db.collection('products').doc(id).update(updateData);
-    res.status(200).json({ id, ...product, ...updateData });
+    
+    // Fetch the updated product to return complete data
+    const updatedDoc = await db.collection('products').doc(id).get();
+    const updatedProduct = updatedDoc.data();
+    
+    res.status(200).json({ id, ...updatedProduct });
   } catch (error) {
     next(error);
   }

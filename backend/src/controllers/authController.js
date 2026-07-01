@@ -11,7 +11,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'local_secret';
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../uploads/licenses');
+    const fieldName = file.fieldname;
+    let uploadDir;
+    
+    if (fieldName === 'nationalId') {
+      uploadDir = path.join(__dirname, '../../uploads/national-ids');
+    } else {
+      uploadDir = path.join(__dirname, '../../uploads/licenses');
+    }
+    
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -19,7 +27,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'license-' + uniqueSuffix + path.extname(file.originalname));
+    const fieldName = file.fieldname === 'nationalId' ? 'national-id' : 'license';
+    cb(null, fieldName + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
@@ -37,7 +46,12 @@ const upload = multer({
       cb(new Error('Only images (JPEG, PNG) and PDF files are allowed'));
     }
   }
-});
+}).fields([
+  { name: 'nationalId', maxCount: 1 },
+  { name: 'license', maxCount: 1 }
+]);
+
+exports.upload = upload;
 
 exports.register = async (req, res, next) => {
   try {
@@ -95,6 +109,7 @@ exports.register = async (req, res, next) => {
       role,
       phone,
       location,
+      approved: role === 'farmer' ? false : true, // Farmers need approval, others auto-approved
       createdAt: new Date().toISOString()
     };
 
@@ -106,10 +121,11 @@ exports.register = async (req, res, next) => {
     } else if (role === 'buyer') {
       userProfile.businessName = businessName || '';
       userProfile.businessType = businessType || 'retailer';
-      // Handle license file
-      if (req.file) {
-        userProfile.licenseFile = `/uploads/licenses/${req.file.filename}`;
-      }
+    }
+
+    // Handle national ID file (for both farmers and buyers)
+    if (req.files && req.files.nationalId) {
+      userProfile.nationalIdFile = `/uploads/national-ids/${req.files.nationalId[0].filename}`;
     }
 
     // Store profile in Firestore 'users' collection
@@ -132,6 +148,26 @@ exports.register = async (req, res, next) => {
         bio: '',
         createdAt: new Date().toISOString()
       });
+      
+      // Create notification for all admins about new farmer registration
+      const adminsSnapshot = await db.collection('users').where('role', '==', 'admin').get();
+      if (!adminsSnapshot.empty) {
+        const admins = adminsSnapshot.docs.map(doc => doc.data());
+        for (const admin of admins) {
+          await db.collection('notifications').add({
+            id: 'notif_' + Date.now() + '_' + admin.id,
+            type: 'new_farmer',
+            title: 'New Farmer Registration',
+            message: `${name} has registered as a farmer and is awaiting approval.`,
+            userId: admin.id,
+            userName: name,
+            userEmail: email,
+            role: 'farmer',
+            read: false,
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
     }
 
     // If buyer, create buyer profile entry
@@ -164,9 +200,6 @@ exports.register = async (req, res, next) => {
     next(error);
   }
 };
-
-// Export upload middleware for use in routes
-exports.uploadLicense = upload.single('license');
 
 exports.login = async (req, res, next) => {
   try {

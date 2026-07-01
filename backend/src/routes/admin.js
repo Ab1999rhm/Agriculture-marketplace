@@ -28,6 +28,18 @@ router.post('/bulletins', adminController.createBulletin);
 router.put('/bulletins/:id', adminController.updateBulletin);
 router.delete('/bulletins/:id', adminController.deleteBulletin);
 
+// Bank/Agent management
+router.get('/banks', adminController.getBanks);
+router.post('/banks', adminController.createBank);
+router.put('/banks/:id', adminController.updateBank);
+router.delete('/banks/:id', adminController.deleteBank);
+
+// Public bank list for farmers/buyers
+router.get('/banks/public', adminController.getBanks);
+
+// Transaction logs
+router.get('/transactions', adminController.getTransactions);
+
 // System maintenance
 router.get('/system/health', adminController.getSystemHealth);
 router.post('/system/backup', adminController.createBackup);

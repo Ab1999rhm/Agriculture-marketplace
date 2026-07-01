@@ -1,10 +1,30 @@
 import { useState } from 'react';
 import { Clock, Heart, MapPin, ShoppingBag, User, Gavel, FileText, Percent, Sprout as SproutIcon, Star, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
+import coffeeBeansImg from '../../assets/coffee-beans.jpg';
+import cornImg from '../../assets/corn.jpg';
+import cattleImg from '../../assets/cattle.jpg';
+import sheepImg from '../../assets/sheep.jpg';
+import wheatImg from '../../assets/wheat.jpg';
 
 const gradeBadgeClasses = {
   A: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   B: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   C: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+};
+
+const getAssetImage = (category, type) => {
+  if (category === 'Crops') {
+    if (type === 'Coffee') return coffeeBeansImg;
+    if (type === 'Groundnuts' || type === 'Corn' || type === 'Maize') return cornImg;
+    if (type === 'Wheat') return wheatImg;
+    return coffeeBeansImg;
+  }
+  if (category === 'Livestock') {
+    if (type === 'Bull' || type === 'Cattle') return cattleImg;
+    if (type === 'Sheep' || type === 'Goat') return sheepImg;
+    return cattleImg;
+  }
+  return coffeeBeansImg;
 };
 
 function StarRating({ rating, size = 'sm' }) {
@@ -74,7 +94,7 @@ export default function ProductCard({
       {/* Image */}
       <div className="h-48 overflow-hidden relative">
         <img
-          src={prod.imageUrl ? prod.imageUrl : (prod.category === 'Crops' ? coffeeImg : getLivestockImage(prod.type))}
+          src={prod.imageUrl ? (prod.imageUrl.startsWith('/uploads/') ? `http://localhost:8080${prod.imageUrl}` : prod.imageUrl) : getAssetImage(prod.category, prod.type)}
           alt={prod.name}
           className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
         />

@@ -115,7 +115,8 @@ if (isMock) {
             name: 'Kenenisa Jila',
             role: 'farmer',
             phone: '0911223344',
-            location: 'Alem Maya'
+            location: 'Alem Maya',
+            approved: true
           },
           {
             id: 'user2',
@@ -201,6 +202,7 @@ if (isMock) {
       if (index >= 0) {
         data[this.collectionName][index] = { ...data[this.collectionName][index], ...value };
         writeDb(data);
+        return data[this.collectionName][index];
       }
     }
     async delete() {

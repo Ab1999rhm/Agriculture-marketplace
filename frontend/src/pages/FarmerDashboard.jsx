@@ -399,10 +399,11 @@ export default function FarmerDashboard({
                               <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800">
                                 <img
                                   src={
-                                    prod.imageUrl ||
-                                    (prod.category === "Crops"
-                                      ? coffeeImg
-                                      : getLivestockImage(prod.type))
+                                    prod.imageUrl 
+                                      ? (prod.imageUrl.startsWith('/uploads/') ? `http://localhost:8080${prod.imageUrl}` : prod.imageUrl)
+                                      : (prod.category === "Crops"
+                                        ? coffeeImg
+                                        : getLivestockImage(prod.type))
                                   }
                                   alt={prod.name}
                                   className="w-full h-full object-cover"
