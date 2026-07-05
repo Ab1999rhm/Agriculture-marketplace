@@ -32,6 +32,7 @@ export default function FarmerDashboardModals({
   contractModalOpen,
   bulkDiscountModalOpen,
   preHarvestModalOpen,
+  addProductOpen,
   /* close setters */
   setCropPlanModalOpen,
   setInventoryModalOpen,
@@ -50,6 +51,7 @@ export default function FarmerDashboardModals({
   setContractModalOpen,
   setBulkDiscountModalOpen,
   setPreHarvestModalOpen,
+  setAddProductOpen,
   /* editing items (null = add mode) */
   editingCropPlan,
   editingInventory,
@@ -67,6 +69,7 @@ export default function FarmerDashboardModals({
   editingContract,
   editingBulkDiscount,
   editingPreHarvest,
+  editingProduct,
   /* editing item clear setters */
   setEditingCropPlan,
   setEditingInventory,
@@ -84,6 +87,7 @@ export default function FarmerDashboardModals({
   setEditingContract,
   setEditingBulkDiscount,
   setEditingPreHarvest,
+  setEditingProduct,
   /* add handlers */
   handleAddCropPlan,
   handleAddInventory,
@@ -102,6 +106,7 @@ export default function FarmerDashboardModals({
   handleAddContract,
   handleAddBulkDiscount,
   handleAddPreHarvest,
+  handleAddProduct,
   /* update handlers */
   handleUpdateCropPlan,
   handleUpdateInventory,
@@ -119,6 +124,7 @@ export default function FarmerDashboardModals({
   handleUpdateContract,
   handleUpdateBulkDiscount,
   handleUpdatePreHarvest,
+  handleUpdateProduct,
   products,
 }) {
   /* Helper to close a modal and clear its editing item */
@@ -136,13 +142,18 @@ export default function FarmerDashboardModals({
     setOpen,
     setEditing,
   ) => {
-    if (editing) {
-      await handleUpdate(editing.id, data);
-    } else {
-      await handleAdd(data);
+    try {
+      if (editing?.id) {
+        await handleUpdate(editing.id, data);
+      } else {
+        await handleAdd(data);
+      }
+      setOpen(false);
+      if (setEditing) setEditing(null);
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('Failed to save. Please try again.');
     }
-    setOpen(false);
-    if (setEditing) setEditing(null);
   };
 
   return (
@@ -1543,7 +1554,7 @@ export default function FarmerDashboardModals({
               <select
                 name="productId"
                 required
-                value={editingAuction?.productId || (editingAuction?.product ? products.find(p => p.name === editingAuction.product)?.id : "") || ""}
+                value={editingAuction?.productId || ""}
                 onChange={(e) => setEditingAuction({...editingAuction, productId: e.target.value})}
                 className={inp}
               >
@@ -1741,13 +1752,26 @@ export default function FarmerDashboardModals({
             onSubmit={async (e) => {
               e.preventDefault();
               const f = e.currentTarget;
+              const selectedProductId = f.productId.value;
+              
+              const selectedProduct = products.find(p => p.id === selectedProductId);
+              if (!selectedProduct) {
+                alert('Please select a valid product from the list.');
+                return;
+              }
+              
+              // Include product name and original price for the backend
+              const submitData = {
+                productId: selectedProductId,
+                minQuantity: parseInt(f.minQuantity.value) || 0,
+                discountPercent: parseFloat(f.discountPercent.value) || 0,
+                active: f.active.checked,
+                product: selectedProduct.name,
+                originalPrice: selectedProduct.price,
+              };
+              
               await submit(
-                {
-                  productId: f.productId.value,
-                  minQuantity: f.minQuantity.value,
-                  discountPercent: f.discountPercent.value,
-                  active: f.active.checked,
-                },
+                submitData,
                 editingBulkDiscount,
                 handleAddBulkDiscount,
                 handleUpdateBulkDiscount,
@@ -1767,17 +1791,17 @@ export default function FarmerDashboardModals({
                 className={inp}
               >
                 <option value="">Select a product</option>
-                {(() => {
-                  console.log('Discount modal - all products:', products);
-                  const filtered = products.filter(p => p.name);
-                  console.log('Discount modal - filtered products (with name):', filtered);
-                  return filtered.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} - {p.price} ETB/{p.unit}
-                    </option>
-                  ));
-                })()}
+                {products.filter(p => p.name && p.category === 'Crops').map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} - {p.price} ETB/{p.unit}
+                  </option>
+                ))}
               </select>
+              {editingBulkDiscount?.productId && !products.find(p => p.id === editingBulkDiscount.productId) && (
+                <p className="text-xs text-red-600 mt-1">
+                  ⚠️ Previously selected product no longer exists. Please select a different product.
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -1791,6 +1815,7 @@ export default function FarmerDashboardModals({
                   value={editingBulkDiscount?.minQuantity || ""}
                   onChange={(e) => setEditingBulkDiscount({...editingBulkDiscount, minQuantity: e.target.value})}
                   className={inp}
+                  placeholder="e.g. 10"
                 />
               </div>
               <div>
@@ -1805,6 +1830,7 @@ export default function FarmerDashboardModals({
                   value={editingBulkDiscount?.discountPercent || ""}
                   onChange={(e) => setEditingBulkDiscount({...editingBulkDiscount, discountPercent: e.target.value})}
                   className={inp}
+                  placeholder="e.g. 15"
                 />
               </div>
             </div>
@@ -1833,7 +1859,7 @@ export default function FarmerDashboardModals({
                 Cancel
               </button>
               <button type="submit" className={submitBtn}>
-                {editingBulkDiscount ? "Save Changes" : "Save Discount"}
+                {editingBulkDiscount ? "Save Changes" : "Configure Discount"}
               </button>
             </div>
           </form>
@@ -2042,6 +2068,201 @@ export default function FarmerDashboardModals({
                 className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all"
               >
                 Schedule Audit
+              </button>
+            </div>
+          </form>
+        </ModalShell>
+      )}
+      
+      {/* ── Add/Edit Product ────────────────────────────────────── */}
+      {addProductOpen && (
+        <ModalShell
+          title={editingProduct ? "Edit Product" : "Add New Product"}
+          subtitle="Enter product details for your marketplace listing"
+          onClose={close(setAddProductOpen, setEditingProduct)}
+        >
+          <form
+            key={editingProduct?.id || "new"}
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const f = e.currentTarget;
+              
+              // Validation
+              if (!f.name.value.trim()) {
+                alert('Product name is required');
+                return;
+              }
+              if (!f.category.value) {
+                alert('Please select a category');
+                return;
+              }
+              if (!f.type.value.trim()) {
+                alert('Product type is required');
+                return;
+              }
+              if (!f.price.value || parseFloat(f.price.value) <= 0) {
+                alert('Please enter a valid price');
+                return;
+              }
+              if (!f.quantity.value || parseInt(f.quantity.value) <= 0) {
+                alert('Please enter a valid quantity');
+                return;
+              }
+              if (!f.unit.value.trim()) {
+                alert('Unit is required');
+                return;
+              }
+              if (!f.harvestDate.value) {
+                alert('Harvest date is required');
+                return;
+              }
+              if (!f.location.value.trim()) {
+                alert('Location is required');
+                return;
+              }
+              
+              await submit(
+                {
+                  name: f.name.value.trim(),
+                  category: f.category.value,
+                  type: f.type.value.trim(),
+                  price: parseFloat(f.price.value),
+                  quantity: parseInt(f.quantity.value),
+                  unit: f.unit.value.trim(),
+                  harvestDate: f.harvestDate.value,
+                  location: f.location.value.trim(),
+                  description: f.description.value.trim() || '',
+                },
+                editingProduct,
+                handleAddProduct,
+                handleUpdateProduct,
+                setAddProductOpen,
+                setEditingProduct,
+              );
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className={lbl}>Product Name</label>
+              <input
+                name="name"
+                type="text"
+                required
+                className={inp}
+                placeholder="e.g. Premium Coffee Beans"
+                defaultValue={editingProduct?.name || ""}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>Category</label>
+                <select
+                  name="category"
+                  required
+                  className={inp}
+                  defaultValue={editingProduct?.category || "Crops"}
+                >
+                  <option value="Crops">🌾 Crops</option>
+                  <option value="Livestock">🐂 Livestock</option>
+                </select>
+              </div>
+              <div>
+                <label className={lbl}>Product Type</label>
+                <input
+                  name="type"
+                  type="text"
+                  required
+                  className={inp}
+                  placeholder="e.g. Coffee, Groundnuts, Cattle"
+                  defaultValue={editingProduct?.type || ""}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>Price (ETB)</label>
+                <input
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  className={inp}
+                  placeholder="e.g. 350"
+                  defaultValue={editingProduct?.price || ""}
+                />
+              </div>
+              <div>
+                <label className={lbl}>Quantity</label>
+                <input
+                  name="quantity"
+                  type="number"
+                  min="1"
+                  step="1"
+                  required
+                  className={inp}
+                  placeholder="e.g. 500"
+                  defaultValue={editingProduct?.quantity || ""}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>Unit</label>
+                <input
+                  name="unit"
+                  type="text"
+                  required
+                  className={inp}
+                  placeholder="e.g. kg, head, bag"
+                  defaultValue={editingProduct?.unit || "kg"}
+                />
+              </div>
+              <div>
+                <label className={lbl}>Harvest Date</label>
+                <input
+                  name="harvestDate"
+                  type="date"
+                  required
+                  className={inp}
+                  defaultValue={editingProduct?.harvestDate || ""}
+                />
+              </div>
+            </div>
+            <div>
+              <label className={lbl}>Location / Hub</label>
+              <select
+                name="location"
+                required
+                className={inp}
+                defaultValue={editingProduct?.location || "Alem Maya"}
+              >
+                <option value="Alem Maya">Alem Maya</option>
+                <option value="Babille">Babille</option>
+                <option value="Harar City">Harar City</option>
+                <option value="Dire Dawa">Dire Dawa</option>
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Description (Optional)</label>
+              <textarea
+                name="description"
+                rows="3"
+                className={inp}
+                placeholder="Describe your product quality, variety, certifications..."
+                defaultValue={editingProduct?.description || ""}
+              />
+            </div>
+            <div className="flex justify-end pt-4 space-x-2">
+              <button
+                type="button"
+                onClick={() => close(setAddProductOpen, setEditingProduct)}
+                className={cancelBtn}
+              >
+                Cancel
+              </button>
+              <button type="submit" className={submitBtn}>
+                {editingProduct ? "Save Changes" : "Add Product"}
               </button>
             </div>
           </form>

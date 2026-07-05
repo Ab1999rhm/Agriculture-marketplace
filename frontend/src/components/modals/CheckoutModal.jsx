@@ -15,7 +15,6 @@ export default function CheckoutModal({
   checkoutSecurityPin, setCheckoutSecurityPin,
   checkoutTelebirrFlow, setCheckoutTelebirrFlow,
   checkoutFtCode, setCheckoutFtCode,
-  // Added Awash & Farmer details props
   checkoutAwashPhone, setCheckoutAwashPhone,
   checkoutAwashPin, setCheckoutAwashPin,
   checkoutFarmerPayments = {},
@@ -23,12 +22,53 @@ export default function CheckoutModal({
   checkoutBankAccount, setCheckoutBankAccount,
   checkoutBankPin, setCheckoutBankPin,
   banks = [],
+  onPlaceBid, bidAmount, setBidAmount,
+  onAcceptContract, onRejectContract,
 }) {
   const [localError, setLocalError] = useState('');
 
   const basePrice = checkoutProduct.price * checkoutQuantity;
   
-  // Calculate dynamic fees
+  // Advanced selling mode-specific pricing calculations
+  const isPreHarvest = checkoutProduct.sellingMode === 'pre-harvest';
+  const isAuction = checkoutProduct.sellingMode === 'auction';
+  const isContract = checkoutProduct.sellingMode === 'contract';
+  const hasBulkDiscount = checkoutProduct.bulkDiscount && checkoutProduct.bulkDiscount.active;
+  
+  // Calculate final selling price considering all modes
+  let finalPrice = basePrice;
+  let discountedPrice = checkoutProduct.price;
+  
+  if (isAuction) {
+    finalPrice = (checkoutProduct.currentBid || checkoutProduct.startingPrice) * checkoutQuantity;
+  } else if (isContract) {
+    finalPrice = (checkoutProduct.agreedPrice || checkoutProduct.price) * checkoutQuantity;
+  } else if (hasBulkDiscount) {
+    const { discountPercent, minQuantity } = checkoutProduct.bulkDiscount;
+    const productPrice = checkoutProduct.price;
+    const newQuantity = parseInt(checkoutQuantity) || 1;
+    
+    // Validate minimum quantity requirement for bulk discount
+    if (newQuantity >= minQuantity) {
+      discountedPrice = Math.round(productPrice * (1 - discountPercent / 100) * 100) / 100;
+      finalPrice = discountedPrice * newQuantity;
+    } else {
+      finalPrice = productPrice * newQuantity;
+    }
+  } else if (isPreHarvest) {
+    // For pre-harvest, buyer pays deposit now, balance later
+    finalPrice = checkoutProduct.price * checkoutQuantity; // Will be split in payment
+  }
+  
+  // Calculate pre-harvest deposit if applicable
+  const depositAmount = isPreHarvest && checkoutProduct.depositPercent 
+    ? (checkoutProduct.depositPercent / 100) * (checkoutProduct.price * checkoutQuantity)
+    : 0;
+  const balanceAmount = isPreHarvest && checkoutProduct.depositPercent 
+    ? (checkoutProduct.price * checkoutQuantity) - depositAmount
+    : 0;
+  
+  // Calculate dynamic fees on finalPrice (not basePrice for pre-harvest)
   let fee = 0;
   if (checkoutPaymentMethod === 'CBE_BIRR') {
     fee = 1.50;
@@ -39,7 +79,7 @@ export default function CheckoutModal({
   } else if (checkoutPaymentMethod.startsWith('BANK_')) {
     fee = 1.50;
   }
-  const grandTotal = basePrice + fee;
+  const grandTotal = finalPrice + fee;
 
   // Extract farmer payment configs
   const cbeConfig = checkoutFarmerPayments?.cbe || { enabled: false };
@@ -642,10 +682,157 @@ export default function CheckoutModal({
                   type="submit"
                   className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs shadow-md shadow-teal-500/20 transition-all flex items-center gap-1.5"
                 >
-                  Confirm Order
+                  {isAuction ? 'Buy at Current Bid' : 'Confirm Order'}
                 </button>
               </div>
             </div>
+            
+            {/* Selling mode-specific pricing information */}
+            {(isPreHarvest || hasBulkDiscount || isAuction || isContract) && (
+              <div className="space-y-3.5 p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/50">
+                <div className="flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 pb-2.5">
+                  <span className="text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-400">Pricing Details</span>
+                  <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">Advanced Mode</span>
+                </div>
+                
+                  {/* Direct pricing calculation - display actual final price in main pricing section */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] text-slate-600 dark:text-slate-300">Pricing Summary:</span>
+                      <span className="text-[10px] font-bold text-slate-800 dark:text-slate-200">
+                        {(isPreHarvest ? (checkoutProduct.price * checkoutQuantity).toLocaleString() :
+                          isAuction ? (checkoutProduct.currentBid || checkoutProduct.startingPrice) * checkoutQuantity :
+                          isContract ? (checkoutProduct.agreedPrice * checkoutQuantity).toLocaleString() :
+                          hasBulkDiscount && parseInt(checkoutQuantity) >= checkoutProduct.bulkDiscount.minQuantity ? 
+                            Math.round(checkoutProduct.price * (1 - checkoutProduct.bulkDiscount.discountPercent / 100) * checkoutQuantity) : 
+                            (checkoutProduct.price * checkoutQuantity).toLocaleString()
+                        )} ETB
+                      </span>
+                    </div>
+                    
+                    {isPreHarvest && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-green-600 dark:text-green-400">Deposit ({checkoutProduct.depositPercent}% now):</span>
+                          <span className="text-[10px] font-bold text-green-600 dark:text-green-400">{(depositAmount || 0).toLocaleString()} ETB</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-amber-600 dark:text-amber-400">Balance due on delivery:</span>
+                          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">{(balanceAmount || 0).toLocaleString()} ETB</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-green-500/10 border border-green-500/15 text-[9px] text-green-700 dark:text-green-300">
+                          <span className="font-semibold">💰 Deposit Payment Required:</span> You will pay {checkoutProduct.depositPercent}% now, remaining balance on delivery.
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-green-500/5 border border-green-500/10 text-[9px] text-green-600 dark:text-green-400">
+                          <span className="font-semibold">📦 Reservation:</span> By confirming, you reserve {checkoutQuantity} {checkoutProduct.unit} for harvest on {checkoutProduct.harvestDate}. The farmer will be notified.
+                        </div>
+                      </div>
+                    )}
+                    
+                    {hasBulkDiscount && parseInt(checkoutQuantity) >= checkoutProduct.bulkDiscount.minQuantity && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-rose-600 dark:text-rose-400">Discount Applied ({checkoutProduct.bulkDiscount.discountPercent}% off):</span>
+                          <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                            Save: {( (checkoutProduct.price * checkoutQuantity) - (Math.round(checkoutProduct.price * (1 - checkoutProduct.bulkDiscount.discountPercent / 100) * checkoutQuantity)) ).toLocaleString()} ETB
+                          </span>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/15 text-[9px] text-rose-700 dark:text-rose-300">
+                          <span className="font-semibold">🎉 Bulk Discount Applied!</span> You meet the minimum quantity requirement.
+                        </div>
+                      </div>
+                    )}
+                    
+                    {hasBulkDiscount && parseInt(checkoutQuantity) < checkoutProduct.bulkDiscount.minQuantity && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-red-600 dark:text-red-400">Minimum Quantity Not Met:</span>
+                          <span className="text-[10px] font-bold text-red-600 dark:text-red-400">
+                            Need {checkoutProduct.bulkDiscount.minQuantity - checkoutQuantity} more {checkoutProduct.unit}
+                          </span>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/15 text-[9px] text-red-700 dark:text-red-300">
+                          <span className="font-semibold">⚠️ Bulk Discount Not Applied:</span> You must purchase at least {checkoutProduct.bulkDiscount.minQuantity} {checkoutProduct.unit} to get the {checkoutProduct.bulkDiscount.discountPercent}% discount.
+                        </div>
+                      </div>
+                    )}
+                    
+                    {isAuction && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-purple-600 dark:text-purple-400">Current Highest Bid:</span>
+                          <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400">
+                            {(checkoutProduct.currentBid || checkoutProduct.startingPrice).toLocaleString()} ETB
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-purple-600 dark:text-purple-400">Minimum Bid Increment:</span>
+                          <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400">
+                            {checkoutProduct.minBid || 50} ETB
+                          </span>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-500/15">
+                          <label className="block text-[10px] font-extrabold uppercase text-purple-700 dark:text-purple-400 mb-1.5">Your Bid Amount (ETB)</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              min={(checkoutProduct.currentBid || checkoutProduct.startingPrice) + (checkoutProduct.minBid || 50)}
+                              step={checkoutProduct.minBid || 50}
+                              value={bidAmount}
+                              onChange={(e) => setBidAmount(e.target.value)}
+                              placeholder={`Min: ${(checkoutProduct.currentBid || checkoutProduct.startingPrice) + (checkoutProduct.minBid || 50)} ETB`}
+                              className="flex-1 bg-white dark:bg-slate-900 border border-purple-300 dark:border-purple-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-200"
+                            />
+                            <button
+                              type="button"
+                              onClick={onPlaceBid}
+                              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all"
+                            >
+                              Place Bid
+                            </button>
+                          </div>
+                          <p className="text-[9px] text-purple-600 dark:text-purple-400 mt-1">
+                            Your bid must be at least {(checkoutProduct.currentBid || checkoutProduct.startingPrice) + (checkoutProduct.minBid || 50)} ETB
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {isContract && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-blue-600 dark:text-blue-400">Contract Terms:</span>
+                          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">Qty: {checkoutProduct.contractQuantity} | Price: {checkoutProduct.agreedPrice} ETB/unit</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-blue-600 dark:text-blue-400">Delivery Schedule:</span>
+                          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">Due: {checkoutProduct.deliveryDate}</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/15 text-[9px] text-blue-700 dark:text-blue-300">
+                          <span className="font-semibold">📋 Contract Agreement:</span> Review terms and accept to finalize this contract farming arrangement.
+                        </div>
+                        {checkoutProduct.contractStatus !== 'accepted' && checkoutProduct.contractStatus !== 'completed' && (
+                          <div className="flex gap-2 mt-1">
+                            <button type="button" onClick={() => onAcceptContract && onAcceptContract(checkoutProduct)}
+                              className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded-xl transition-all">
+                              Accept Contract
+                            </button>
+                            <button type="button" onClick={() => onRejectContract && onRejectContract(checkoutProduct)}
+                              className="flex-1 px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-[10px] font-bold rounded-xl transition-all border border-red-200">
+                              Decline
+                            </button>
+                          </div>
+                        )}
+                        {checkoutProduct.contractStatus === 'accepted' && (
+                          <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/15 text-[9px] text-green-700 dark:text-green-300 font-semibold">
+                            ✅ Contract Accepted — Proceed with order to finalize.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+              </div>
+            )}
           </form>
         </div>
       </div>

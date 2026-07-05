@@ -137,6 +137,54 @@
       "coordinates": "",
       "bio": "",
       "createdAt": "2026-07-01T09:24:17.402Z"
+    },
+    {
+      "id": "user_v70dza7yb",
+      "name": "Test Farmer",
+      "phone": "0911111111",
+      "location": "Addis Ababa",
+      "farmName": "",
+      "farmSize": "",
+      "crops": [],
+      "coordinates": "",
+      "bio": "",
+      "createdAt": "2026-07-03T21:50:15.336Z"
+    },
+    {
+      "id": "user_5vkf0phkt",
+      "name": "Bulk Test Farmer",
+      "phone": "0911222333",
+      "location": "Harar",
+      "farmName": "",
+      "farmSize": "",
+      "crops": [],
+      "coordinates": "",
+      "bio": "",
+      "createdAt": "2026-07-03T21:58:02.319Z"
+    },
+    {
+      "id": "user_z3pfckya2",
+      "name": "E2E Farmer",
+      "phone": "09110001783116555608",
+      "location": "Harar",
+      "farmName": "",
+      "farmSize": "",
+      "crops": [],
+      "coordinates": "",
+      "bio": "",
+      "createdAt": "2026-07-03T22:09:15.726Z"
+    },
+    {
+      "id": "user_mvajv9swv",
+      "name": "Bid Test",
+      "phone": "09119991783116582187",
+      "location": "Harar",
+      "farmName": "",
+      "farmSize": "",
+      "crops": [],
+      "coordinates": "",
+      "bio": "",
+      "createdAt": "2026-07-03T22:09:42.309Z"
     }
   ],
   "products": [
@@ -191,6 +239,22 @@
       "unit": "kg",
       "harvestDate": "2026-07-29",
       "location": "Harar"
+    },
+    {
+      "id": "prod_vzqag2yi6",
+      "farmerId": "user_5vkf0phkt",
+      "farmerName": "Bulk Test Farmer",
+      "name": "Bulk Test Coffee",
+      "category": "Crops",
+      "type": "Coffee",
+      "price": 500,
+      "quantity": 100,
+      "unit": "kg",
+      "harvestDate": "2026-08-01",
+      "location": "Harar",
+      "description": "Test coffee for bulk discount",
+      "hidden": false,
+      "createdAt": "2026-07-03T21:58:02.345Z"
     }
   ],
   "orders": [
@@ -487,6 +551,62 @@
       "businessType": "retailer",
       "nationalIdFile": "/uploads/national-ids/national-id-1782928479422-702642781.jpg",
       "passwordHash": "$2a$10$25G99ATXCHDvSy5RCo8fJ.m4EkfYKJVQNOnq5gtmK573vNy.9ERUu"
+    },
+    {
+      "id": "user_v70dza7yb",
+      "email": "testfarmer@test.com",
+      "name": "Test Farmer",
+      "role": "farmer",
+      "phone": "0911111111",
+      "location": "Addis Ababa",
+      "approved": true,
+      "createdAt": "2026-07-03T21:50:15.332Z",
+      "farmName": "",
+      "farmSize": "",
+      "crops": "",
+      "passwordHash": "$2a$10$gZZyXbhEn7qksSqoPN.i0.1MSPKI2HA0ByVpnVsX9twCgwKd24G5a"
+    },
+    {
+      "id": "user_5vkf0phkt",
+      "email": "bulktest1783115882191@test.com",
+      "name": "Bulk Test Farmer",
+      "role": "farmer",
+      "phone": "0911222333",
+      "location": "Harar",
+      "approved": true,
+      "createdAt": "2026-07-03T21:58:02.316Z",
+      "farmName": "",
+      "farmSize": "",
+      "crops": "",
+      "passwordHash": "$2a$10$8M5GytcrTnHdrrVcKRopWe1pRBOHArSAz3dYxg.v1WT7mXkUoGOhK"
+    },
+    {
+      "id": "user_z3pfckya2",
+      "email": "e2etest1783116555608@test.com",
+      "name": "E2E Farmer",
+      "role": "farmer",
+      "phone": "09110001783116555608",
+      "location": "Harar",
+      "approved": true,
+      "createdAt": "2026-07-03T22:09:15.724Z",
+      "farmName": "",
+      "farmSize": "",
+      "crops": "",
+      "passwordHash": "$2a$10$rW1WhJ5ALeuTse1wfo6X3uQ7UkBDUEtnt9mraq.V59YS74dTKJUY6"
+    },
+    {
+      "id": "user_mvajv9swv",
+      "email": "bidtest1783116582187@test.com",
+      "name": "Bid Test",
+      "role": "farmer",
+      "phone": "09119991783116582187",
+      "location": "Harar",
+      "approved": true,
+      "createdAt": "2026-07-03T22:09:42.307Z",
+      "farmName": "",
+      "farmSize": "",
+      "crops": "",
+      "passwordHash": "$2a$10$sK51U.imqWO8mlkBWxvGL.KKE5BkAfYqYvsiwEXTzMa5BQXDkddqW"
     }
   ],
   "bulletins": [
@@ -743,6 +863,16 @@
       "farmerId": "user_a3a4pewsk",
       "farmerName": "Abraham Fikadu",
       "createdAt": "2026-07-01T17:54:47.439Z"
+    },
+    {
+      "id": "a78reu4svh5",
+      "buyerId": "user_z6n7aqsne",
+      "productId": "prod_lqru59mfi",
+      "productName": "Bean",
+      "price": 345,
+      "farmerId": "user_a3a4pewsk",
+      "farmerName": "Abraham Fikadu",
+      "createdAt": "2026-07-01T21:06:38.209Z"
     }
   ],
   "storageFacilities": [
@@ -852,67 +982,60 @@
       "minBid": "23",
       "createdAt": "2026-06-27T19:27:50.984Z",
       "updatedAt": "2026-06-27T19:46:27.912Z"
+    },
+    {
+      "id": "vp12zefgut9",
+      "farmerId": "user_mvajv9swv",
+      "productId": "test-prod",
+      "product": "Test",
+      "startingPrice": 400,
+      "duration": "7 days",
+      "minBid": 50,
+      "status": "active",
+      "auctionStatus": "live",
+      "bids": [
+        {
+          "amount": 460,
+          "bidderName": "Test Buyer",
+          "bidderId": "buyer1",
+          "timestamp": "2026-07-03T22:09:55.993Z"
+        }
+      ],
+      "currentBid": 460,
+      "createdAt": "2026-07-03T22:09:42.324Z",
+      "updatedAt": "2026-07-03T22:09:55.993Z"
+    },
+    {
+      "id": "0ibr7y6fh7o",
+      "farmerId": "user_a3a4pewsk",
+      "productId": "prod_lqru59mfi",
+      "product": "Bean",
+      "startingPrice": "200",
+      "duration": "7 days",
+      "minBid": "20",
+      "status": "active",
+      "auctionStatus": "live",
+      "bids": [],
+      "currentBid": "200",
+      "createdAt": "2026-07-03T22:26:19.747Z"
     }
   ],
   "bulkDiscounts": [
     {
-      "id": "b7xbtromfo",
-      "productId": "prod1",
-      "minQuantity": 10,
-      "discountPercent": 15,
-      "active": true,
-      "createdAt": "2026-06-28T09:00:55.053Z"
-    },
-    {
-      "id": "qc5gdzlktj9",
-      "farmerId": "user1",
-      "productId": "prod1",
-      "product": "Harar Organic Coffee",
-      "minQuantity": 50,
-      "discountPercent": 20,
-      "originalPrice": 350,
-      "active": true,
-      "createdAt": "2026-06-28T09:04:17.435Z"
-    },
-    {
-      "id": "dpxe1c1k9ks",
+      "id": "rrc3vzn1os",
       "farmerId": "user_a3a4pewsk",
-      "productId": "prod_tvbinxvc6",
-      "product": "Shumbura",
-      "minQuantity": "5",
-      "discountPercent": "12",
-      "originalPrice": 430,
+      "productId": "prod_lqru59mfi",
+      "product": "Bean",
+      "minQuantity": 200,
+      "discountPercent": 10,
+      "originalPrice": 345,
       "active": true,
-      "createdAt": "2026-06-28T10:18:56.579Z",
-      "updatedAt": "2026-06-28T11:19:39.856Z"
-    },
-    {
-      "id": "9hqmfzz91lo",
-      "farmerId": "user_a3a4pewsk",
-      "productId": "prod_9ghucmncs",
-      "product": "Test Teff",
-      "minQuantity": "10",
-      "discountPercent": "16",
-      "originalPrice": 250,
-      "active": true,
-      "createdAt": "2026-06-28T10:25:32.201Z",
-      "updatedAt": "2026-06-28T11:19:59.923Z"
+      "createdAt": "2026-07-03T22:06:27.784Z",
+      "updatedAt": "2026-07-03T22:06:50.572Z"
     }
   ],
   "contracts": [],
-  "preHarvestSales": [
-    {
-      "id": "vmb7vgs7vph",
-      "farmerId": "user_a3a4pewsk",
-      "crop": "Coffee",
-      "harvestDate": "2026-07-08",
-      "quantity": "34444",
-      "price": "22",
-      "depositPercent": "50",
-      "createdAt": "2026-06-27T19:48:02.890Z",
-      "updatedAt": "2026-06-27T20:36:49.550Z"
-    }
-  ],
+  "preHarvestSales": [],
   "notifications": [
     {
       "id": "notif_bn30ummrym9",
@@ -997,6 +1120,54 @@
       "orderId": "ord_l9t6s0fy9",
       "read": true,
       "createdAt": "2026-07-01T20:32:25.571Z"
+    },
+    {
+      "id": "notif_1783115415340_admin_001",
+      "type": "new_farmer",
+      "title": "New Farmer Registration",
+      "message": "Test Farmer has registered as a farmer and is awaiting approval.",
+      "userId": "admin_001",
+      "userName": "Test Farmer",
+      "userEmail": "testfarmer@test.com",
+      "role": "farmer",
+      "read": true,
+      "createdAt": "2026-07-03T21:50:15.340Z"
+    },
+    {
+      "id": "notif_1783115882324_admin_001",
+      "type": "new_farmer",
+      "title": "New Farmer Registration",
+      "message": "Bulk Test Farmer has registered as a farmer and is awaiting approval.",
+      "userId": "admin_001",
+      "userName": "Bulk Test Farmer",
+      "userEmail": "bulktest1783115882191@test.com",
+      "role": "farmer",
+      "read": true,
+      "createdAt": "2026-07-03T21:58:02.324Z"
+    },
+    {
+      "id": "notif_1783116555728_admin_001",
+      "type": "new_farmer",
+      "title": "New Farmer Registration",
+      "message": "E2E Farmer has registered as a farmer and is awaiting approval.",
+      "userId": "admin_001",
+      "userName": "E2E Farmer",
+      "userEmail": "e2etest1783116555608@test.com",
+      "role": "farmer",
+      "read": true,
+      "createdAt": "2026-07-03T22:09:15.728Z"
+    },
+    {
+      "id": "notif_1783116582312_admin_001",
+      "type": "new_farmer",
+      "title": "New Farmer Registration",
+      "message": "Bid Test has registered as a farmer and is awaiting approval.",
+      "userId": "admin_001",
+      "userName": "Bid Test",
+      "userEmail": "bidtest1783116582187@test.com",
+      "role": "farmer",
+      "read": true,
+      "createdAt": "2026-07-03T22:09:42.312Z"
     }
   ],
   "banks": [

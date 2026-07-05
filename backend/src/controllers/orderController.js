@@ -19,7 +19,53 @@ exports.createOrder = async (req, res, next) => {
       return res.status(400).json({ error: `Insufficient quantity available. Current stock: ${product.quantity}` });
     }
 
-    const totalPrice = product.price * quantity;
+    // Check for auction/contract/pre-harvest pricing
+    let unitPrice = product.price;
+    let sellingMode = null;
+    
+    const auctionSnap = await db.collection('auctions')
+      .where('productId', '==', productId)
+      .where('auctionStatus', '==', 'live')
+      .limit(1).get();
+    if (!auctionSnap.empty) {
+      const auction = auctionSnap.docs[0].data();
+      unitPrice = auction.currentBid || auction.startingPrice;
+      sellingMode = 'auction';
+    }
+    
+    const contractSnap = await db.collection('contracts')
+      .where('productId', '==', productId)
+      .where('status', '==', 'pending')
+      .limit(1).get();
+    if (!contractSnap.empty && !sellingMode) {
+      const contract = contractSnap.docs[0].data();
+      unitPrice = contract.agreedPrice;
+      sellingMode = 'contract';
+    }
+    
+    const preHarvestSnap = await db.collection('preHarvestSales')
+      .where('productId', '==', productId)
+      .where('status', '==', 'open')
+      .limit(1).get();
+    let preHarvestData = null;
+    if (!preHarvestSnap.empty && !sellingMode) {
+      preHarvestData = preHarvestSnap.docs[0].data();
+      unitPrice = preHarvestData.price;
+      sellingMode = 'pre-harvest';
+    }
+
+    // Calculate bulk discount if applicable (only for regular sales)
+    let finalPrice = unitPrice * quantity;
+    let discountAmount = 0;
+    let discountPercent = 0;
+    
+    if (!sellingMode && product.bulkDiscount && product.bulkDiscount.active && quantity >= product.bulkDiscount.minQuantity) {
+      discountPercent = product.bulkDiscount.discountPercent;
+      discountAmount = (product.price * quantity) * (discountPercent / 100);
+      finalPrice = (product.price * quantity) - discountAmount;
+    }
+    
+    const totalPrice = finalPrice;
     const orderId = 'ord_' + Math.random().toString(36).substring(2, 11);
 
     const buyerDoc = await db.collection('users').doc(buyerId).get();
@@ -51,6 +97,21 @@ exports.createOrder = async (req, res, next) => {
       }
     }
 
+    // Calculate pre-harvest deposit if applicable
+    let depositAmount = 0;
+    let balanceAmount = totalPrice;
+    let paymentStage = 'paid';
+    let depositPercent = 0;
+    let paymentSplit = false;
+    
+    if (sellingMode === 'pre-harvest' && preHarvestData && preHarvestData.depositPercent) {
+      depositPercent = preHarvestData.depositPercent;
+      depositAmount = Math.round((depositPercent / 100) * totalPrice * 100) / 100;
+      balanceAmount = totalPrice - depositAmount;
+      paymentStage = 'deposit';
+      paymentSplit = true;
+    }
+    
     const newOrder = {
       id: orderId,
       productId,
@@ -63,14 +124,28 @@ exports.createOrder = async (req, res, next) => {
       buyerPhone,
       buyerEmail,
       quantity,
+      unitPrice,
       totalPrice,
+      sellingMode: sellingMode || 'regular',
+      depositAmount,
+      balanceAmount,
+      depositPercent,
+      paymentStage,
+      paymentSplit,
       paymentMethod,
       paymentStatus: paymentMethod === 'COD' ? 'pending' : 'awaiting_payment',
       shippingAddress,
-      pickupPointId: pickupPointId || 'central_hub_01', // default pickup hub
+      pickupPointId: pickupPointId || 'central_hub_01',
       status: 'pending',
       bankAccounts: farmerBankAccounts,
       bankNames: bankNames,
+      bulkDiscount: (!sellingMode && product.bulkDiscount && product.bulkDiscount.active && quantity >= product.bulkDiscount.minQuantity) ? {
+        discountPercent: product.bulkDiscount.discountPercent,
+        minQuantity: product.bulkDiscount.minQuantity,
+        discountAmount: discountAmount,
+        originalPrice: product.price * quantity,
+        finalPrice: totalPrice
+      } : null,
       logistics: {
         carrier: 'Hararghe Cooperative Logistics',
         trackingNumber: 'TRK-' + Math.floor(100000 + Math.random() * 900000),
@@ -101,6 +176,11 @@ exports.createOrder = async (req, res, next) => {
       buyerId,
       buyerName,
       amount: totalPrice,
+      depositAmount,
+      balanceAmount,
+      depositPercent,
+      paymentStage,
+      paymentSplit,
       paymentMethod,
       bankNames: bankNames.join(', ') || 'N/A',
       bankAccounts: farmerBankAccounts,

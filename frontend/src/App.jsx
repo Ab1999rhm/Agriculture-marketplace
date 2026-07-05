@@ -237,6 +237,7 @@ export default function App() {
   const [otpCode, setOtpCode] = useState("");
   const [paymentError, setPaymentError] = useState("");
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [bidAmount, setBidAmount] = useState('');
 
   // ── Other UI
   const [trackingOrder, setTrackingOrder] = useState(null);
@@ -649,18 +650,49 @@ export default function App() {
   const submitOrder = async () => {
     setProcessingPayment(true);
     try {
+      const qty = Math.max(1, parseInt(checkoutQuantity) || 1);
+      // Calculate order-specific data based on selling mode
+      const orderDataBase = {
+        productId: checkoutProduct.id,
+        quantity: qty,
+        paymentMethod: checkoutPaymentMethod,
+        shippingAddress: checkoutAddress || 'Harar',
+      };
+      
+      // Add selling mode specific data to order
+      const orderSpecificData = {};
+      
+      const unitPrice = checkoutProduct.sellingMode === 'auction'
+        ? (checkoutProduct.currentBid || checkoutProduct.startingPrice || checkoutProduct.price)
+        : checkoutProduct.sellingMode === 'contract'
+          ? (checkoutProduct.agreedPrice || checkoutProduct.price)
+          : checkoutProduct.price;
+      
+      if (checkoutProduct.sellingMode === 'pre-harvest' && checkoutProduct.depositPercent) {
+        const totalAmount = unitPrice * qty;
+        const depositAmount = (checkoutProduct.depositPercent / 100) * totalAmount;
+        const balanceAmount = totalAmount - depositAmount;
+        
+        orderDataBase.depositAmount = depositAmount;
+        orderDataBase.balanceAmount = balanceAmount;
+        orderDataBase.paymentStage = 'deposit';
+        orderDataBase.depositPaid = false;
+        orderDataBase.paymentSplit = true;
+      } else {
+        orderDataBase.depositAmount = 0;
+        orderDataBase.balanceAmount = unitPrice * qty;
+        orderDataBase.paymentStage = 'paid';
+        orderDataBase.depositPaid = true;
+        orderDataBase.paymentSplit = false;
+      }
+      
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          productId: checkoutProduct.id,
-          quantity: checkoutQuantity,
-          paymentMethod: checkoutPaymentMethod,
-          shippingAddress: checkoutAddress,
-        }),
+        body: JSON.stringify(orderDataBase),
       });
       const orderData = await res.json();
       if (res.ok) {
@@ -671,6 +703,10 @@ export default function App() {
           checkoutPaymentMethod.startsWith("BANK_")
         ) {
           const buyerPhone = checkoutPaymentMethod === "AWASH" ? checkoutAwashPhone : (checkoutPaymentMethod.startsWith("BANK_") ? checkoutBankAccount : checkoutPhone);
+          
+          // Use deposit amount for pre-harvest, full balance for everything else
+          const paymentAmount = orderDataBase.depositAmount || orderDataBase.balanceAmount;
+          
           await fetch("/api/payments/pay", {
             method: "POST",
             headers: {
@@ -680,7 +716,7 @@ export default function App() {
             body: JSON.stringify({
               orderId: orderData.id,
               phoneNumber: buyerPhone,
-              amount: checkoutProduct.price * checkoutQuantity,
+              amount: paymentAmount,
               paymentMethod: checkoutPaymentMethod,
               paymentDetails: {
                 walletType: checkoutWalletType,
@@ -691,6 +727,10 @@ export default function App() {
                 awashPin: checkoutAwashPin,
                 bankAccount: checkoutBankAccount,
                 bankPin: checkoutBankPin,
+                // Add selling mode info
+                sellingMode: checkoutProduct.sellingMode,
+                depositAmount: orderDataBase.depositAmount,
+                balanceAmount: orderDataBase.balanceAmount,
               }
             }),
           });
@@ -718,6 +758,76 @@ export default function App() {
       setPaymentError("Network error.");
     } finally {
       setProcessingPayment(false);
+    }
+  };
+
+  const handlePlaceBid = async () => {
+    if (!checkoutProduct || !bidAmount || !user) return;
+    const amount = parseFloat(bidAmount);
+    const minBid = (checkoutProduct.currentBid || checkoutProduct.startingPrice) + (checkoutProduct.minBid || 50);
+    if (amount < minBid) {
+      alert(`Bid must be at least ${minBid} ETB`);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/auctions/${checkoutProduct.auctionId || checkoutProduct.id}/bid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ bidAmount: amount, bidderId: user.id, bidderName: user.name }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`Bid of ${amount} ETB placed successfully!`);
+        setBidAmount('');
+        setCheckoutProduct(null);
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to place bid');
+      }
+    } catch (e) {
+      console.error('Bid error:', e);
+      alert('Network error placing bid');
+    }
+  };
+
+  const handleAcceptContract = async (product) => {
+    if (!product || !user) return;
+    try {
+      const res = await fetch(`/api/contracts/${product.contractId || product.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: 'accepted', buyerId: user.id }),
+      });
+      if (res.ok) {
+        alert('Contract accepted! You can now proceed with the order.');
+        setCheckoutProduct(null);
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to accept contract');
+      }
+    } catch (e) {
+      console.error('Accept contract error:', e);
+    }
+  };
+
+  const handleRejectContract = async (product) => {
+    if (!product || !user) return;
+    if (!confirm('Are you sure you want to decline this contract?')) return;
+    try {
+      const res = await fetch(`/api/contracts/${product.contractId || product.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: 'rejected', buyerId: user.id }),
+      });
+      if (res.ok) {
+        alert('Contract declined.');
+        setCheckoutProduct(null);
+        fetchData();
+      }
+    } catch (e) {
+      console.error('Reject contract error:', e);
     }
   };
 
@@ -804,6 +914,29 @@ export default function App() {
     setProdFormError,
     setAddProductOpen,
   });
+
+  const handleUpdateReservation = async (reservationId, newStatus) => {
+    if (!token || !user) return;
+    try {
+      const res = await fetch(`/api/pre-harvest/${reservationId}/reservation`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to update reservation');
+      }
+    } catch (e) {
+      console.error('Update reservation error:', e);
+    }
+  };
+
+  const handleCollectBalance = async (reservationId, amount) => {
+    await handleUpdateReservation(reservationId, 'delivered');
+  };
 
   const buyerHandlers = useBuyerHandlers({
     token,
@@ -1307,7 +1440,7 @@ export default function App() {
             setMinPrice={setMinPrice}
             maxPrice={maxPrice}
             setMaxPrice={setMaxPrice}
-            onBuy={async (product) => {
+                    onBuy={async (product) => {
               setCheckoutProduct(product);
               setCheckoutQuantity(1);
               setCheckoutFarmerPayments({});
@@ -1323,14 +1456,11 @@ export default function App() {
                   });
                   if (res.ok) {
                     const data = await res.json();
-                    console.log('Farmer data for checkout:', data);
                     setCheckoutFarmerPayments({
                       ...data.paymentMethods,
                       bankAccountDetails: data.bankAccountDetails || {}
                     });
                     setCheckoutFarmerBankAccounts(data.bankAccounts || []);
-                    console.log('Checkout farmer bank accounts:', data.bankAccounts);
-                    console.log('Checkout bank account details:', data.bankAccountDetails);
                   }
                 } catch (e) {
                   console.error("Error fetching farmer payment details:", e);
@@ -1445,9 +1575,14 @@ export default function App() {
             handleDeleteProduct={productHandlers.handleDeleteProduct}
             handleOpenEdit={productHandlers.handleOpenEdit}
             handleToggleVisibility={productHandlers.handleToggleVisibility}
+            addProductOpen={addProductOpen}
             setAddProductOpen={setAddProductOpen}
+            handleAddProduct={productHandlers.handleAddProductDirect}
+            handleUpdateProduct={productHandlers.handleUpdateProductDirect}
             getFarmerSalesChartData={getFarmerSalesChartData}
             getCategoryBreakdownData={getCategoryBreakdownData}
+            handleUpdateReservation={handleUpdateReservation}
+            handleCollectBalance={handleCollectBalance}
             coffeeImg={coffeeImg}
             getLivestockImage={getLivestockImage}
           />
@@ -1473,6 +1608,9 @@ export default function App() {
             setReviewFarmerName={setReviewFarmerName}
             setBudgetModalOpen={setBudgetModalOpen}
             getCategoryBreakdownData={getCategoryBreakdownData}
+            auctions={auctionBids}
+            contracts={contractFarming}
+            preHarvestSales={advanceBookings}
           />
         )}
 
@@ -1602,6 +1740,11 @@ export default function App() {
           checkoutBankPin={checkoutBankPin}
           setCheckoutBankPin={setCheckoutBankPin}
           banks={banks}
+          onPlaceBid={handlePlaceBid}
+          bidAmount={bidAmount}
+          setBidAmount={setBidAmount}
+          onAcceptContract={handleAcceptContract}
+          onRejectContract={handleRejectContract}
         />
       )}
       {otpModalOpen && (
@@ -1635,7 +1778,7 @@ export default function App() {
           t={t}
         />
       )}
-      {addProductOpen && (
+      {addProductOpen && currentTab !== "dashboard" && (
         <AddProductModal
           setAddProductOpen={setAddProductOpen}
           prodFormError={prodFormError}

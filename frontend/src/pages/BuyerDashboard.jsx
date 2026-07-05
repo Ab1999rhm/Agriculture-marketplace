@@ -1,5 +1,6 @@
-import { Plus, Truck, MapPin, TrendingUp, Clock, X } from "lucide-react";
+import { Plus, Truck, MapPin, TrendingUp, Clock, X, Gavel, FileText, Sprout as SproutIcon } from "lucide-react";
 import { Doughnut } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
 
 export default function BuyerDashboard({
   heroBeautiful,
@@ -20,20 +21,11 @@ export default function BuyerDashboard({
   setReviewFarmerName,
   setBudgetModalOpen,
   getCategoryBreakdownData,
+  auctions = [],
+  contracts = [],
+  preHarvestSales = [],
 }) {
-  const subTabLabel = {
-    overview: "Purchase Overview",
-    wishlist: "My Wishlist",
-    reviews: "Supplier Reviews",
-    financial: "Financial Management",
-  };
-  const subTabDesc = {
-    overview: "Your agricultural procurement summary",
-    wishlist: "Save products for later purchase",
-    reviews: "Rate and review your suppliers",
-    financial: "Manage budgets, invoices, and expenses",
-  };
-
+  const { t } = useTranslation();
   return (
     <div>
       <div className="page-hero">
@@ -46,13 +38,13 @@ export default function BuyerDashboard({
         <div className="page-hero-content">
           <div className="max-w-2xl">
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-2">
-              Buyer Dashboard
+              {t("buyerDashboardTitle")}
             </h2>
             <p className="text-amber-100 text-sm mb-1">
-              Track your orders, manage payments, and view purchase history.
+              {t("buyerDashboardSubtitle")}
             </p>
             <p className="text-white/80 text-xs italic">
-              "Connecting farmers to markets, building sustainable futures."
+              {t("buyerDashboardTagline")}
             </p>
           </div>
         </div>
@@ -67,24 +59,57 @@ export default function BuyerDashboard({
               className={`app-tab-btn ${buyerDashboardSubTab === tab ? "app-tab-btn-active" : ""}`}
             >
               {tab === "overview"
-                ? "Overview"
+                ? t("tabOverview")
                 : tab === "wishlist"
-                  ? "Wishlist"
+                  ? t("tabWishlist")
                   : tab === "reviews"
-                    ? "Supplier Reviews"
-                    : "Financial Management"}
+                    ? t("tabReviews")
+                    : t("tabFinancial")}
             </button>
           ))}
+          <button
+            onClick={() => setBuyerDashboardSubTab("bids")}
+            className={`app-tab-btn ${buyerDashboardSubTab === "bids" ? "app-tab-btn-active" : ""}`}
+          >
+            <Gavel className="w-4 h-4" />
+            <span>My Bids</span>
+          </button>
+          <button
+            onClick={() => setBuyerDashboardSubTab("contracts")}
+            className={`app-tab-btn ${buyerDashboardSubTab === "contracts" ? "app-tab-btn-active" : ""}`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>My Contracts</span>
+          </button>
+          <button
+            onClick={() => setBuyerDashboardSubTab("reservations")}
+            className={`app-tab-btn ${buyerDashboardSubTab === "reservations" ? "app-tab-btn-active" : ""}`}
+          >
+            <SproutIcon className="w-4 h-4" />
+            <span>My Reservations</span>
+          </button>
         </div>
       </div>
 
       <div className="app-section-header md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="app-page-title">
-            {subTabLabel[buyerDashboardSubTab]}
+            {buyerDashboardSubTab === "overview" ? t("overviewTitle")
+              : buyerDashboardSubTab === "wishlist" ? t("wishlistTitle")
+              : buyerDashboardSubTab === "reviews" ? t("reviewsTitle")
+              : buyerDashboardSubTab === "bids" ? "My Auction Bids"
+              : buyerDashboardSubTab === "contracts" ? "My Contracts"
+              : buyerDashboardSubTab === "reservations" ? "My Pre-Harvest Reservations"
+              : t("financialTitle")}
           </h2>
           <p className="app-page-subtitle">
-            {subTabDesc[buyerDashboardSubTab]}
+            {buyerDashboardSubTab === "overview" ? t("overviewDesc")
+              : buyerDashboardSubTab === "wishlist" ? t("wishlistDesc")
+              : buyerDashboardSubTab === "reviews" ? t("reviewsDesc")
+              : buyerDashboardSubTab === "bids" ? "Track your auction bids and their status"
+              : buyerDashboardSubTab === "contracts" ? "View your contract farming agreements"
+              : buyerDashboardSubTab === "reservations" ? "Manage your pre-harvest reservations"
+              : t("financialDesc")}
           </p>
         </div>
       </div>
@@ -93,33 +118,30 @@ export default function BuyerDashboard({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {[
             {
-              label: "Total Orders",
+              label: t("totalOrders"),
               value: orders.length,
-              sub: "All time purchases",
+              sub: t("allTimePurchases"),
               subColor: "text-teal-500 dark:text-teal-400",
               bg: "rgba(20,184,166,0.12)",
             },
             {
-              label: "Total Spent",
+              label: t("totalSpent"),
               value: `${orders.reduce((acc, o) => acc + (o.paymentStatus === "paid" ? o.totalPrice : 0), 0)} ETB`,
-              sub: "Paid orders only",
+              sub: t("paidOrdersOnly"),
               subColor: "text-amber-500 dark:text-amber-400",
               bg: "rgba(217,119,6,0.12)",
             },
             {
-              label: "CBE Birr Payments",
-              value: orders.filter((o) => o.paymentMethod === "CBE_BIRR")
-                .length,
-              sub: "Mobile transfers",
+              label: t("cbeBirrPayments"),
+              value: orders.filter((o) => o.paymentMethod === "CBE_BIRR").length,
+              sub: t("mobileTransfers"),
               subColor: "text-indigo-500 dark:text-indigo-400",
               bg: "rgba(99,102,241,0.12)",
             },
             {
-              label: "Pending Orders",
-              value:
-                orders.filter((o) => o.status === "pending").length +
-                " Awaiting",
-              sub: "Processing orders",
+              label: t("pendingOrders"),
+              value: orders.filter((o) => o.status === "pending").length + " " + t("awaiting"),
+              sub: t("processingOrders"),
               subColor: "text-slate-500 dark:text-slate-400",
               bg: "rgba(20,184,166,0.1)",
             },
@@ -149,11 +171,11 @@ export default function BuyerDashboard({
       {buyerDashboardSubTab === "wishlist" && (
         <div className="glass-card rounded-2xl p-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
-            My Wishlist
+            {t("myWishlist")}
           </h3>
           {wishlist.length === 0 ? (
             <div className="text-center py-8 text-slate-400">
-              <p>No items in your wishlist</p>
+              <p>{t("noItemsInWishlist")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -172,7 +194,7 @@ export default function BuyerDashboard({
                     onClick={() => handleRemoveFromWishlist(item.id)}
                     className="mt-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg"
                   >
-                    Remove
+                    {t("remove")}
                   </button>
                 </div>
               ))}
@@ -185,19 +207,19 @@ export default function BuyerDashboard({
         <div className="glass-card rounded-2xl p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              Supplier Reviews
+              {t("reviewsTitle")}
             </h3>
             <button
               onClick={() => setReviewModalOpen(true)}
               className="app-btn-primary"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Review</span>
+              <span>{t("addReview")}</span>
             </button>
           </div>
           {supplierReviews.length === 0 ? (
             <div className="text-center py-8 text-slate-400">
-              <p>No reviews submitted yet</p>
+              <p>{t("noReviewsYet")}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -211,7 +233,7 @@ export default function BuyerDashboard({
                       {review.supplierName}
                     </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Rating: {review.rating}/5 | {review.date}
+                      {t("rating")}: {review.rating}/5 | {review.date}
                     </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                       {review.comment}
@@ -235,20 +257,20 @@ export default function BuyerDashboard({
           <div className="glass-card rounded-2xl p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                Budget Management
+                {t("budgetManagement")}
               </h3>
               <button
                 onClick={() => setBudgetModalOpen(true)}
                 className="app-btn-primary"
               >
                 <Plus className="w-4 h-4" />
-                <span>Set Budget</span>
+                <span>{t("setBudget")}</span>
               </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Monthly Budget
+                  {t("monthlyBudget")}
                 </p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">
                   {buyerBudgets.length > 0
@@ -258,7 +280,7 @@ export default function BuyerDashboard({
               </div>
               <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Spent This Month
+                  {t("spentThisMonth")}
                 </p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">
                   {orders
@@ -271,11 +293,11 @@ export default function BuyerDashboard({
           </div>
           <div className="glass-card rounded-2xl p-6">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
-              Invoice Management
+              {t("invoiceManagement")}
             </h3>
             {orders.filter((o) => o.paymentStatus === "paid").length === 0 ? (
               <div className="text-center py-8 text-slate-400">
-                <p>No invoices available</p>
+                <p>{t("noInvoices")}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -288,14 +310,14 @@ export default function BuyerDashboard({
                     >
                       <div>
                         <h4 className="font-bold text-slate-900 dark:text-white">
-                          Invoice #{order.id}
+                          {t("invoice")} #{order.id}
                         </h4>
                         <p className="text-sm text-slate-600 dark:text-slate-400">
                           {order.productName} | {order.quantity}{" "}
                           {order.productUnit} | {order.totalPrice} ETB
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-500">
-                          Date: {new Date(order.createdAt).toLocaleDateString()}
+                          {t("date")}: {new Date(order.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       <span
@@ -308,6 +330,117 @@ export default function BuyerDashboard({
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {buyerDashboardSubTab === "bids" && (
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">My Auction Bids</h3>
+          {auctions.length === 0 ? (
+            <div className="text-center py-8 text-slate-400">
+              <p className="text-sm">You haven't placed any bids yet.</p>
+              <p className="text-xs mt-1">Browse the marketplace for live auctions!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {auctions.map((auction) => {
+                const myBid = (auction.bids || []).filter(b => b.bidderId === user?.id).sort((a, b) => b.amount - a.amount)[0];
+                const isWinning = myBid && myBid.amount === auction.currentBid;
+                return (
+                  <div key={auction.id} className={`p-4 rounded-xl flex justify-between items-start gap-4 ${isWinning ? 'bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800' : 'bg-slate-50 dark:bg-slate-900/50'}`}>
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white">{auction.product}</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        Your Bid: {myBid ? `${myBid.amount.toLocaleString()} ETB` : 'No bid placed'}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Current: {auction.currentBid?.toLocaleString()} ETB | Status: {auction.auctionStatus || auction.status}
+                      </p>
+                    </div>
+                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase ${isWinning ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                      {isWinning ? 'Winning' : 'Outbid'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {buyerDashboardSubTab === "contracts" && (
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">My Contracts</h3>
+          {contracts.length === 0 ? (
+            <div className="text-center py-8 text-slate-400">
+              <p className="text-sm">No contracts found.</p>
+              <p className="text-xs mt-1">Browse the marketplace for contract farming opportunities!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {contracts.map((contract) => (
+                <div key={contract.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-start gap-4">
+                  <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white">{contract.product}</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Qty: {contract.quantity} | Price: {Number(contract.agreedPrice || 0).toLocaleString()} ETB
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Due: {contract.deliveryDate} | Farmer: {contract.farmerName || 'N/A'}
+                    </p>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase ${
+                    contract.status === 'accepted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                    contract.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                    contract.status === 'completed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
+                    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                  }`}>
+                    {contract.status || 'pending'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {buyerDashboardSubTab === "reservations" && (
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">My Pre-Harvest Reservations</h3>
+          {preHarvestSales.length === 0 ? (
+            <div className="text-center py-8 text-slate-400">
+              <p className="text-sm">No reservations yet.</p>
+              <p className="text-xs mt-1">Reserve produce before harvest from the marketplace!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {preHarvestSales.map((sale) => (
+                <div key={sale.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-start gap-4">
+                  <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white">{sale.crop}</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Qty: {sale.quantity} | Price: {Number(sale.price || 0).toLocaleString()} ETB
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Harvest: {sale.harvestDate} | Deposit: {sale.depositPercent}%
+                    </p>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Status: {sale.status || 'open'}
+                    </p>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase ${
+                    sale.status === 'reserved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                    sale.status === 'confirmed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
+                    sale.status === 'delivered' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
+                    sale.status === 'cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                  }`}>
+                    {sale.status || 'open'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -324,7 +457,7 @@ export default function BuyerDashboard({
                   <TrendingUp className="w-4 h-4 text-amber-500" />
                 </div>
                 <span className="text-slate-900 dark:text-slate-100">
-                  Purchase History by Category
+                  {t("purchaseHistoryByCategory")}
                 </span>
               </h3>
               <div className="h-64">
@@ -344,7 +477,7 @@ export default function BuyerDashboard({
                   <MapPin className="w-4 h-4 text-teal-500" />
                 </div>
                 <span className="text-slate-900 dark:text-slate-100">
-                  Purchase by Location
+                  {t("purchaseByLocation")}
                 </span>
               </h3>
               <div className="space-y-3">
@@ -376,20 +509,20 @@ export default function BuyerDashboard({
 
           <div className="glass-card rounded-2xl p-6 overflow-hidden mb-8">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-              My Orders
+              {t("myOrders")}
             </h3>
             <div className="overflow-x-auto">
               <table className="app-data-table border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800 text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">
-                    <th className="py-3 px-4">Order ID</th>
-                    <th className="py-3 px-4">Product</th>
-                    <th className="py-3 px-4">Farmer</th>
-                    <th className="py-3 px-4">Quantity</th>
-                    <th className="py-3 px-4">Total</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Payment</th>
-                    <th className="py-3 px-4 text-center">Actions</th>
+                    <th className="py-3 px-4">{t("orderId")}</th>
+                    <th className="py-3 px-4">{t("product")}</th>
+                    <th className="py-3 px-4">{t("farmer")}</th>
+                    <th className="py-3 px-4">{t("quantity")}</th>
+                    <th className="py-3 px-4">{t("total")}</th>
+                    <th className="py-3 px-4">{t("status")}</th>
+                    <th className="py-3 px-4">{t("payment")}</th>
+                    <th className="py-3 px-4 text-center">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm font-semibold text-slate-600 dark:text-slate-300">
@@ -419,7 +552,7 @@ export default function BuyerDashboard({
                           <span
                             className={`text-[10px] font-extrabold uppercase ${ord.paymentStatus === "paid" ? "text-teal-600 dark:text-teal-400" : "text-slate-400"}`}
                           >
-                            {ord.paymentStatus === "paid" ? "Paid" : "Unpaid"}
+                            {ord.paymentStatus === "paid" ? t("paid") : t("unpaid")}
                           </span>
                           <span className="text-[10px] text-slate-500 block font-semibold">
                             {ord.paymentMethod?.replace("_", " ")}
@@ -427,19 +560,19 @@ export default function BuyerDashboard({
                           {ord.paymentDetails && (
                             <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 space-y-0.5">
                               {ord.paymentDetails.walletType && (
-                                <p>Mode: {ord.paymentDetails.walletType === 'savings' ? 'Savings' : 'Wallet'}</p>
+                                <p>{t("mode")}: {ord.paymentDetails.walletType === 'savings' ? t("savings") : t("wallet")}</p>
                               )}
                               {ord.paymentDetails.cbeAccount && (
-                                <p className="truncate max-w-[100px]" title={ord.paymentDetails.cbeAccount}>Acct: {ord.paymentDetails.cbeAccount}</p>
+                                <p className="truncate max-w-[100px]" title={ord.paymentDetails.cbeAccount}>{t("acct")}: {ord.paymentDetails.cbeAccount}</p>
                               )}
                               {ord.paymentDetails.ftCode && (
-                                <p className="text-pink-600 dark:text-pink-400 font-bold truncate max-w-[100px]" title={ord.paymentDetails.ftCode}>Ref: {ord.paymentDetails.ftCode}</p>
+                                <p className="text-pink-600 dark:text-pink-400 font-bold truncate max-w-[100px]" title={ord.paymentDetails.ftCode}>{t("ref")}: {ord.paymentDetails.ftCode}</p>
                               )}
                             </div>
                           )}
                           {ord.transactionId && !ord.paymentDetails?.ftCode && (
                             <span className="text-[9px] font-mono text-slate-400 block truncate max-w-[100px]" title={ord.transactionId}>
-                              Txn: {ord.transactionId.substring(0, 12)}
+                              {t("txn")}: {ord.transactionId.substring(0, 12)}
                             </span>
                           )}
                         </div>
@@ -450,7 +583,7 @@ export default function BuyerDashboard({
                           className="p-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center space-x-1"
                         >
                           <Truck className="w-3.5 h-3.5" />
-                          <span>Track</span>
+                          <span>{t("track")}</span>
                         </button>
                         {ord.status === "pending" && (
                           <button
@@ -459,7 +592,7 @@ export default function BuyerDashboard({
                             }
                             className="px-2.5 py-1.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/50 text-xs font-bold"
                           >
-                            Cancel
+                            {t("cancel")}
                           </button>
                         )}
                         {ord.status === "delivered" &&
@@ -475,7 +608,7 @@ export default function BuyerDashboard({
                               }}
                               className="px-2.5 py-1.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50 text-xs font-bold"
                             >
-                              Review
+                              {t("review")}
                             </button>
                           )}
                       </td>
@@ -487,7 +620,7 @@ export default function BuyerDashboard({
                         colSpan="8"
                         className="py-12 text-center text-slate-400"
                       >
-                        No orders placed yet. Start shopping in the marketplace!
+                        {t("noOrdersYet")}
                       </td>
                     </tr>
                   )}

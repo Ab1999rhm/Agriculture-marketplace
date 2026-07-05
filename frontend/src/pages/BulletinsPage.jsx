@@ -13,24 +13,22 @@ export default function BulletinsPage({ bulletins, cropsBg, t }) {
         <div className="page-hero-content">
           <div className="max-w-2xl">
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-2">
-              Bulletins & Notices
+              {t("bulletinsTitle")}
             </h2>
             <p className="text-teal-100 text-sm mb-1">
-              Official information bulletins including meteorological weather
-              predictions, local market coffee rates, and fertilizer
-              distribution announcements.
+              {t("bulletinsSubtitle")}
             </p>
             <p className="text-white/80 text-xs italic">
-              "Stay informed, stay ahead in agriculture."
+              {t("bulletinsTagline")}
             </p>
           </div>
         </div>
       </div>
       <div className="app-section-header">
         <div>
-          <h2 className="app-page-title">Latest Updates</h2>
+          <h2 className="app-page-title">{t("latestUpdates")}</h2>
           <p className="app-page-subtitle">
-            Stay informed with the latest agricultural news and announcements.
+            {t("latestUpdatesSubtitle")}
           </p>
         </div>
       </div>
@@ -39,7 +37,7 @@ export default function BulletinsPage({ bulletins, cropsBg, t }) {
           <div className="glass-card rounded-2xl p-8 text-center">
             <Bell className="w-12 h-12 mx-auto text-slate-400 mb-4" />
             <p className="text-slate-600 dark:text-slate-400">
-              No bulletins available at this time.
+              {t("noBulletins")}
             </p>
           </div>
         ) : (
@@ -51,7 +49,7 @@ export default function BulletinsPage({ bulletins, cropsBg, t }) {
               {bul.isLive && (
                 <div className="absolute top-4 right-4 flex items-center space-x-1 bg-teal-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                   <Zap className="w-3 h-3" />
-                  <span>LIVE</span>
+                  <span>{t("live")}</span>
                 </div>
               )}
               <div className="flex items-start space-x-4">

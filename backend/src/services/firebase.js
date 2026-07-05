@@ -126,6 +126,164 @@ if (isMock) {
             role: 'buyer',
             phone: '0922334455',
             location: 'Harar City'
+          },
+          {
+            id: 'user3',
+            email: 'buyer2@hararghe.com',
+            passwordHash: '$2a$10$X7m6ZskFz8t5sC9B6E0M.O81g4v9mD.2r5g4v9mD.2r5g4v9mD.', // demo123
+            name: 'Fatima Hassan',
+            role: 'buyer',
+            phone: '0933445566',
+            location: 'Babille'
+          }
+        ],
+        products: [
+          {
+            id: 'prod1',
+            farmerId: 'farmer1',
+            farmerName: 'Kenenisa Jila',
+            name: 'Harar Organic Coffee',
+            category: 'Crops',
+            type: 'Coffee',
+            price: 350,
+            quantity: 500,
+            unit: 'kg',
+            harvestDate: '2026-06-15',
+            location: 'Alem Maya',
+            description: 'Premium Harar Grade 1 green coffee beans, naturally sun-dried.',
+            // Advanced selling modes
+            sellingMode: 'auction',
+            auctionStatus: 'live',
+            startingPrice: 350,
+            currentBid: 350,
+            auctionEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            auctionBids: [
+              {
+                id: 'bid1',
+                amount: 350,
+                bidderName: 'Abdi Yusuf',
+                bidderId: 'user2',
+                timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+              }
+            ],
+            bulkDiscount: {
+              discountPercent: 15,
+              minQuantity: 10,
+              minQuantity: 10,
+              active: true
+            }
+          },
+          {
+            id: 'prod2',
+            farmerId: 'farmer2',
+            farmerName: 'Fadila Ahmed',
+            name: 'Babille Groundnuts',
+            category: 'Crops',
+            type: 'Groundnuts',
+            price: 120,
+            quantity: 1000,
+            unit: 'kg',
+            harvestDate: '2026-06-10',
+            location: 'Babille',
+            description: 'Sweet, shelled red peanuts, high quality crop.',
+            // Advanced selling modes
+            sellingMode: 'pre-harvest',
+            depositPercent: 40,
+            harvestDate: '2026-06-10',
+            preHarvestPrice: 120,
+            preHarvestQuantity: 500
+          },
+          {
+            id: 'prod_discount1',
+            farmerId: 'farmer1',
+            farmerName: 'Kenenisa Jila',
+            name: 'Premium Coffee Beans',
+            category: 'Crops',
+            type: 'Coffee',
+            price: 100,
+            quantity: 50,
+            unit: 'kg',
+            harvestDate: '2026-06-20',
+            location: 'Alem Maya',
+            description: 'Special bulk discount coffee beans.',
+            // Advanced selling modes - BULK DISCOUNT
+            bulkDiscount: {
+              discountPercent: 15,
+              minQuantity: 10,
+              active: true
+            }
+          },
+          {
+            id: 'prod_contract1',
+            farmerId: 'farmer2',
+            farmerName: 'Fadila Ahmed',
+            name: 'Contract Farming Wheat',
+            category: 'Crops',
+            type: 'Wheat',
+            price: 200,
+            quantity: 200,
+            unit: 'kg',
+            harvestDate: '2026-07-05',
+            location: 'Harar City',
+            description: 'Year-long contract farming agreement for wheat.',
+            // Advanced selling modes - CONTRACT FARMING
+            sellingMode: 'contract',
+            agreedPrice: 200,
+            contractQuantity: 200,
+            deliveryDate: '2026-07-25',
+            unit: 'kg'
+          }
+        ],
+        bulkDiscounts: [
+          {
+            id: 'disc1',
+            farmerId: 'farmer1',
+            productId: 'prod_discount1',
+            product: 'Premium Coffee Beans',
+            minQuantity: 10,
+            discountPercent: 15,
+            originalPrice: 100,
+            active: true
+          }
+        ],
+        auctions: [
+          {
+            id: 'auc1',
+            farmerId: 'farmer1',
+            productId: 'prod1',
+            product: 'Harar Organic Coffee',
+            startingPrice: 350,
+            duration: 7,
+            minBid: 350,
+            auctionStatus: 'live',
+            bids: [],
+            currentBid: 350
+          }
+        ],
+        contracts: [
+          {
+            id: 'contr1',
+            farmerId: 'farmer2',
+            productId: 'prod_contract1',
+            buyer: 'Abdi Yusuf',
+            product: 'Contract Farming Wheat',
+            quantity: 200,
+            agreedPrice: 200,
+            deliveryDate: '2026-07-25',
+            status: 'pending'
+          }
+        ],
+        preHarvestSales: [
+          {
+            id: 'pre1',
+            farmerId: 'farmer2',
+            productId: 'prod2',
+            crop: 'Babille Groundnuts',
+            harvestDate: '2026-06-10',
+            quantity: 500,
+            price: 120,
+            depositPercent: 40,
+            status: 'open'
           }
         ],
         bulletins: [

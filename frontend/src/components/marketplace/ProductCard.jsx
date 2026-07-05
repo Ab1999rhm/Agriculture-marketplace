@@ -66,6 +66,11 @@ export default function ProductCard({
   const hasBulkDiscount = prod.bulkDiscount && prod.bulkDiscount.active;
   const isContract = prod.sellingMode === 'contract';
   const isPreHarvest = prod.sellingMode === 'pre-harvest';
+  
+  // Calculate effective price considering bulk discount requirements
+  // Note: We don't know the quantity here, so we show the discount badge if it's active,
+  // but calculate prices based on the assumption of standard quantity (1)
+  const effectivePrice = hasBulkDiscount ? Math.round(prod.price * (1 - prod.bulkDiscount.discountPercent / 100) * 100) / 100 : prod.price;
 
   // ── Reviews for this farmer
   const farmerReviews = allReviews.filter((r) => r.supplierId === prod.farmerId || r.supplierId === prod.farmerId);
@@ -241,96 +246,99 @@ export default function ProductCard({
         )}
       </div>
 
-      {/* Footer price + action */}
-      <div
-        className="relative z-10 px-6 py-4 flex items-center justify-between"
-        style={{ background: 'rgba(248,250,252,0.4)', backdropFilter: 'blur(8px)', borderTop: '1px solid rgba(203,213,225,0.3)' }}
-      >
-        <div>
-          {isAuction ? (
-            <>
-              <span className="text-xl font-black text-purple-700 dark:text-purple-300">{prod.currentBid || prod.startingPrice}</span>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB Current Bid</span>
-              <p className="text-[10px] font-bold uppercase mt-0.5 text-purple-600 dark:text-purple-400">
-                {prod.auctionEndsAt ? `Ends: ${new Date(prod.auctionEndsAt).toLocaleDateString()}` : 'Live Auction'}
-              </p>
-            </>
-          ) : isContract ? (
-            <>
-              <span className="text-xl font-black text-blue-700 dark:text-blue-300">{prod.agreedPrice}</span>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB Contract Price</span>
-              <p className="text-[10px] font-bold uppercase mt-0.5 text-blue-600 dark:text-blue-400">
-                Qty: {prod.contractQuantity} {prod.unit}
-              </p>
-            </>
-          ) : isPreHarvest ? (
-            <>
-              <span className="text-xl font-black text-green-700 dark:text-green-300">{prod.price}</span>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
-              <p className="text-[10px] font-bold uppercase mt-0.5 text-green-600 dark:text-green-400">
-                {prod.depositPercent}% Deposit | Harvest: {prod.harvestDate}
-              </p>
-            </>
-          ) : hasBulkDiscount ? (
-            <>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-black text-slate-900 dark:text-white">
-                  {Math.round(prod.price * (1 - prod.bulkDiscount.discountPercent / 100))}
-                </span>
-                <span className="text-sm font-bold text-rose-600 dark:text-rose-400 line-through">{prod.price}</span>
-              </div>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
-              <p className="text-[10px] font-bold uppercase mt-0.5 text-rose-600 dark:text-rose-400">
-                {prod.bulkDiscount.discountPercent}% OFF on {prod.bulkDiscount.minQuantity}+ {prod.unit}
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xl font-black text-slate-900 dark:text-white">{prod.price?.toLocaleString()}</span>
-                {isBestPrice && sameName.length > 1 && (
-                  <span className="text-[9px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded-full">
-                    🏆 BEST
+        {/* Footer price + action */}
+        <div
+          className="relative z-10 px-6 py-4 flex items-center justify-between"
+          style={{ background: 'rgba(248,250,252,0.4)', backdropFilter: 'blur(8px)', borderTop: '1px solid rgba(203,213,225,0.3)' }}
+        >
+          <div>
+            {isAuction ? (
+              <>
+                <span className="text-xl font-black text-purple-700 dark:text-purple-300">{prod.currentBid || prod.startingPrice}</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB Current Bid</span>
+                <p className="text-[10px] font-bold uppercase mt-0.5 text-purple-600 dark:text-purple-400">
+                  {prod.auctionEndsAt ? `Ends: ${new Date(prod.auctionEndsAt).toLocaleDateString()}` : 'Live Auction'}
+                </p>
+              </>
+            ) : isContract ? (
+              <>
+                <span className="text-xl font-black text-blue-700 dark:text-blue-300">{prod.agreedPrice}</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB Contract Price</span>
+                <p className="text-[10px] font-bold uppercase mt-0.5 text-blue-600 dark:text-blue-400">
+                  Qty: {prod.contractQuantity} {prod.unit}
+                </p>
+                <p className="text-[10px] font-bold uppercase mt-0.5 text-blue-600 dark:text-blue-400">
+                  Due: {prod.deliveryDate}
+                </p>
+              </>
+            ) : isPreHarvest ? (
+              <>
+                <span className="text-xl font-black text-green-700 dark:text-green-300">{prod.price}</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
+                <p className="text-[10px] font-bold uppercase mt-0.5 text-green-600 dark:text-green-400">
+                  {prod.depositPercent}% Deposit | Harvest: {prod.harvestDate}
+                </p>
+              </>
+            ) : hasBulkDiscount ? (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-black text-slate-900 dark:text-white">
+                    {effectivePrice}
                   </span>
-                )}
-              </div>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
-              <p className={`text-[10px] font-bold uppercase mt-0.5 ${isOutOfStock ? 'text-red-600 dark:text-red-400' : 'text-teal-600 dark:text-teal-400'}`}>
-                {isOutOfStock ? 'Sold Out' : `Stock: ${prod.quantity} ${prod.unit}`}
-              </p>
-            </>
+                  <span className="text-sm font-bold text-rose-600 dark:text-rose-400 line-through">{prod.price}</span>
+                </div>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
+                <p className="text-[10px] font-bold uppercase mt-0.5 text-rose-600 dark:text-rose-400">
+                  {prod.bulkDiscount.discountPercent}% OFF on {prod.bulkDiscount.minQuantity}+ {prod.unit}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-black text-slate-900 dark:text-white">{prod.price?.toLocaleString()}</span>
+                  {isBestPrice && sameName.length > 1 && (
+                    <span className="text-[9px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded-full">
+                      🏆 BEST
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">ETB/{prod.unit}</span>
+                <p className={`text-[10px] font-bold uppercase mt-0.5 ${isOutOfStock ? 'text-red-600 dark:text-red-400' : 'text-teal-600 dark:text-teal-400'}`}>
+                  {isOutOfStock ? 'Sold Out' : `Stock: ${prod.quantity} ${prod.unit}`}
+                </p>
+              </>
+            )}
+          </div>
+
+          {user?.role === 'farmer' ? (
+            prod.farmerId === user.id ? (
+              <button
+                onClick={() => onDelete(prod.id)}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1"
+                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'rgb(220,38,38)' }}
+              >
+                Delete
+              </button>
+            ) : null
+          ) : (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => onToggleWishlist(prod)}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 ${isWishlisted ? 'bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-900/20 dark:border-rose-800' : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
+              </button>
+              <button
+                onClick={() => onBuy(prod)}
+                disabled={isOutOfStock}
+                className={`glass-btn-primary px-4 py-2 text-xs flex items-center space-x-1.5 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>{isAuction ? 'Place Bid' : isContract ? 'View Contract' : isPreHarvest ? 'Reserve' : isOutOfStock ? 'Sold Out' : 'Buy Now'}</span>
+              </button>
+            </div>
           )}
         </div>
-
-        {user?.role === 'farmer' ? (
-          prod.farmerId === user.id ? (
-            <button
-              onClick={() => onDelete(prod.id)}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'rgb(220,38,38)' }}
-            >
-              Delete
-            </button>
-          ) : null
-        ) : (
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => onToggleWishlist(prod)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 ${isWishlisted ? 'bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-900/20 dark:border-rose-800' : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'}`}
-            >
-              <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
-            </button>
-            <button
-              onClick={() => onBuy(prod)}
-              disabled={isOutOfStock}
-              className={`glass-btn-primary px-4 py-2 text-xs flex items-center space-x-1.5 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span>{isAuction ? 'Place Bid' : isContract ? 'View Contract' : isPreHarvest ? 'Reserve' : isOutOfStock ? 'Sold Out' : 'Buy Now'}</span>
-            </button>
-          </div>
-        )}
       </div>
-    </div>
-  );
-}
+    );
+  }

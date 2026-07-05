@@ -181,7 +181,6 @@ export default function AdvancedSellingSection({
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
             Bulk Discounts
           </h3>
-          {console.log('AdvancedSellingSection - bulkDiscounts:', bulkDiscounts)}
           {bulkDiscounts.length === 0 ? (
             <div className="text-center py-8 text-slate-400">
               <p>No bulk discounts configured</p>

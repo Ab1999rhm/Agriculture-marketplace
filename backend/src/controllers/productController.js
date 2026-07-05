@@ -33,30 +33,55 @@ exports.getProducts = async (req, res, next) => {
       console.log('Filtered out hidden products:', beforeFilter, '->', products.length);
     }
 
-    // Fetch all bulk discounts and merge with products
-    const bulkDiscountsSnapshot = await db.collection('bulkDiscounts').get();
+    // Fetch bulk discounts and merge with products
+    // If farmerId is provided, only fetch discounts for that farmer
+    // If farmerId is NOT provided (marketplace), fetch ALL discounts
+    let bulkDiscountsQuery = db.collection('bulkDiscounts');
+    if (farmerId) {
+      bulkDiscountsQuery = bulkDiscountsQuery.where('farmerId', '==', farmerId);
+      console.log('Filtering bulk discounts by farmerId:', farmerId);
+    } else {
+      console.log('Fetching ALL bulk discounts for marketplace');
+    }
+    const bulkDiscountsSnapshot = await bulkDiscountsQuery.get();
     
-    const bulkDiscounts = bulkDiscountsSnapshot.docs.map(doc => doc.data());
-    console.log('Fetched bulk discounts:', bulkDiscounts.length, 'discounts');
+    const bulkDiscounts = bulkDiscountsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log('Fetched bulk discounts:', bulkDiscounts.length, 'discounts for farmerId:', farmerId);
+    console.log('Bulk discounts data:', bulkDiscounts);
     
     // Fetch active auctions and merge with products
-    const auctionsSnapshot = await db.collection('auctions')
-      .where('auctionStatus', '==', 'live')
-      .get();
+    let auctionsQuery = db.collection('auctions').where('auctionStatus', '==', 'live');
+    if (farmerId) {
+      auctionsQuery = auctionsQuery.where('farmerId', '==', farmerId);
+      console.log('Filtering auctions by farmerId:', farmerId);
+    } else {
+      console.log('Fetching ALL live auctions for marketplace');
+    }
+    const auctionsSnapshot = await auctionsQuery.get();
     
     const auctions = auctionsSnapshot.docs.map(doc => doc.data());
     
     // Fetch active contracts and merge with products
-    const contractsSnapshot = await db.collection('contracts')
-      .where('status', '==', 'pending')
-      .get();
+    let contractsQuery = db.collection('contracts').where('status', '==', 'pending');
+    if (farmerId) {
+      contractsQuery = contractsQuery.where('farmerId', '==', farmerId);
+      console.log('Filtering contracts by farmerId:', farmerId);
+    } else {
+      console.log('Fetching ALL pending contracts for marketplace');
+    }
+    const contractsSnapshot = await contractsQuery.get();
     
     const contracts = contractsSnapshot.docs.map(doc => doc.data());
     
     // Fetch active pre-harvest sales and merge with products
-    const preHarvestSnapshot = await db.collection('preHarvestSales')
-      .where('status', '==', 'open')
-      .get();
+    let preHarvestQuery = db.collection('preHarvestSales').where('status', '==', 'open');
+    if (farmerId) {
+      preHarvestQuery = preHarvestQuery.where('farmerId', '==', farmerId);
+      console.log('Filtering pre-harvest sales by farmerId:', farmerId);
+    } else {
+      console.log('Fetching ALL open pre-harvest sales for marketplace');
+    }
+    const preHarvestSnapshot = await preHarvestQuery.get();
     
     const preHarvestSales = preHarvestSnapshot.docs.map(doc => doc.data());
     
@@ -64,8 +89,12 @@ exports.getProducts = async (req, res, next) => {
     products = products.map(product => {
       let updatedProduct = { ...product };
       
+      console.log(`Processing product ${product.id} (farmerId: ${product.farmerId})`);
+      
       // Check for bulk discount (must match both productId AND farmerId)
       const discount = bulkDiscounts.find(d => d.productId === product.id && d.farmerId === product.farmerId);
+      console.log(`Product ${product.id} - Looking for discount with productId=${product.id}, farmerId=${product.farmerId}`);
+      console.log(`Product ${product.id} - Found discount:`, discount);
       if (discount) {
         console.log(`Merging discount for product ${product.id}:`, discount);
         updatedProduct.bulkDiscount = {
@@ -73,17 +102,21 @@ exports.getProducts = async (req, res, next) => {
           discountPercent: discount.discountPercent,
           minQuantity: discount.minQuantity
         };
+        console.log(`Product ${product.id} after discount merge:`, updatedProduct.bulkDiscount);
       }
       
-      // Check for auction (must match both productId AND farmerId)
-      const auction = auctions.find(a => a.productId === product.id && a.farmerId === product.farmerId);
-      if (auction) {
-        updatedProduct.sellingMode = 'auction';
-        updatedProduct.auctionStatus = auction.auctionStatus || 'live';
-        updatedProduct.startingPrice = auction.startingPrice;
-        updatedProduct.currentBid = auction.currentBid || auction.startingPrice;
-        updatedProduct.auctionEndsAt = auction.auctionEndsAt;
-      }
+    // Check for auction (must match both productId AND farmerId)
+    const auction = auctions.find(a => a.productId === product.id && a.farmerId === product.farmerId);
+    if (auction) {
+      updatedProduct.sellingMode = 'auction';
+      updatedProduct.auctionStatus = auction.auctionStatus || 'live';
+      updatedProduct.startingPrice = auction.startingPrice;
+      updatedProduct.currentBid = auction.currentBid || auction.startingPrice;
+      updatedProduct.auctionEndsAt = auction.auctionEndsAt;
+      updatedProduct.auctionBids = auction.bids || [];
+      updatedProduct.auctionId = auction.id;
+      updatedProduct.minBid = auction.minBid || 50;
+    }
       
       // Check for contract (must match both productId AND farmerId)
       const contract = contracts.find(c => c.productId === product.id && c.farmerId === product.farmerId);
@@ -91,6 +124,9 @@ exports.getProducts = async (req, res, next) => {
         updatedProduct.sellingMode = 'contract';
         updatedProduct.agreedPrice = contract.agreedPrice;
         updatedProduct.contractQuantity = contract.quantity;
+        updatedProduct.contractId = contract.id;
+        updatedProduct.contractStatus = contract.status || 'pending';
+        updatedProduct.deliveryDate = contract.deliveryDate;
       }
       
       // Check for pre-harvest sale (must match both productId AND farmerId)

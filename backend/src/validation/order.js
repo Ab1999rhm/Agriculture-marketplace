@@ -3,13 +3,19 @@ const Joi = require('joi');
 
 const orderSchema = Joi.object({
   productId: Joi.string().required(),
-  quantity: Joi.number().integer().positive().required(),
+  quantity: Joi.number().positive().required(),
   paymentMethod: Joi.alternatives().try(
     Joi.string().valid('CBE_BIRR', 'TELEBIRR', 'COD', 'AWASH'),
     Joi.string().pattern(/^BANK_/)
   ).required(),
-  shippingAddress: Joi.string().required().min(5),
-  pickupPointId: Joi.string().allow('', null)
+  shippingAddress: Joi.string().required().min(1),
+  pickupPointId: Joi.string().allow('', null),
+  depositAmount: Joi.number().allow(null, 0),
+  balanceAmount: Joi.number().allow(null, 0),
+  depositPercent: Joi.number().allow(null, 0),
+  paymentStage: Joi.string().allow('', null),
+  depositPaid: Joi.boolean().allow(null),
+  paymentSplit: Joi.boolean().allow(null),
 });
 
 const updateOrderSchema = Joi.object({

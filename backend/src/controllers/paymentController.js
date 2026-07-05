@@ -36,14 +36,34 @@ exports.processPayment = async (req, res, next) => {
     }
 
     // 3. Update order payment status, method, and payment details (pending farmer confirmation)
-    await db.collection('orders').doc(orderId).update({
+    const updateData = {
       paymentStatus: 'awaiting_confirmation',
       transactionId,
       status: 'pending',
       paymentMethod: actualMethod,
       paymentDetails: paymentDetails || {},
       updatedAt: new Date().toISOString()
-    });
+    };
+    
+    // Handle pre-harvest deposit payment completion
+    if (order.paymentSplit && order.paymentStage === 'deposit' && amount === order.depositAmount) {
+      updateData.depositPaid = true;
+      updateData.paymentStage = 'balance_pending';
+      updateData.paymentStatus = 'awaiting_delivery'; // Waiting for harvest/delivery
+      
+      // Update transaction timestamp for successful deposit
+      updateData.depositCompletedAt = new Date().toISOString();
+    }
+    
+    // Handle balance payment for pre-harvest (after harvest/delivery)
+    else if (order.paymentSplit && order.paymentStage === 'balance_pending' && amount === order.balanceAmount) {
+      updateData.depositPaid = true;
+      updateData.paymentStage = 'completed';
+      updateData.paymentStatus = 'paid';
+      updateData.balanceCompletedAt = new Date().toISOString();
+    }
+    
+    await db.collection('orders').doc(orderId).update(updateData);
 
     let displayMethodName = 'CBE Birr';
     if (actualMethod === 'TELEBIRR') displayMethodName = 'Telebirr';

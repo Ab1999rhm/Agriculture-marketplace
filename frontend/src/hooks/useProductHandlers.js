@@ -178,9 +178,50 @@ export function useProductHandlers({
     }
   };
 
+  const handleAddProductDirect = async (data) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, val]) => {
+      if (val !== undefined && val !== null) formData.append(key, val);
+    });
+    formData.append('farmerId', user.id);
+    formData.append('farmerName', user.name);
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to add product');
+    }
+    const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
+    if (prodRes.ok) setProducts(await prodRes.json());
+    confetti({ particleCount: 30, spread: 40 });
+  };
+
+  const handleUpdateProductDirect = async (id, data) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, val]) => {
+      if (val !== undefined && val !== null) formData.append(key, val);
+    });
+    const res = await fetch(`/api/products/${id}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to update product');
+    }
+    const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
+    if (prodRes.ok) setProducts(await prodRes.json());
+    confetti({ particleCount: 30, spread: 40 });
+  };
+
   return {
     handleAddProduct, handleOpenEdit, handleUpdateProduct,
     handleDeleteProduct, handleToggleVisibility,
     handleUpdateOrderStatus, handleRejectOrder,
+    handleAddProductDirect, handleUpdateProductDirect,
   };
 }

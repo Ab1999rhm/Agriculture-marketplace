@@ -366,7 +366,6 @@ export function useFarmerHandlers({
   // ── Auctions ─────────────────────────────────────────────────
   const handleAddAuction = async (data) => {
     try {
-      // Find the product to get its details
       const product = products.find(p => p.id === data.productId);
       const productName = product ? product.name : data.product;
       
@@ -381,32 +380,16 @@ export function useFarmerHandlers({
           auctionStatus: 'live'
         }),
       });
-      const item = res.ok ? await res.json() : { 
-        ...data, 
-        id: Date.now().toString(), 
-        farmerId: user.id, 
-        status: 'active', 
-        bids: [], 
-        auctionStatus: 'live',
-        product: productName,
-        createdAt: new Date().toISOString() 
-      };
-      setAuctionBids((prev) => [...prev, item]);
-      
-      // Re-fetch products to get updated auction info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        setProducts(updatedProducts);
+      if (res.ok) {
+        const newAuction = await res.json();
+        setAuctionBids((prev) => [...prev, newAuction]);
+        confetti({ particleCount: 50, spread: 60 });
       }
-      
-      confetti({ particleCount: 50, spread: 60 });
     } catch (err) { console.error(err); }
   };
 
   const handleUpdateAuction = async (id, data) => {
     try {
-      // Find the product to get its details
       const product = products.find(p => p.id === data.productId);
       const productName = product ? product.name : data.product;
       
@@ -420,14 +403,7 @@ export function useFarmerHandlers({
         }),
       });
       if (res.ok) {
-        setAuctionBids(auctionBids.map((a) => (a.id === id ? { ...a, ...data, product: productName, auctionStatus: data.auctionStatus || 'live' } : a)));
-        
-        // Re-fetch products to get updated auction info
-        const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-        if (prodRes.ok) {
-          const updatedProducts = await prodRes.json();
-          setProducts(updatedProducts);
-        }
+        setAuctionBids((prev) => prev.map((a) => (a.id === id ? { ...a, ...data } : a)));
       }
     } catch (err) { console.error(err); }
   };
@@ -435,21 +411,13 @@ export function useFarmerHandlers({
   const handleDeleteAuction = async (id) => {
     try { 
       await fetch(`/api/auctions/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }); 
-      
-      // Re-fetch products to remove auction info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        setProducts(updatedProducts);
-      }
     } catch (e) {}
-    setAuctionBids((prev) => prev.filter((i) => i.id !== id));
+    setAuctionBids((prev) => prev.filter((a) => a.id !== id));
   };
 
   // ── Contracts ────────────────────────────────────────────────
   const handleAddContract = async (data) => {
     try {
-      // Find the product to get its details
       const product = products.find(p => p.id === data.productId);
       const productName = product ? product.name : data.product;
       
@@ -458,28 +426,15 @@ export function useFarmerHandlers({
         body: JSON.stringify({ 
           ...data, 
           farmerId: user.id, 
-          status: 'pending',
-          product: productName
+          status: 'pending', 
+          product: productName 
         }),
       });
-      const item = res.ok ? await res.json() : { 
-        ...data, 
-        id: Date.now().toString(), 
-        farmerId: user.id, 
-        status: 'pending',
-        product: productName,
-        createdAt: new Date().toISOString() 
-      };
-      setContractFarming((prev) => [...prev, item]);
-      
-      // Re-fetch products to get updated contract info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        setProducts(updatedProducts);
+      if (res.ok) {
+        const newContract = await res.json();
+        setContractFarming((prev) => [...prev, newContract]);
+        confetti({ particleCount: 50, spread: 60 });
       }
-      
-      confetti({ particleCount: 50, spread: 60 });
     } catch (err) { console.error(err); }
   };
 
@@ -489,41 +444,34 @@ export function useFarmerHandlers({
         method: 'PUT', headers: authHeaders(), body: JSON.stringify(data),
       });
       if (res.ok) {
-        setContractFarming(contractFarming.map((c) => (c.id === id ? { ...c, ...data } : c)));
-        
-        // Re-fetch products to get updated contract info
-        const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-        if (prodRes.ok) {
-          const updatedProducts = await prodRes.json();
-          setProducts(updatedProducts);
-        }
+        setContractFarming((prev) => prev.map((c) => (c.id === id ? { ...c, ...data } : c)));
       }
     } catch (err) { console.error(err); }
   };
 
   const handleDeleteContract = async (id) => {
-    try { 
-      await fetch(`/api/contracts/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }); 
-      
-      // Re-fetch products to remove contract info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        setProducts(updatedProducts);
-      }
+    try {
+      await fetch(`/api/contracts/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     } catch (e) {}
-    setContractFarming((prev) => prev.filter((i) => i.id !== id));
+    setContractFarming((prev) => prev.filter((c) => c.id !== id));
   };
 
   // ── Bulk Discounts ───────────────────────────────────────────
   const handleAddBulkDiscount = async (data) => {
     try {
-      // Find the product to get its details
       const product = products.find(p => p.id === data.productId);
       const productName = product ? product.name : data.product;
       const originalPrice = product ? product.price : data.originalPrice;
       
-      console.log('Adding bulk discount:', { data, product, productName, originalPrice });
+      console.log('handleAddBulkDiscount - Input data:', data);
+      console.log('handleAddBulkDiscount - Found product:', product);
+      console.log('handleAddBulkDiscount - Sending to backend:', {
+        ...data,
+        farmerId: user.id,
+        active: data.active !== undefined ? data.active : true,
+        product: productName,
+        originalPrice
+      });
       
       const res = await fetch('/api/bulk-discounts', {
         method: 'POST', headers: authHeaders(),
@@ -536,80 +484,65 @@ export function useFarmerHandlers({
         }),
       });
       
-      console.log('Bulk discount response status:', res.status);
+      console.log('handleAddBulkDiscount - Response status:', res.status);
       
-      const item = res.ok ? await res.json() : { 
-        ...data, 
-        id: Date.now().toString(), 
-        farmerId: user.id, 
-        active: data.active !== undefined ? data.active : true,
-        product: productName,
-        originalPrice
-      };
-      
-      console.log('Bulk discount item to add:', item);
-      
-      setBulkDiscounts((prev) => {
-        const updated = [...prev, item];
-        console.log('Updated bulkDiscounts state:', updated);
-        return updated;
-      });
-      
-      // Re-fetch products to get updated discount info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        console.log('Updated products after discount:', updatedProducts);
-        setProducts(updatedProducts);
-      }
-      
-      confetti({ particleCount: 30, spread: 40 });
-    } catch (err) { 
-      console.error('Error adding bulk discount:', err); 
-    }
-  };
-
-  const handleUpdateBulkDiscount = async (id, data) => {
-    try {
-      // Find the product to get its details
-      const product = products.find(p => p.id === data.productId);
-      const productName = product ? product.name : data.product;
-      const originalPrice = product ? product.price : data.originalPrice;
-
-      const res = await fetch(`/api/bulk-discounts/${id}`, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify({
-          ...data,
-          product: productName,
-          originalPrice
-        }),
-      });
       if (res.ok) {
-        setBulkDiscounts(bulkDiscounts.map((b) => (b.id === id ? { ...b, ...data, product: productName, originalPrice } : b)));
+        const newDiscount = await res.json();
+        console.log('handleAddBulkDiscount - New discount from server:', newDiscount);
+        setBulkDiscounts((prev) => [...prev, newDiscount]);
         
-        // Re-fetch products to get updated discount info
+        // Re-fetch products to get updated discount info merged in
         const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
         if (prodRes.ok) {
           const updatedProducts = await prodRes.json();
+          console.log('handleAddBulkDiscount - Updated products:', updatedProducts);
           setProducts(updatedProducts);
         }
+        
+        confetti({ particleCount: 30, spread: 40 });
+      } else {
+        const errorData = await res.json();
+        console.error('handleAddBulkDiscount - Server error:', errorData);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error('handleAddBulkDiscount - Network error:', err); 
+    }
   };
 
+   const handleUpdateBulkDiscount = async (id, data) => {
+     try {
+       const product = products.find(p => p.id === data.productId);
+       const productName = product ? product.name : data.product;
+       const originalPrice = product ? product.price : data.originalPrice;
+       
+       const res = await fetch(`/api/bulk-discounts/${id}`, {
+         method: 'PUT',
+         headers: authHeaders(),
+         body: JSON.stringify({
+           ...data,
+           product: productName,
+           originalPrice
+         }),
+       });
+       if (res.ok) {
+         const updatedDiscount = await res.json();
+         setBulkDiscounts((prev) => prev.map((d) => (d.id === id ? updatedDiscount : d)));
+         
+         // Re-fetch products to get updated discount info merged in
+         const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
+         if (prodRes.ok) {
+           const updatedProducts = await prodRes.json();
+           setProducts(updatedProducts);
+         }
+       }
+     } catch (err) { console.error(err); }
+   };
+
   const handleDeleteBulkDiscount = async (id) => {
-    try { 
-      await fetch(`/api/bulk-discounts/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }); 
-      
-      // Re-fetch products to remove discount info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        setProducts(updatedProducts);
-      }
+    try {
+      await fetch(`/api/bulk-discounts/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     } catch (e) {}
-    setBulkDiscounts((prev) => prev.filter((i) => i.id !== id));
+    setBulkDiscounts((prev) => prev.filter((d) => d.id !== id));
   };
 
   // ── Pre-Harvest Sales ────────────────────────────────────────
@@ -619,17 +552,11 @@ export function useFarmerHandlers({
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ ...data, farmerId: user.id, status: 'open' }),
       });
-      const item = res.ok ? await res.json() : { ...data, id: Date.now().toString(), farmerId: user.id, status: 'open', createdAt: new Date().toISOString() };
-      setAdvanceBookings((prev) => [...prev, item]);
-      
-      // Re-fetch products to get updated pre-harvest info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        setProducts(updatedProducts);
+      if (res.ok) {
+        const newPreHarvest = await res.json();
+        setAdvanceBookings((prev) => [...prev, newPreHarvest]);
+        confetti({ particleCount: 50, spread: 60 });
       }
-      
-      confetti({ particleCount: 50, spread: 60 });
     } catch (err) { console.error(err); }
   };
 
@@ -639,30 +566,16 @@ export function useFarmerHandlers({
         method: 'PUT', headers: authHeaders(), body: JSON.stringify(data),
       });
       if (res.ok) {
-        setAdvanceBookings(advanceBookings.map((b) => (b.id === id ? { ...b, ...data } : b)));
-        
-        // Re-fetch products to get updated pre-harvest info
-        const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-        if (prodRes.ok) {
-          const updatedProducts = await prodRes.json();
-          setProducts(updatedProducts);
-        }
+        setAdvanceBookings((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
       }
     } catch (err) { console.error(err); }
   };
 
   const handleDeletePreHarvest = async (id) => {
-    try { 
-      await fetch(`/api/pre-harvest/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }); 
-      
-      // Re-fetch products to remove pre-harvest info
-      const prodRes = await fetch(`/api/products?farmerId=${user.id}`);
-      if (prodRes.ok) {
-        const updatedProducts = await prodRes.json();
-        setProducts(updatedProducts);
-      }
+    try {
+      await fetch(`/api/pre-harvest/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     } catch (e) {}
-    setAdvanceBookings((prev) => prev.filter((i) => i.id !== id));
+    setAdvanceBookings((prev) => prev.filter((p) => p.id !== id));
   };
 
   return {

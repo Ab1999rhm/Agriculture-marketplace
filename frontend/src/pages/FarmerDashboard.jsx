@@ -130,14 +130,18 @@ export default function FarmerDashboard({
   handleUpdatePreHarvest,
   handleDeletePreHarvest,
   handleAddQualityAudit,
+  handleUpdateReservation,
+  handleCollectBalance,
   // product / order
   handleUpdateOrderStatus,
   handleRejectOrder,
   setTrackingOrder,
   handleDeleteProduct,
-  handleOpenEdit,
   handleToggleVisibility,
+  addProductOpen,
   setAddProductOpen,
+  handleAddProduct,
+  handleUpdateProduct,
   // charts
   getFarmerSalesChartData,
   getCategoryBreakdownData,
@@ -161,11 +165,17 @@ export default function FarmerDashboard({
   const [editingContract, setEditingContract] = useState(null);
   const [editingBulkDiscount, setEditingBulkDiscount] = useState(null);
   const [editingPreHarvest, setEditingPreHarvest] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   /* ── Helper: open a modal in edit mode ── */
   const openEdit = (item, setEditing, setModalOpen) => {
     setEditing(item);
     setModalOpen(true);
+  };
+
+  const handleOpenEdit = (item) => {
+    setEditingProduct(item);
+    setAddProductOpen(true);
   };
 
   const subTabLabel = {
@@ -449,7 +459,7 @@ export default function FarmerDashboard({
                           <td className="py-3 px-4">
                             <div className="flex items-center justify-center gap-1">
                               <button
-                                onClick={() => handleOpenEdit(prod)}
+                                onClick={() => openEdit({category: 'product', ...prod}, setEditingProduct, setAddProductOpen)}
                                 title="Edit"
                                 className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 transition-colors"
                               >
@@ -759,6 +769,7 @@ export default function FarmerDashboard({
 
       {/* ── Advanced Selling ── */}
       {dashboardSubTab === "selling" && (
+        <>
         <AdvancedSellingSection
           auctionBids={auctionBids}
           contractFarming={contractFarming}
@@ -785,10 +796,110 @@ export default function FarmerDashboard({
             openEdit(item, setEditingPreHarvest, setPreHarvestModalOpen)
           }
         />
+
+        {/* ── Pre-Harvest Reservations Management ── */}
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+            <Truck className="w-5 h-5 text-teal-500" />
+            Pre-Harvest Reservations
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            Manage incoming reservations from buyers on your pre-harvest listings
+          </p>
+          {(() => {
+            const reservations = advanceBookings.filter((b) => b.buyerId);
+            if (reservations.length === 0) {
+              return (
+                <div className="text-center py-12 text-slate-400 dark:text-slate-500">
+                  <Truck className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-semibold">No reservations yet</p>
+                  <p className="text-xs mt-1">Buyer reservations will appear here once buyers book your pre-harvest listings.</p>
+                </div>
+              );
+            }
+            return (
+              <div className="space-y-4">
+                {reservations.map((res) => (
+                  <div
+                    key={res.id}
+                    className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-bold text-slate-900 dark:text-white text-sm">
+                            {res.crop || res.product}
+                          </h4>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                              res.status === "reserved"
+                                ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                                : res.status === "confirmed"
+                                  ? "bg-blue-500/15 text-blue-700 dark:text-blue-400"
+                                  : res.status === "delivered"
+                                    ? "bg-green-500/15 text-green-700 dark:text-green-400"
+                                    : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                            }`}
+                          >
+                            {res.status}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                          Buyer: <span className="font-semibold text-slate-800 dark:text-slate-200">{res.buyerName || res.buyerId}</span>
+                        </p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+                          <span>Qty: <span className="font-semibold text-slate-700 dark:text-slate-300">{res.quantity}</span></span>
+                          <span>Harvest: <span className="font-semibold text-slate-700 dark:text-slate-300">{res.harvestDate}</span></span>
+                          <span>Price: <span className="font-semibold text-slate-700 dark:text-slate-300">{Number(res.price || 0).toLocaleString()} ETB</span></span>
+                          <span>Deposit: <span className="font-semibold text-slate-700 dark:text-slate-300">{res.depositPercent}%</span></span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {res.status === "reserved" && (
+                          <>
+                            <button
+                              onClick={() => handleUpdateReservation(res.id, 'confirmed')}
+                              className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold transition-colors"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => handleUpdateReservation(res.id, 'cancelled')}
+                              className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-[11px] font-bold transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                        {res.status === "confirmed" && (
+                          <>
+                            <button
+                              onClick={() => handleCollectBalance(res.id)}
+                              className="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold transition-colors"
+                            >
+                              Mark Delivered
+                            </button>
+                            <button
+                              onClick={() => handleUpdateReservation(res.id, 'cancelled')}
+                              className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-[11px] font-bold transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+        </>
       )}
 
       {/* ── All modals (add + edit) ── */}
-      <FarmerDashboardModals
+<FarmerDashboardModals
         cropPlanModalOpen={cropPlanModalOpen}
         inventoryModalOpen={inventoryModalOpen}
         equipmentModalOpen={equipmentModalOpen}
@@ -806,6 +917,7 @@ export default function FarmerDashboard({
         contractModalOpen={contractModalOpen}
         bulkDiscountModalOpen={bulkDiscountModalOpen}
         preHarvestModalOpen={preHarvestModalOpen}
+        addProductOpen={addProductOpen}
         setCropPlanModalOpen={setCropPlanModalOpen}
         setInventoryModalOpen={setInventoryModalOpen}
         setEquipmentModalOpen={setEquipmentModalOpen}
@@ -823,6 +935,7 @@ export default function FarmerDashboard({
         setContractModalOpen={setContractModalOpen}
         setBulkDiscountModalOpen={setBulkDiscountModalOpen}
         setPreHarvestModalOpen={setPreHarvestModalOpen}
+        setAddProductOpen={setAddProductOpen}
         editingCropPlan={editingCropPlan}
         editingInventory={editingInventory}
         editingEquipment={editingEquipment}
@@ -839,6 +952,7 @@ export default function FarmerDashboard({
         editingContract={editingContract}
         editingBulkDiscount={editingBulkDiscount}
         editingPreHarvest={editingPreHarvest}
+        editingProduct={editingProduct}
         setEditingCropPlan={setEditingCropPlan}
         setEditingInventory={setEditingInventory}
         setEditingEquipment={setEditingEquipment}
@@ -855,6 +969,7 @@ export default function FarmerDashboard({
         setEditingContract={setEditingContract}
         setEditingBulkDiscount={setEditingBulkDiscount}
         setEditingPreHarvest={setEditingPreHarvest}
+        setEditingProduct={setEditingProduct}
         handleAddCropPlan={handleAddCropPlan}
         handleAddInventory={handleAddInventory}
         handleAddEquipment={handleAddEquipment}
@@ -872,6 +987,7 @@ export default function FarmerDashboard({
         handleAddContract={handleAddContract}
         handleAddBulkDiscount={handleAddBulkDiscount}
         handleAddPreHarvest={handleAddPreHarvest}
+        handleAddProduct={handleAddProduct}
         handleUpdateCropPlan={handleUpdateCropPlan}
         handleUpdateInventory={handleUpdateInventory}
         handleUpdateEquipment={handleUpdateEquipment}
@@ -888,7 +1004,8 @@ export default function FarmerDashboard({
         handleUpdateContract={handleUpdateContract}
         handleUpdateBulkDiscount={handleUpdateBulkDiscount}
         handleUpdatePreHarvest={handleUpdatePreHarvest}
-        products={products.filter((p) => p.farmerId === user?.id)}
+        handleUpdateProduct={handleUpdateProduct}
+        products={products}
       />
     </div>
   );
